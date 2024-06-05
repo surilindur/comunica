@@ -649,10 +649,17 @@ export class HttpServiceSparqlEndpoint {
         const contentType: string | undefined = request.headers['content-type'];
         if (contentType) {
           if (contentType.includes('application/sparql-query')) {
-            return resolve({ type: 'query', value: body, context: undefined });
+            let defaultGraphUris: string[] = [];
+            let namedGraphUris: string[] = [];
+            if (request.url) {
+              const requestUrl = new URL(request.url, `http://${request.headers.host}`);
+              defaultGraphUris = requestUrl.searchParams.getAll('default-graph-uri')!;
+              namedGraphUris = requestUrl.searchParams.getAll('named-graph-uri')!;
+            }
+            return resolve({ type: 'query', value: body, context: { defaultGraphUris, namedGraphUris }});
           }
           if (contentType.includes('application/sparql-update')) {
-            return resolve({ type: 'void', value: body, context: undefined });
+            return resolve({ type: 'void', value: body });
           }
           if (contentType.includes('application/x-www-form-urlencoded')) {
             const bodyStructure = querystring.parse(body);
@@ -681,7 +688,7 @@ export class HttpServiceSparqlEndpoint {
 export interface IQueryBody {
   type: 'query' | 'void';
   value: string;
-  context: Record<string, any> | undefined;
+  context?: Record<string, any> | undefined;
 }
 
 export interface IHttpServiceSparqlEndpointArgs extends IDynamicQueryEngineOptions {

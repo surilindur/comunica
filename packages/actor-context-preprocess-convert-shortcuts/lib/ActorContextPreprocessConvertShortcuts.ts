@@ -25,6 +25,7 @@ export class ActorContextPreprocessConvertShortcuts extends ActorContextPreproce
   }
 
   public static expandShortcuts(context: IActionContext, contextKeyShortcuts: Record<string, string>): IActionContext {
+    console.log('EXPANDING', contextKeyShortcuts);
     for (const key of context.keys()) {
       if (contextKeyShortcuts[key.name]) {
         context = context
@@ -32,6 +33,7 @@ export class ActorContextPreprocessConvertShortcuts extends ActorContextPreproce
           .delete(key);
       }
     }
+    console.log('RESULT', context.keys().map(k => k.name));
     return context;
   }
 }
@@ -49,6 +51,8 @@ export interface IActorContextPreprocessConvertShortcutsArgs extends IActorConte
    *   "log": "@comunica/core:log",
    *   "datetime": "@comunica/actor-http-memento:datetime",
    *   "queryTimestamp": "@comunica/actor-init-query:queryTimestamp",
+   *   "defaultGraphUris": "@comunica/actor-init-query:defaultGraphUris",
+   *   "namedGraphUris": "@comunica/actor-init-query:namedGraphUris",
    *   "httpProxyHandler": "@comunica/actor-http-proxy:httpProxyHandler",
    *   "lenient": "@comunica/actor-init-query:lenient",
    *   "httpIncludeCredentials": "@comunica/bus-http:include-credentials",

@@ -1,8 +1,13 @@
 import type { IActionQueryParse, IActorQueryParseArgs, IActorQueryParseOutput } from '@comunica/bus-query-parse';
 import { ActorQueryParse } from '@comunica/bus-query-parse';
-import type { IActorTest } from '@comunica/core';
-import { translate } from 'sparqlalgebrajs';
+import { type IActorTest, ActionContextKey } from '@comunica/core';
+import { DataFactory } from 'rdf-data-factory';
+import { Algebra, translate } from 'sparqlalgebrajs';
 import { Parser as SparqlParser } from 'sparqljs';
+
+const CONTEXT_KEY_DEFAULT_GRAPHS = new ActionContextKey<string[]>('@comunica/actor-init-query:defaultGraphUris');
+const CONTEXT_KEY_NAMED_GRAPHS = new ActionContextKey<string[]>('@comunica/actor-init-query:namedGraphUris');
+const DF = new DataFactory();
 
 /**
  * A comunica Algebra SPARQL Parse Actor.
@@ -16,6 +21,7 @@ export class ActorQueryParseSparql extends ActorQueryParse {
   }
 
   public async test(action: IActionQueryParse): Promise<IActorTest> {
+    console.log('ActorQueryParseSparql TEST');
     if (action.queryFormat && action.queryFormat.language !== 'sparql') {
       throw new Error('This actor can only parse SPARQL queries');
     }
@@ -23,18 +29,39 @@ export class ActorQueryParseSparql extends ActorQueryParse {
   }
 
   public async run(action: IActionQueryParse): Promise<IActorQueryParseOutput> {
+    console.log('ActorQueryParseSparql RUN');
     const parser = new SparqlParser({ prefixes: this.prefixes, baseIRI: action.baseIRI, sparqlStar: true });
     const parsedSyntax = parser.parse(action.query);
     const baseIRI = parsedSyntax.type === 'query' ? parsedSyntax.base : undefined;
-    return {
-      baseIRI,
-      operation: translate(parsedSyntax, {
-        quads: true,
-        prefixes: this.prefixes,
-        blankToVariable: true,
-        baseIRI: action.baseIRI,
-      }),
-    };
+    let operation = translate(parsedSyntax, {
+      quads: true,
+      prefixes: this.prefixes,
+      blankToVariable: true,
+      baseIRI: action.baseIRI,
+    });
+    const defaultGraphUris = action.context.get<string[]>(CONTEXT_KEY_DEFAULT_GRAPHS)?.map(uri => DF.namedNode(uri));
+    const namedGraphUris = action.context.get<string[]>(CONTEXT_KEY_NAMED_GRAPHS)?.map(uri => DF.namedNode(uri));
+    if (defaultGraphUris !== undefined || namedGraphUris !== undefined) {
+      if (operation.type === Algebra.types.FROM) {
+        if (defaultGraphUris) {
+          operation.default = defaultGraphUris;
+        }
+        if (namedGraphUris) {
+          operation.named = namedGraphUris;
+        }
+      } else {
+        operation = {
+          default: defaultGraphUris ?? [],
+          named: namedGraphUris ?? [],
+          input: operation,
+          type: Algebra.types.FROM,
+        };
+      }
+    }
+    console.log('PARSE QUERY', action.query);
+    console.log('CONTEXT KEYS', action.context.keys().map(k => k.name));
+    console.log(operation);
+    return { baseIRI, operation };
   }
 }
 
