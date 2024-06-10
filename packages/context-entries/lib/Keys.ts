@@ -185,6 +185,22 @@ export const KeysInitQuery = {
    * A boolean value denoting whether caching is disabled or not.
    */
   noCache: new ActionContextKey<boolean>('@comunica/actor-init-query:noCache'),
+  /**
+   * Values received for default-graph-uri when acting as a SPARQL endpoint.
+   */
+  defaultGraphUris: new ActionContextKey<RDF.NamedNode[]>('@comunica/actor-init-query:defaultGraphUris'),
+  /**
+   * Values received for named-graph-uri when acting as a SPARQL endpoint.
+   */
+  namedGraphUris: new ActionContextKey<RDF.NamedNode[]>('@comunica/actor-init-query:namedGraphUris'),
+  /**
+   * Values received for using-graph-uri when acting as a SPARQL endpoint.
+   */
+  usingGraphUris: new ActionContextKey<RDF.NamedNode[]>('@comunica/actor-init-query:usingGraphUris'),
+  /**
+   * Values received for using-named-graph-uri when acting as a SPARQL endpoint.
+   */
+  usingNamedGraphUris: new ActionContextKey<RDF.NamedNode[]>('@comunica/actor-init-query:usingNamedGraphUris'),
 };
 
 export const KeysQueryOperation = {
