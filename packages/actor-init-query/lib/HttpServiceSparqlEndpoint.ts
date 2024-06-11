@@ -31,9 +31,6 @@ const DF = new DataFactory();
  * An HTTP service that exposes a Comunica engine as a SPARQL endpoint.
  */
 export class HttpServiceSparqlEndpoint {
-  public static readonly MIME_PLAIN = 'text/plain';
-  public static readonly MIME_JSON = 'application/json';
-
   protected readonly port: number;
   protected readonly timeout: number;
   protected readonly workers: number;
@@ -41,10 +38,7 @@ export class HttpServiceSparqlEndpoint {
   protected readonly invalidateCacheBeforeQuery: boolean;
   protected readonly freshWorkerPerQuery: boolean;
   protected readonly allowContextOverride: boolean;
-
-  protected readonly requestBytesLimit: number = 1_000;
   protected readonly endpointPath: string = '/sparql';
-
   protected readonly engineFactory: QueryEngineFactoryBase<QueryEngineBase>;
 
   public constructor(args: IHttpServiceSparqlEndpointArgs) {
@@ -68,7 +62,7 @@ export class HttpServiceSparqlEndpoint {
    * @param {Writable} stderr The error stream to log errors to.
    */
   public run(stdout: Writable, stderr: Writable): Promise<void> {
-    return (<Cluster><unknown>cluster).isPrimary ? this.runPrimary(stdout, stderr) : this.runWorker(stdout, stderr);
+    return cluster.isPrimary ? this.runPrimary(stdout, stderr) : this.runWorker(stdout, stderr);
   }
 
   public async handleRequest(
@@ -80,7 +74,7 @@ export class HttpServiceSparqlEndpoint {
     mediaTypes: IWeighedMediaType[],
   ): Promise<void> {
     const requestUrl = new URL(request.url!, `http://${request.headers.host}`);
-    stdout.write(`${request.method} ${requestUrl.protocol}//${requestUrl.host}\n`);
+    stdout.write(`Worker ${process.pid} handling ${request.method} request at ${requestUrl.protocol}//${requestUrl.host}\n`);
 
     // Headers that should always be sent and will not depend on the response
     response.setHeader('server', 'comunica');
@@ -115,13 +109,15 @@ export class HttpServiceSparqlEndpoint {
         data.on('error', reject).on('end', () => response.end(() => resolve()));
         data.pipe(response);
       });
+
+      stdout.write(`Worker ${process.pid} resolved to ${result.resultType} as ${resultMediaType}\n`);
     } catch (error: unknown) {
       if (error instanceof HTTPError) {
-        stderr.write(`[${error.statusCode}] ${error.message}\n`);
+        stderr.write(`Worker ${process.pid} resolved to HTTP error ${error.statusCode} ${error.message}\n`);
         response.statusCode = error.statusCode;
         response.end(error.message);
       } else {
-        stderr.write(`[500] Internal Server Error\n`);
+        stderr.write(`Worker ${process.pid} encountered internal error\n`);
         stderr.write(error);
         response.statusCode = 500;
         response.end('Internal Server Error');
@@ -252,13 +248,6 @@ export class HttpServiceSparqlEndpoint {
       if (!request.headers['content-type']) {
         throw new HTTPError(400, 'Bad Request');
       }
-      if (!request.headers['content-length']) {
-        throw new HTTPError(411, 'Length Required');
-      }
-      const length = Number.parseInt(request.headers['content-length'], 10);
-      if (length > this.requestBytesLimit) {
-        throw new HTTPError(413, 'Payload Too Large');
-      }
       const chunks: Uint8Array[] = [];
       const encoding = <BufferEncoding>request.headers['content-encoding'] ?? 'utf-8';
       request
@@ -268,7 +257,6 @@ export class HttpServiceSparqlEndpoint {
         .on('end', () => resolve({
           content: Buffer.concat(chunks).toString(encoding),
           contentType: request.headers['content-type']!,
-          contentLength: length,
           contentEncoding: encoding,
         }));
     });
@@ -280,23 +268,20 @@ export class HttpServiceSparqlEndpoint {
    * @returns {QueryStringContext} The extended query string context.
    */
   public parseOperationParams(params: URLSearchParams, userContext?: QueryStringContext): QueryStringContext {
-    return {
-      ...this.context,
-      ...this.allowContextOverride ? userContext : {},
-      // TODO: This is hideous and in dire need of clean-up... by the gods!
-      ...params.has('default-graph-uri') ?
-          { defaultGraphUris: params.getAll('default-graph-uri').map(uri => DF.namedNode(uri)) } :
-          {},
-      ...params.has('named-graph-uri') ?
-          { namedGraphUris: params.getAll('named-graph-uri').map(uri => DF.namedNode(uri)) } :
-          {},
-      ...params.has('using-graph-uri') ?
-          { usingGraphUris: params.getAll('using-graph-uri').map(uri => DF.namedNode(uri)) } :
-          {},
-      ...params.has('using-named-graph-uri') ?
-          { usingNamedGraphUris: params.getAll('using-named-graph-uri').map(uri => DF.namedNode(uri)) } :
-          {},
-    };
+    const context: QueryStringContext = { ...this.context, ...this.allowContextOverride ? userContext : {}};
+    if (params.has('default-graph-uri')) {
+      context.defaultGraphUris = params.getAll('default-graph-uri').map(uri => DF.namedNode(uri));
+    }
+    if (params.has('named-graph-uri')) {
+      context.namedGraphUris = params.getAll('named-graph-uri').map(uri => DF.namedNode(uri));
+    }
+    if (params.has('using-graph-uri')) {
+      context.usingGraphUris = params.getAll('using-graph-uri').map(uri => DF.namedNode(uri));
+    }
+    if (params.has('using-named-graph-uri')) {
+      context.usingNamedGraphUris = params.getAll('using-named-graph-uri').map(uri => DF.namedNode(uri));
+    }
+    return context;
   }
 
   /**
@@ -450,28 +435,50 @@ export class HttpServiceSparqlEndpoint {
    * @param {Writable} stderr The error stream to log errors to.
    */
   public async runPrimary(stdout: Writable, stderr: Writable): Promise<void> {
-    stdout.write(`Starting SPARQL endpoint with ${this.workers} workers at <http://localhost:${this.port}${this.endpointPath}>\n`);
+    stdout.write(`Starting SPARQL endpoint service with ${this.workers} workers at <http://localhost:${this.port}${this.endpointPath}>\n`);
 
-    const workers = new Set<Worker>();
+    // The primary process is responsible for terminating workers when they reach their timeout
+    const workerTimeouts = new Map<Worker, NodeJS.Timeout | undefined>();
 
     // Create workers
     for (let i = 0; i < this.workers; i++) {
-      workers.add(cluster.fork());
+      workerTimeouts.set(cluster.fork(), undefined);
     }
 
     // Attach listeners to each new worker
-    cluster.on('listening', (worker) => {
+    cluster.on('listening', (worker: Worker) => {
       // Respawn crashed workers
-      worker.once('exit', (code, signal) => {
+      worker.once('exit', (code: number, signal: string) => {
         if (!worker.exitedAfterDisconnect) {
           if (code === 9 || signal === 'SIGKILL') {
             stderr.write(`Worker ${worker.process.pid} forcefully killed with ${code || signal}, killing main process\n`);
             cluster.disconnect();
           } else {
-            stderr.write(`Worker ${worker.process.pid} died with ${code || signal}, starting new worker\n`);
-            workers.delete(worker);
-            workers.add(cluster.fork());
+            stderr.write(`Worker ${worker.process.pid} terminated with ${code || signal}, starting a new one\n`);
+            workerTimeouts.delete(worker);
+            workerTimeouts.set(cluster.fork(), undefined);
           }
+        }
+      });
+      worker.on('message', (message: string) => {
+        switch (message) {
+          case 'start':
+            stdout.write(`Worker ${worker.process.pid} received a new request\n`);
+            workerTimeouts.set(worker, setTimeout(() => {
+              if (!worker.isDead()) {
+                stdout.write(`Worker ${worker.process.pid} timed out, terminating\n`);
+                worker.send('terminate');
+              }
+            }, this.timeout));
+            break;
+          case 'end':
+            stdout.write(`Worker ${worker.process.pid} finished on time\n`);
+            clearTimeout(workerTimeouts.get(worker));
+            workerTimeouts.set(worker, undefined);
+            break;
+          default:
+            stdout.write(`Worker ${worker.process.pid} sent an unknown message: ${message}\n`);
+            break;
         }
       });
     });
@@ -498,57 +505,48 @@ export class HttpServiceSparqlEndpoint {
       ([ type, quality ]) => ({ type, quality }),
     );
 
-    // Keep track of all open connections, to be able to terminate then when the worker is terminated
-    const openConnections = new Set<ServerResponse>();
-
-    // The current timeout handle is tracked in this variable for this worker
-    let timeoutHandle: NodeJS.Timeout | undefined;
+    // Keep track of all open responses, to be able to terminate then when the worker is terminated
+    const openResponses = new Set<ServerResponse>();
 
     // Handle termination of this worker
     const terminateWorker = async(code = 15): Promise<void> => {
-      stderr.write(`Terminating worker ${process.pid} with code ${code} and ${openConnections.size} open connections\n`);
-      server.close((error) => {
-        if (error) {
-          stderr.write(error);
-        }
-      });
+      stderr.write(`Terminating worker ${process.pid} with code ${code} and ${openResponses.size} open connections\n`);
+      server.close();
       await Promise.all([
-        ...openConnections.values(),
-      ].map(connection => new Promise<void>(resolve => connection.end('!TERMINATED!', resolve))));
+        ...openResponses.values(),
+      ].map(connection => new Promise<void>(resolve => connection.end(resolve))));
       // eslint-disable-next-line unicorn/no-process-exit
       process.exit(code);
     };
 
     // Create the server with the request handler function, that has to be synchronous
     const server = createServer((request: IncomingMessage, response: ServerResponse) => {
-      stdout.write(`Worker ${process.pid} assigned a new request\n`);
-      openConnections.add(response);
+      openResponses.add(response);
+      // Inform the primary process that the worker has received a request to handle
+      process.send!('start');
       response.on('close', () => {
+        // Inform the primary process that the worker has finished
+        process.send!('end');
         // Remove the connection from the tracked open list
-        openConnections.delete(response);
-        // Unset the timeout handle
-        if (timeoutHandle) {
-          clearTimeout(timeoutHandle);
-          timeoutHandle = undefined;
-        }
+        openResponses.delete(response);
         // Kill the worker if we want fresh workers per query
-        if (this.freshWorkerPerQuery) {
+        if (this.freshWorkerPerQuery && request.method !== 'HEAD') {
           terminateWorker().then().catch(error => stderr.write(error));
         }
       });
-      timeoutHandle = setTimeout(() => response.end('!TIMEOUT!'), this.timeout);
-      this.handleRequest(stdout, stderr, request, response, engine, mediaTypesWeighed).then(() => {
-        stdout.write(`Worker ${process.pid} finished\n`);
-      }).catch((error: Error) => {
-        stdout.write(`Worker ${process.pid} failed\n`);
-        stderr.write(error);
-      });
+      this.handleRequest(stdout, stderr, request, response, engine, mediaTypesWeighed)
+        .then().catch((error: Error) => stderr.write(error));
     });
 
     // Subscribe to shutdown messages
     process.on('message', (message: string) => {
-      if (message === 'shutdown') {
-        terminateWorker().then().catch(error => stderr.write(error));
+      switch (message) {
+        case 'terminate':
+          terminateWorker().then().catch(error => stderr.write(error));
+          break;
+        default:
+          stderr.write(`Unknown message received by worker ${process.pid}: ${message}\n`);
+          break;
       }
     });
 
@@ -560,7 +558,7 @@ export class HttpServiceSparqlEndpoint {
 
     // Start listening on the assigned port
     server.listen({ port: this.port }, () => {
-      stdout.write(`Worker ${process.pid} listening at <http://localhost:${this.port}${this.endpointPath}>\n`);
+      stdout.write(`Worker ${process.pid} listening for requests\n`);
     });
   }
 }
@@ -600,5 +598,4 @@ interface IParsedRequestBody {
   content: string;
   contentType: string;
   contentEncoding: string;
-  contentLength: number;
 }
