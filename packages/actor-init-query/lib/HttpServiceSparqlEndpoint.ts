@@ -4,7 +4,7 @@ import { createServer } from 'node:http';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { Writable } from 'node:stream';
 import { KeysQueryOperation } from '@comunica/context-entries';
-import type { ICliArgsHandler, QueryQuads, QueryType, QueryStringContext } from '@comunica/types';
+import type { ICliArgsHandler, QueryType, QueryStringContext } from '@comunica/types';
 import { ArrayIterator } from 'asynciterator';
 import { DataFactory } from 'rdf-data-factory';
 import yargs from 'yargs';
@@ -74,8 +74,6 @@ export class HttpServiceSparqlEndpoint {
     mediaTypes: IWeighedMediaType[],
   ): Promise<void> {
     const requestUrl = new URL(request.url!, `http://${request.headers.host}`);
-    stdout.write(`Worker ${process.pid} handling ${request.method} request at ${requestUrl.protocol}//${requestUrl.host}\n`);
-
     // Headers that should always be sent and will not depend on the response
     response.setHeader('server', 'comunica');
     response.setHeader('access-control-allow-origin', '*');
@@ -95,7 +93,9 @@ export class HttpServiceSparqlEndpoint {
       }
 
       // Execute the query, although this should ideally be done AFTER media type negotiation
-      const result: QueryType = await engine.query(operation.queryString, operation.context);
+      const result: QueryType = operation.type === 'sd' ?
+        this.getServiceDescription(request, mediaTypes) :
+        await engine.query(operation.queryString, operation.context);
 
       // Attempt to negotiate a suitable result serialization format
       const resultMediaType = this.negotiateResultType(request, result, mediaTypes);
@@ -186,7 +186,11 @@ export class HttpServiceSparqlEndpoint {
             context: this.parseOperationParams(url.searchParams),
           };
         }
-        break;
+        return {
+          type: 'sd',
+          queryString: '',
+          context: this.parseOperationParams(url.searchParams),
+        };
       case 'POST':
         // eslint-disable-next-line no-case-declarations
         const requestBody = await this.readRequestBody(request);
@@ -287,10 +291,10 @@ export class HttpServiceSparqlEndpoint {
   /**
    * Gets the SPARQL service description as a quad result format for serialization.
    * @param {IncomingMessage} request The incoming client request.
-   * @param {Record<string, string>} formats The supported result formats.
+   * @param {IWeighedMediaType[]} mediaTypes The supported result formats.
    * @returns {QueryQuads} The service description as query result quads.
    */
-  public async getServiceDescription(request: IncomingMessage, formats: Record<string, string>): Promise<QueryQuads> {
+  public getServiceDescription(request: IncomingMessage, mediaTypes: IWeighedMediaType[]): QueryType {
     const endpoint = DF.namedNode(`http://${request.headers.host}${this.endpointPath}`);
     const sd = 'http://www.w3.org/ns/sparql-service-description#';
     const rdf = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
@@ -303,19 +307,12 @@ export class HttpServiceSparqlEndpoint {
       DF.quad(endpoint, DF.namedNode(`${sd}feature`), DF.namedNode(`${sd}BasicFederatedQuery`)),
       DF.quad(endpoint, DF.namedNode(`${sd}supportedLanguage`), DF.namedNode(`${sd}SPARQL10Query`)),
       DF.quad(endpoint, DF.namedNode(`${sd}supportedLanguage`), DF.namedNode(`${sd}SPARQL11Query`)),
+      // Supported result formats
+      ...mediaTypes.map(({ type }) => DF.quad(endpoint, DF.namedNode(`${sd}resultFormat`), DF.literal(type))),
     ];
 
-    // Append result formats
-    for (const resultFormat of Object.values(formats)) {
-      quads.push(DF.quad(endpoint, DF.namedNode(`${sd}resultFormat`), DF.namedNode(resultFormat)));
-    }
-
     // Return the service description as a fake query result for serialization
-    return <QueryQuads> {
-      resultType: 'quads',
-      execute: async() => new ArrayIterator(quads),
-      metadata: <any> undefined,
-    };
+    return { resultType: 'quads', execute: async() => new ArrayIterator(quads), metadata: <any>undefined };
   }
 
   /**
@@ -589,7 +586,7 @@ interface IWeighedMediaType {
 }
 
 interface ISparqlOperation {
-  type: 'query' | 'update';
+  type: 'query' | 'update' | 'sd';
   queryString: string;
   context: QueryStringContext;
 }
