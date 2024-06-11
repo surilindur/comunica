@@ -4,7 +4,7 @@ import { createServer } from 'node:http';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 import type { Writable } from 'node:stream';
 import { KeysQueryOperation } from '@comunica/context-entries';
-import type { ICliArgsHandler, QueryType, QueryStringContext } from '@comunica/types';
+import type { ICliArgsHandler, QueryType, QueryStringContext, IQueryQuadsEnhanced } from '@comunica/types';
 import { ArrayIterator } from 'asynciterator';
 import { DataFactory } from 'rdf-data-factory';
 import yargs from 'yargs';
@@ -294,7 +294,7 @@ export class HttpServiceSparqlEndpoint {
    * @param {IWeighedMediaType[]} mediaTypes The supported result formats.
    * @returns {QueryQuads} The service description as query result quads.
    */
-  public getServiceDescription(request: IncomingMessage, mediaTypes: IWeighedMediaType[]): QueryType {
+  public getServiceDescription(request: IncomingMessage, mediaTypes: IWeighedMediaType[]): IQueryQuadsEnhanced {
     const endpoint = DF.namedNode(`http://${request.headers.host}${this.endpointPath}`);
     const sd = 'http://www.w3.org/ns/sparql-service-description#';
     const rdf = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
