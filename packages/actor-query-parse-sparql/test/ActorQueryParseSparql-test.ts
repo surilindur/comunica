@@ -1,6 +1,7 @@
 import { ActorQueryParse } from '@comunica/bus-query-parse';
 import { ActionContext, Bus } from '@comunica/core';
-import type { IActionContext } from '@comunica/types';
+import type { IActionContext, IActionContextKey } from '@comunica/types';
+import type * as RDF from '@rdfjs/types';
 import { ActorQueryParseSparql } from '..';
 
 describe('ActorQueryParseSparql', () => {
@@ -141,6 +142,138 @@ describe('ActorQueryParseSparql', () => {
               value: 'b',
             },
           ],
+        },
+      });
+    });
+
+    it('should run with an additional default graph URI', async() => {
+      const key: IActionContextKey<RDF.NamedNode[]> = { name: '@comunica/actor-init-query:defaultGraphUris' };
+      const uri: RDF.NamedNode = { value: 'http://example.org/book/', equals: () => true, termType: 'NamedNode' };
+      const result = await actor.run({ query: 'SELECT * WHERE { ?a a ?b }', context: context.set(key, [ uri ]) });
+      expect(result).toMatchObject({
+        operation: {
+          type: 'from',
+          default: [ uri ],
+          named: [],
+          input: {
+            input: { patterns: [
+              {
+                graph: { value: '' },
+                object: { value: 'b' },
+                predicate: { value: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type' },
+                subject: { value: 'a' },
+                type: 'pattern',
+              },
+            ], type: 'bgp' },
+            type: 'project',
+            variables: [
+              {
+                value: 'a',
+              },
+              {
+                value: 'b',
+              },
+            ],
+          },
+        },
+      });
+    });
+
+    it('should run with an overridden default graph URI', async() => {
+      const key: IActionContextKey<RDF.NamedNode[]> = { name: '@comunica/actor-init-query:defaultGraphUris' };
+      const uri: RDF.NamedNode = { value: 'http://example.org/book/', equals: () => true, termType: 'NamedNode' };
+      const result = await actor.run({ query: 'SELECT * FROM <http://example.org/song/> WHERE { ?a a ?b }', context: context.set(key, [ uri ]) });
+      expect(result).toMatchObject({
+        operation: {
+          type: 'from',
+          default: [ uri ],
+          named: [],
+          input: {
+            input: { patterns: [
+              {
+                graph: { value: '' },
+                object: { value: 'b' },
+                predicate: { value: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type' },
+                subject: { value: 'a' },
+                type: 'pattern',
+              },
+            ], type: 'bgp' },
+            type: 'project',
+            variables: [
+              {
+                value: 'a',
+              },
+              {
+                value: 'b',
+              },
+            ],
+          },
+        },
+      });
+    });
+
+    it('should run with an additional named graph URI', async() => {
+      const key: IActionContextKey<RDF.NamedNode[]> = { name: '@comunica/actor-init-query:namedGraphUris' };
+      const uri: RDF.NamedNode = { value: 'http://example.org/book/', equals: () => true, termType: 'NamedNode' };
+      const result = await actor.run({ query: 'SELECT * WHERE { ?a a ?b }', context: context.set(key, [ uri ]) });
+      expect(result).toMatchObject({
+        operation: {
+          type: 'from',
+          default: [],
+          named: [ uri ],
+          input: {
+            input: { patterns: [
+              {
+                graph: { value: '' },
+                object: { value: 'b' },
+                predicate: { value: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type' },
+                subject: { value: 'a' },
+                type: 'pattern',
+              },
+            ], type: 'bgp' },
+            type: 'project',
+            variables: [
+              {
+                value: 'a',
+              },
+              {
+                value: 'b',
+              },
+            ],
+          },
+        },
+      });
+    });
+
+    it('should run with an overridden named graph URI', async() => {
+      const key: IActionContextKey<RDF.NamedNode[]> = { name: '@comunica/actor-init-query:namedGraphUris' };
+      const uri: RDF.NamedNode = { value: 'http://example.org/book/', equals: () => true, termType: 'NamedNode' };
+      const result = await actor.run({ query: 'SELECT * FROM NAMED <http://example.org/song/> WHERE { ?a a ?b }', context: context.set(key, [ uri ]) });
+      expect(result).toMatchObject({
+        operation: {
+          type: 'from',
+          default: [],
+          named: [ uri ],
+          input: {
+            input: { patterns: [
+              {
+                graph: { value: '' },
+                object: { value: 'b' },
+                predicate: { value: 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type' },
+                subject: { value: 'a' },
+                type: 'pattern',
+              },
+            ], type: 'bgp' },
+            type: 'project',
+            variables: [
+              {
+                value: 'a',
+              },
+              {
+                value: 'b',
+              },
+            ],
+          },
         },
       });
     });

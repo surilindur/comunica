@@ -40,9 +40,6 @@ export class ActorQueryParseSparql extends ActorQueryParse {
   public overrideGraphs(action: IActionQueryParse, operation: Algebra.Operation): Algebra.Operation {
     const defaultGraphUris = action.context.get<RDF.NamedNode[]>(KeysInitQuery.defaultGraphUris);
     const namedGraphUris = action.context.get<RDF.NamedNode[]>(KeysInitQuery.namedGraphUris);
-    // TODO: Add handling of update queries
-    // Const usingGraphUris = action.context.get<RDF.NamedNode[]>(KeysInitQuery.usingGraphUris);
-    // Const usingNamedGraphUris = action.context.get<RDF.NamedNode[]>(KeysInitQuery.usingNamedGraphUris);
     switch (operation.type) {
       case Algebra.types.FROM:
         operation.default = defaultGraphUris ?? operation.default;
