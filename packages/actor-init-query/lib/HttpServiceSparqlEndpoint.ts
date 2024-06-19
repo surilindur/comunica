@@ -76,7 +76,7 @@ export class HttpServiceSparqlEndpoint {
   ): Promise<void> {
     // Attempt to reconstruct the original full request URL with protocol and host
     const requestProtocol = <string> request.headers['x-forwarded-proto'] ?? 'http';
-    const requestHost = <string> request.headers['x-forwarded-for'] ?? request.headers.host ?? 'localhost';
+    const requestHost = <string> request.headers['x-forwarded-host'] ?? request.headers.host ?? 'localhost';
     const requestPath = request.url ?? this.endpointPath;
     const requestUrl = new URL(requestPath, `${requestProtocol}://${requestHost}`);
 
