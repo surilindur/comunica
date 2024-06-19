@@ -106,8 +106,9 @@ export class HttpServiceSparqlEndpoint {
       // Attempt to negotiate a suitable result serialization format
       const resultMediaType = this.negotiateResultType(request, result, mediaTypes);
 
-      // Everything is fine thus far, so assign the status code
+      // Everything is fine thus far, so assign the status code and set content-type header
       response.statusCode = 200;
+      response.setHeader('content-type', resultMediaType);
 
       // Serialize the result and pipe the output to the response, then wait for the serialization to be done
       const { data } = await engine.resultToString(result, resultMediaType, this.context);
