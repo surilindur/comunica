@@ -72,8 +72,14 @@ export class HttpServiceSparqlEndpoint {
     response: ServerResponse,
     engine: QueryEngineBase,
     mediaTypes: IWeighedMediaType[],
+    mediaTypeUris: string[],
   ): Promise<void> {
-    const requestUrl = new URL(request.url!, `http://${request.headers.host}`);
+    // Attempt to reconstruct the original full request URL with protocol and host
+    const requestProtocol = <string> request.headers['x-forwarded-proto'] ?? 'http';
+    const requestHost = <string> request.headers['x-forwarded-for'] ?? request.headers.host ?? 'localhost';
+    const requestPath = request.url ?? this.endpointPath;
+    const requestUrl = new URL(requestPath, `${requestProtocol}://${requestHost}`);
+
     // Headers that should always be sent and will not depend on the response
     response.setHeader('server', 'comunica');
     response.setHeader('access-control-allow-origin', '*');
@@ -94,7 +100,7 @@ export class HttpServiceSparqlEndpoint {
 
       // Execute the query, although this should ideally be done AFTER media type negotiation
       const result: QueryType = operation.type === 'sd' ?
-        this.getServiceDescription(request, mediaTypes) :
+        this.getServiceDescription(requestUrl, mediaTypeUris) :
         await engine.query(operation.queryString, operation.context);
 
       // Attempt to negotiate a suitable result serialization format
@@ -106,7 +112,7 @@ export class HttpServiceSparqlEndpoint {
       // Serialize the result and pipe the output to the response, then wait for the serialization to be done
       const { data } = await engine.resultToString(result, resultMediaType, this.context);
       await new Promise<void>((resolve, reject) => {
-        data.on('error', reject).on('end', () => response.end(() => resolve()));
+        data.on('error', reject).on('end', resolve);
         data.pipe(response);
       });
 
@@ -115,16 +121,16 @@ export class HttpServiceSparqlEndpoint {
       if (error instanceof HTTPError) {
         stderr.write(`Worker ${process.pid} resolved to HTTP error ${error.statusCode} ${error.message}\n`);
         response.statusCode = error.statusCode;
-        response.end(error.message);
       } else {
+        const errorObject = <Error>error;
         stderr.write(`Worker ${process.pid} encountered internal error\n`);
-        stderr.write(error);
+        stderr.write(errorObject.stack ? `${errorObject.stack}\n` : `${errorObject.name}: ${errorObject.message}\n`);
         response.statusCode = 500;
-        response.end('Internal Server Error');
       }
     }
 
     if (!response.closed) {
+      stdout.write('Ending response\n');
       response.end();
     }
   }
@@ -290,14 +296,14 @@ export class HttpServiceSparqlEndpoint {
 
   /**
    * Gets the SPARQL service description as a quad result format for serialization.
-   * @param {IncomingMessage} request The incoming client request.
-   * @param {IWeighedMediaType[]} mediaTypes The supported result formats.
+   * @param {URL} serviceUri The URI at which this service is provided.
+   * @param {string[]} mediaTypeUris The supported result format URIs.
    * @returns {QueryQuads} The service description as query result quads.
    */
-  public getServiceDescription(request: IncomingMessage, mediaTypes: IWeighedMediaType[]): IQueryQuadsEnhanced {
-    const endpoint = DF.namedNode(`http://${request.headers.host}${this.endpointPath}`);
+  public getServiceDescription(serviceUri: URL, mediaTypeUris: string[]): IQueryQuadsEnhanced {
     const sd = 'http://www.w3.org/ns/sparql-service-description#';
     const rdf = 'http://www.w3.org/1999/02/22-rdf-syntax-ns#';
+    const endpoint = DF.namedNode(serviceUri.href);
     const quads = [
       // Basic metadata
       DF.quad(endpoint, DF.namedNode(`${rdf}type`), DF.namedNode(`${sd}Service`)),
@@ -308,7 +314,7 @@ export class HttpServiceSparqlEndpoint {
       DF.quad(endpoint, DF.namedNode(`${sd}supportedLanguage`), DF.namedNode(`${sd}SPARQL10Query`)),
       DF.quad(endpoint, DF.namedNode(`${sd}supportedLanguage`), DF.namedNode(`${sd}SPARQL11Query`)),
       // Supported result formats
-      ...mediaTypes.map(({ type }) => DF.quad(endpoint, DF.namedNode(`${sd}resultFormat`), DF.literal(type))),
+      ...mediaTypeUris.map(uri => DF.quad(endpoint, DF.namedNode(`${sd}resultFormat`), DF.namedNode(uri))),
     ];
 
     // Return the service description as a fake query result for serialization
@@ -344,7 +350,7 @@ export class HttpServiceSparqlEndpoint {
       new HttpServiceSparqlEndpoint(options || {}).run(stdout, stderr)
         .then(resolve)
         .catch((error) => {
-          stderr.write(error);
+          stderr.write(error.stack ? `${error.stack}\n` : `${error}\n`);
           exit(1);
           resolve();
         });
@@ -496,11 +502,14 @@ export class HttpServiceSparqlEndpoint {
     // Create the engine for this worker
     const engine = await this.engineFactory.create();
 
-    // Determine the allowed media types for requests
+    // Determine the weighed media types to use in content negotiation
     const mediaTypes: Record<string, number> = await engine.getResultMediaTypes();
     const mediaTypesWeighed: IWeighedMediaType[] = Object.entries(mediaTypes).map(
       ([ type, quality ]) => ({ type, quality }),
     );
+
+    // Determine the supported result formats for use in the SPARQL service description
+    const mediaTypeUris: string[] = Object.values(await engine.getResultMediaTypeFormats());
 
     // Keep track of all open responses, to be able to terminate then when the worker is terminated
     const openResponses = new Set<ServerResponse>();
@@ -528,18 +537,18 @@ export class HttpServiceSparqlEndpoint {
         openResponses.delete(response);
         // Kill the worker if we want fresh workers per query
         if (this.freshWorkerPerQuery && request.method !== 'HEAD') {
-          terminateWorker().then().catch(error => stderr.write(error));
+          terminateWorker().then().catch(error => stderr.write(error.stack ? `${error.stack}\n` : `${error.name}: ${error.message}\n`));
         }
       });
-      this.handleRequest(stdout, stderr, request, response, engine, mediaTypesWeighed)
-        .then().catch((error: Error) => stderr.write(error));
+      this.handleRequest(stdout, stderr, request, response, engine, mediaTypesWeighed, mediaTypeUris)
+        .then().catch((error: Error) => stderr.write(error.stack ? `${error.stack}\n` : `${error.name}: ${error.message}\n`));
     });
 
     // Subscribe to shutdown messages
     process.on('message', (message: string) => {
       switch (message) {
         case 'terminate':
-          terminateWorker().then().catch(error => stderr.write(error));
+          terminateWorker().then().catch(error => stderr.write(error.stack ? `${error.stack}\n` : `${error.name}: ${error.message}\n`));
           break;
         default:
           stderr.write(`Unknown message received by worker ${process.pid}: ${message}\n`);
@@ -548,9 +557,9 @@ export class HttpServiceSparqlEndpoint {
     });
 
     // Catch global errors, and cleanly close open connections
-    process.on('uncaughtException', (error) => {
-      stderr.write(error);
-      terminateWorker().then().catch(error => stderr.write(error));
+    process.on('uncaughtException', (error: Error) => {
+      stderr.write(error.stack ? `${error.stack}\n` : `${error.name}: ${error.message}\n`);
+      terminateWorker().then().catch(error => stderr.write(error.stack ? `${error.stack}\n` : `${error.name}: ${error.message}\n`));
     });
 
     // Start listening on the assigned port
