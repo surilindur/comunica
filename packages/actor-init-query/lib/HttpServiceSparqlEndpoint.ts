@@ -468,6 +468,7 @@ export class HttpServiceSparqlEndpoint {
         switch (message) {
           case 'start':
             stdout.write(`Worker ${worker.process.pid} received a new request\n`);
+            clearTimeout(workerTimeouts.get(worker));
             workerTimeouts.set(worker, setTimeout(() => {
               if (!worker.isDead()) {
                 stdout.write(`Worker ${worker.process.pid} timed out, terminating\n`);
@@ -529,8 +530,6 @@ export class HttpServiceSparqlEndpoint {
     // Create the server with the request handler function, that has to be synchronous
     const server = createServer((request: IncomingMessage, response: ServerResponse) => {
       openResponses.add(response);
-      // Inform the primary process that the worker has received a request to handle
-      process.send!('start');
       response.on('close', () => {
         // Inform the primary process that the worker has finished
         process.send!('end');
@@ -541,6 +540,8 @@ export class HttpServiceSparqlEndpoint {
           terminateWorker().then().catch(error => stderr.write(error.stack ? `${error.stack}\n` : `${error.name}: ${error.message}\n`));
         }
       });
+      // Inform the primary process that the worker has received a request to handle
+      process.send!('start');
       this.handleRequest(stdout, stderr, request, response, engine, mediaTypesWeighed, mediaTypeUris)
         .then().catch((error: Error) => stderr.write(error.stack ? `${error.stack}\n` : `${error.name}: ${error.message}\n`));
     });
