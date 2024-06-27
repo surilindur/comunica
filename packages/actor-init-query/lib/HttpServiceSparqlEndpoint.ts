@@ -460,7 +460,6 @@ export class HttpServiceSparqlEndpoint {
           } else {
             stderr.write(`Worker ${worker.process.pid} terminated with ${code || signal}, starting a new one\n`);
             workerTimeouts.delete(worker);
-            workerTimeouts.set(cluster.fork(), undefined);
           }
         }
       });
@@ -479,7 +478,6 @@ export class HttpServiceSparqlEndpoint {
           case 'end':
             stdout.write(`Worker ${worker.process.pid} finished on time\n`);
             clearTimeout(workerTimeouts.get(worker));
-            workerTimeouts.set(worker, undefined);
             break;
           default:
             stdout.write(`Worker ${worker.process.pid} sent an unknown message: ${message}\n`);
