@@ -9,17 +9,20 @@ import { ActorRdfMetadataExtract } from '@comunica/bus-rdf-metadata-extract';
 import type { IActorTest } from '@comunica/core';
 import type * as RDF from '@rdfjs/types';
 import { storeStream } from 'rdf-store-stream';
-import { VoidCardinalityProvider } from './VoidCardinalityProvider';
+
+// TODO: import { VoidCardinalityProvider } from './VoidCardinalityProvider';
 
 /**
  * A comunica Void RDF Metadata Extract Actor.
  */
 export class ActorRdfMetadataExtractVoid extends ActorRdfMetadataExtract {
   public readonly queryEngine: QueryEngineBase;
+  public readonly inferUriSpace: boolean;
 
   public constructor(args: IActorRdfMetadataExtractVoidArgs) {
     super(args);
     this.queryEngine = new QueryEngineBase(args.actorInitQuery);
+    this.inferUriSpace = args.inferUriSpace;
   }
 
   public async test(_action: IActionRdfMetadataExtract): Promise<IActorTest> {
@@ -28,278 +31,129 @@ export class ActorRdfMetadataExtractVoid extends ActorRdfMetadataExtract {
 
   public async run(action: IActionRdfMetadataExtract): Promise<IActorRdfMetadataExtractOutput> {
     const metadataStore = await storeStream(action.metadata);
+    const datasets = await this.getDatasets(metadataStore);
 
-    const voidDescription: IVoidDescription = {
-      graphs: {},
-      unionDefaultGraph: await this.queryEngine.queryBoolean(`
-        PREFIX void: <http://rdfs.org/ns/void#>
-        PREFIX sd: <http://www.w3.org/ns/sparql-service-description#>
-        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-        ASK WHERE {
-          <${action.url}> a sd:Service;
-            sd:feature sd:UnionDefaultGraph.
-        }`, {
-        sources: [ metadataStore ],
-      }),
-    };
-
-    // Collect default and named graphs
-    const bindingsGraphs = await (await this.queryEngine.queryBindings(`
-        PREFIX void: <http://rdfs.org/ns/void#>
-        PREFIX sd: <http://www.w3.org/ns/sparql-service-description#>
-        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-        SELECT * WHERE {
-          <${action.url}> a sd:Service;
-            sd:defaultDataset ?defaultDataset.
-
-          ?defaultDataset sd:defaultGraph ?defaultGraph;
-            sd:namedGraph ?namedGraph.
-          
-          ?defaultGraph void:triples ?defaultGraphTriples.
-          ?namedGraph sd:graph ?namedGraphVoid.
-          ?namedGraphVoid void:triples ?namedGraphTriples.
-          
-          OPTIONAL { ?defaultGraph void:distinctSubjects ?defaultDistinctSubjects }
-          OPTIONAL { ?defaultGraph void:distinctObjects ?defaultDistinctObjects }
-          
-          OPTIONAL { ?namedGraphVoid void:distinctSubjects ?namedGraphDistinctSubjects }
-          OPTIONAL { ?namedGraphVoid void:distinctObjects ?namedGraphDistinctObjects }
-        }`, {
-      sources: [ metadataStore ],
-    })).toArray();
-
-    for (const bindings of bindingsGraphs) {
-      if (!voidDescription.graphs.DEFAULT) {
-        const defaultPropertyPartitions = await this.getPropertyPartitions(action.url, 'DEFAULT', metadataStore);
-        voidDescription.graphs.DEFAULT = {
-          triples: Number.parseInt(bindings.get('defaultGraphTriples')!.value, 10),
-          propertyPartitions: defaultPropertyPartitions,
-          classPartitions: await this.getClassPartitions(action.url, 'DEFAULT', metadataStore),
-          distinctSubjects: this.estimateDistinct(
-            bindings.get('defaultDistinctSubjects')?.value,
-            defaultPropertyPartitions,
-            'subjects',
-          ),
-          distinctObjects: this.estimateDistinct(
-            bindings.get('defaultDistinctObjects')?.value,
-            defaultPropertyPartitions,
-            'objects',
-          ),
-        };
-      }
-
-      const namedGraphPropertyPartitions = await this.getPropertyPartitions(
-        action.url,
-        bindings.get('namedGraph')!.value,
-        metadataStore,
-      );
-      voidDescription.graphs[bindings.get('namedGraph')!.value] = {
-        triples: Number.parseInt(bindings.get('namedGraphTriples')!.value, 10),
-        propertyPartitions: namedGraphPropertyPartitions,
-        classPartitions: await this.getClassPartitions(
-          action.url,
-          bindings.get('namedGraph')!.value,
-          metadataStore,
-        ),
-        distinctSubjects: this.estimateDistinct(
-          bindings.get('namedGraphDistinctSubjects')?.value,
-          namedGraphPropertyPartitions,
-          'subjects',
-        ),
-        distinctObjects: this.estimateDistinct(
-          bindings.get('namedGraphDistinctObjects')?.value,
-          namedGraphPropertyPartitions,
-          'objects',
-        ),
-      };
-    }
-
-    // If void is incomplete, don't return it in the metadata
-    if (Object.keys(voidDescription.graphs).length === 0) {
-      return { metadata: {}};
-    }
-
-    return {
-      metadata: {
-        voidDescription,
-        voidCardinalityProvider: new VoidCardinalityProvider(voidDescription),
-      },
+    return { metadata: datasets.length > 0 ?
+        { voidDescriptions: datasets, voidCardinalityProvider: undefined } :
+        {},
     };
   }
 
+  public async getDatasets(store: RDF.Store): Promise<IVoidDataset[]> {
+    const datasets: IVoidDataset[] = [];
+
+    const query = `
+      PREFIX void: <http://rdfs.org/ns/void#>
+      PREFIX sd: <http://www.w3.org/ns/sparql-service-description#>
+      PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+      SELECT * WHERE {
+        ?dataset rdf:type ?type.
+
+        OPTIONAL { ?dataset void:triples ?triples }
+        OPTIONAL { ?dataset void:uriSpace ?uriSpace }
+        OPTIONAL { ?dataset void:sparqlEndpoint ?sparqlEndpoint }
+        OPTIONAL { ?dataset void:distinctSubjects ?distinctSubjects }
+        OPTIONAL { ?dataset void:distinctObjects ?distinctObjects }
+
+        FILTER(?type IN (sd:Graph,sd:Dataset,void:Dataset))
+      }`;
+
+    const datasetBindings = await (await this.queryEngine.queryBindings(query, { sources: [ store ]})).toArray();
+
+    for (const bindings of datasetBindings) {
+      const dataset = bindings.get('dataset')!;
+      if (dataset.termType === 'NamedNode') {
+        datasets.push({
+          iri: dataset.value,
+          triples: Number.parseInt(bindings.get('triples')?.value ?? '0', 10),
+          uriSpace: bindings.get('uriSpace')?.value ?? (
+            this.inferUriSpace ? dataset.value.split('.well-known')[0] : undefined
+          ),
+          sparqlEndpoint: bindings.get('sparqlEndpoint')?.value,
+          distinctObjects: Number.parseInt(bindings.get('distinctObjects')?.value ?? '0', 10),
+          distinctSubjects: Number.parseInt(bindings.get('distinctSubjects')?.value ?? '0', 10),
+          classPartitions: await this.getClassPartitions(dataset.value, store),
+          propertyPartitions: await this.getPropertyPartitions(dataset.value, store),
+        });
+      }
+    }
+
+    return datasets;
+  }
+
+  public async getClassPartitions(
+    dataset: string,
+    store: RDF.Store,
+  ): Promise<Record<string, IVoidClassPartition>> {
+    const partitions: Record<string, IVoidClassPartition> = {};
+
+    const query = `
+      PREFIX void: <http://rdfs.org/ns/void#>
+      PREFIX sd: <http://www.w3.org/ns/sparql-service-description#>
+      PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+
+      SELECT * WHERE {
+        <${dataset}> void:classPartition ?classPartition.
+        ?classPartition void:class ?class.
+
+        OPTIONAL { ?classPartition void:entities ?entities }
+      }`;
+
+    const classPartitionBindings = await (await this.queryEngine.queryBindings(query, {
+      sources: [ store ],
+    })).toArray();
+
+    for (const bindings of classPartitionBindings) {
+      const classIri = bindings.get('class')!;
+      if (classIri.termType === 'NamedNode') {
+        partitions[classIri.value] = {
+          entities: Number.parseInt(bindings.get('entities')?.value ?? '0', 10),
+          propertyPartitions: await this.getPropertyPartitions(bindings.get('classPartition')!.value, store),
+        };
+      }
+    }
+
+    return partitions;
+  };
+
   public async getPropertyPartitions(
-    endpoint: string,
-    graph: string | 'DEFAULT',
+    dataset: string,
     store: RDF.Store,
   ): Promise<Record<string, IVoidPropertyPartition>> {
     const partitions: Record<string, IVoidPropertyPartition> = {};
 
-    const query: string = graph === 'DEFAULT' ?
-      `
-        PREFIX void: <http://rdfs.org/ns/void#>
-        PREFIX sd: <http://www.w3.org/ns/sparql-service-description#>
-        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-        SELECT * WHERE {
-          <${endpoint}> a sd:Service;
-            sd:defaultDataset ?defaultDataset.
+    const query = `
+      PREFIX void: <http://rdfs.org/ns/void#>
+      PREFIX sd: <http://www.w3.org/ns/sparql-service-description#>
+      PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
-          ?defaultDataset sd:defaultGraph ?defaultGraph.
-        
-          ?defaultGraph void:propertyPartition ?partition.
-          
-          ?partition void:property ?property ;
-            void:triples ?triples ;
-            void:distinctSubjects ?distinctSubjects ;
-            void:distinctObjects ?distinctObjects .
-        }` :
-`
-        PREFIX void: <http://rdfs.org/ns/void#>
-        PREFIX sd: <http://www.w3.org/ns/sparql-service-description#>
-        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-        SELECT * WHERE {
-          <${graph}> sd:graph [ void:propertyPartition ?partition ] .
-          
-          ?partition void:property ?property ;
-            void:triples ?triples ;
-            void:distinctSubjects ?distinctSubjects ;
-            void:distinctObjects ?distinctObjects .
-        }`;
+      SELECT * WHERE {
+        <${dataset}> void:propertyPartition ?propertyPartition.
+        ?propertyPartition void:property ?property.
 
-    // Collect default and named graphs
-    const bindingsGraphs = await (await this.queryEngine.queryBindings(query, {
+        OPTIONAL { ?propertyPartition void:triples ?triples }
+        OPTIONAL { ?propertyPartition void:distinctSubjects ?distinctSubjects }
+        OPTIONAL { ?propertyPartition void:distinctObjects ?distinctObjects }
+      }`;
+
+    const propertyPartitionBindings = await (await this.queryEngine.queryBindings(query, {
       sources: [ store ],
     })).toArray();
 
-    for (const bindings of bindingsGraphs) {
-      partitions[bindings.get('property')!.value] = {
-        triples: Number.parseInt(bindings.get('triples')!.value, 10),
-        distinctSubjects: Number.parseInt(bindings.get('distinctSubjects')!.value, 10),
-        distinctObjects: Number.parseInt(bindings.get('distinctObjects')!.value, 10),
-      };
+    for (const bindings of propertyPartitionBindings) {
+      const propertyIri = bindings.get('property')!;
+      if (propertyIri.termType === 'NamedNode') {
+        partitions[propertyIri.value] = {
+          triples: Number.parseInt(bindings.get('triples')?.value ?? '0', 10),
+          distinctObjects: Number.parseInt(bindings.get('distinctObjects')?.value ?? '0', 10),
+          distinctSubjects: Number.parseInt(bindings.get('distinctSubjects')?.value ?? '0', 10),
+        };
+      }
     }
 
     return partitions;
-  }
-
-  public async getClassPartitions(
-    endpoint: string,
-    graph: string | 'DEFAULT',
-    store: RDF.Store,
-  ): Promise<Record<string, IVoidClassPartition>> {
-    const partitions: Record<string, IVoidClassPartition> = {};
-
-    const query: string = graph === 'DEFAULT' ?
-      `
-        PREFIX void: <http://rdfs.org/ns/void#>
-        PREFIX sd: <http://www.w3.org/ns/sparql-service-description#>
-        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-        SELECT * WHERE {
-          <${endpoint}> a sd:Service;
-            sd:defaultDataset ?defaultDataset.
-
-          ?defaultDataset sd:defaultGraph ?defaultGraph.
-        
-          ?defaultGraph void:classPartition ?partition.
-          
-          ?partition void:class ?class ;
-            void:entities ?entities .
-        }` :
-      `
-        PREFIX void: <http://rdfs.org/ns/void#>
-        PREFIX sd: <http://www.w3.org/ns/sparql-service-description#>
-        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-        SELECT * WHERE {
-          <${graph}> sd:graph [ void:classPartition ?partition ] .
-          
-          ?partition void:class ?class ;
-            void:entities ?entities .
-        }`;
-
-    // Collect default and named graphs
-    const bindingsGraphs = await (await this.queryEngine.queryBindings(query, {
-      sources: [ store ],
-    })).toArray();
-
-    for (const bindings of bindingsGraphs) {
-      partitions[bindings.get('class')!.value] = {
-        entities: Number.parseInt(bindings.get('entities')!.value, 10),
-      };
-    }
-
-    // If we find no class partitions,
-    // fallback to taking the sum of all predicate partition triples in each class partitions.
-    if (bindingsGraphs.length === 0) {
-      return await this.getClassPartitionsFallback(endpoint, graph, store);
-    }
-
-    return partitions;
-  }
-
-  public async getClassPartitionsFallback(
-    endpoint: string,
-    graph: string | 'DEFAULT',
-    store: RDF.Store,
-  ): Promise<Record<string, IVoidClassPartition>> {
-    const partitions: Record<string, IVoidClassPartition> = {};
-
-    const query: string = graph === 'DEFAULT' ?
-      `
-        PREFIX void: <http://rdfs.org/ns/void#>
-        PREFIX sd: <http://www.w3.org/ns/sparql-service-description#>
-        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-        SELECT ?class (SUM(?classPropertyPartitionTriples) as ?entities) WHERE {
-          <${endpoint}> a sd:Service;
-            sd:defaultDataset ?defaultDataset.
-
-          ?defaultDataset sd:defaultGraph ?defaultGraph.
-        
-          ?defaultGraph void:classPartition ?partition.
-          
-          ?partition void:class ?class ;
-            void:propertyPartition ?classPropertyPartition .
-          ?classPropertyPartition void:triples ?classPropertyPartitionTriples.
-        } GROUP BY ?class` :
-      `
-        PREFIX void: <http://rdfs.org/ns/void#>
-        PREFIX sd: <http://www.w3.org/ns/sparql-service-description#>
-        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-        SELECT ?class (SUM(?classPropertyPartitionTriples) as ?entities) WHERE {
-          <${graph}> sd:graph [ void:classPartition ?partition ] .
-          
-          ?partition void:class ?class ;
-            void:propertyPartition ?classPropertyPartition .
-          ?classPropertyPartition void:triples ?classPropertyPartitionTriples.
-        } GROUP BY ?class`;
-
-    // Collect default and named graphs
-    const bindingsGraphs = await (await this.queryEngine.queryBindings(query, {
-      sources: [ store ],
-    })).toArray();
-
-    for (const bindings of bindingsGraphs) {
-      partitions[bindings.get('class')!.value] = {
-        entities: Number.parseInt(bindings.get('entities')!.value, 10),
-      };
-    }
-
-    return partitions;
-  }
-
-  public estimateDistinct(
-    value: string | undefined,
-    propertyPartitions: Record<string, IVoidPropertyPartition>,
-    target: 'subjects' | 'objects',
-  ): number {
-    if (value !== undefined) {
-      return Number.parseInt(value, 10);
-    }
-
-    let sum = 0;
-    for (const partition of Object.values(propertyPartitions)) {
-      sum += target === 'subjects' ? partition.distinctSubjects : partition.distinctObjects;
-    }
-    return sum;
-  }
+  };
 }
 
 export interface IActorRdfMetadataExtractVoidArgs extends IActorRdfMetadataExtractArgs {
@@ -308,19 +162,22 @@ export interface IActorRdfMetadataExtractVoidArgs extends IActorRdfMetadataExtra
    * @default {<urn:comunica:default:init/actors#query>}
    */
   actorInitQuery: ActorInitQueryBase;
+  /**
+   * Whether URI prefixes should be inferred based on dataset URI if not present in the VoID description.
+   * @default {false}
+   */
+  inferUriSpace: boolean;
 }
 
-export interface IVoidDescription {
-  graphs: Record<string | 'DEFAULT', IVoidGraph>;
-  unionDefaultGraph: boolean;
-}
-
-export interface IVoidGraph {
+export interface IVoidDataset {
+  iri: string;
   triples: number;
-  propertyPartitions: Record<string, IVoidPropertyPartition>;
-  classPartitions: Record<string, IVoidClassPartition>;
+  uriSpace?: string;
+  sparqlEndpoint?: string;
   distinctSubjects: number;
   distinctObjects: number;
+  propertyPartitions: Record<string, IVoidPropertyPartition>;
+  classPartitions: Record<string, IVoidClassPartition>;
 }
 
 export interface IVoidPropertyPartition {
@@ -331,6 +188,7 @@ export interface IVoidPropertyPartition {
 
 export interface IVoidClassPartition {
   entities: number;
+  propertyPartitions: Record<string, IVoidPropertyPartition>;
 }
 
 export interface IVoidCardinalityProvider {

@@ -1,8 +1,8 @@
-import type * as RDF from 'rdf-js';
-import type { IVoidCardinalityProvider, IVoidDescription, IVoidGraph } from './ActorRdfMetadataExtractVoid';
+import type * as RDF from '@rdfjs/types';
+import type { IVoidCardinalityProvider, IVoidDataset } from './ActorRdfMetadataExtractVoid';
 
 export class VoidCardinalityProvider implements IVoidCardinalityProvider {
-  public constructor(public data: IVoidDescription) {}
+  public constructor(public data: IVoidDataset) {}
 
   public getCardinality(
     subject: RDF.Term,

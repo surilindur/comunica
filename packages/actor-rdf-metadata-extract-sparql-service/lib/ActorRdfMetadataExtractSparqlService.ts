@@ -5,6 +5,7 @@ import type {
 } from '@comunica/bus-rdf-metadata-extract';
 import { ActorRdfMetadataExtract } from '@comunica/bus-rdf-metadata-extract';
 import type { IActorTest } from '@comunica/core';
+import type * as RDF from '@rdfjs/types';
 import { resolve as resolveIri } from 'relative-to-absolute-iri';
 
 /**
@@ -26,28 +27,36 @@ export class ActorRdfMetadataExtractSparqlService extends ActorRdfMetadataExtrac
       // Forward errors
       action.metadata.on('error', reject);
 
-      // Immediately resolve when a SPARQL service endpoint URL has been found
-      const metadata: any = {};
-      action.metadata.on('data', (quad) => {
-        if (quad.predicate.value === 'http://www.w3.org/ns/sparql-service-description#endpoint' &&
-          (quad.subject.termType === 'BlankNode' || quad.subject.value === action.url)) {
-          metadata.sparqlService = quad.object.termType === 'Literal' ?
-            resolveIri(quad.object.value, action.url) :
-            quad.object.value;
+      const metadata: Record<string, any> = {};
 
-          // Fix a common mistake in SPARQL endpoint setups where HTTPS SD's refer to a non-existing HTTP API
-          if (this.inferHttpsEndpoint &&
-            action.url.startsWith('https') && !metadata.sparqlService.startsWith('https')) {
-            metadata.sparqlService = metadata.sparqlService.replace('http:', 'https:');
-          }
-        } else if (quad.predicate.value === 'http://www.w3.org/ns/sparql-service-description#defaultGraph') {
-          metadata.defaultGraph = quad.object.value;
+      action.metadata.on('data', (quad: RDF.Quad) => {
+        switch (quad.predicate.value) {
+          case 'http://www.w3.org/ns/sparql-service-description#endpoint':
+            if (
+              (
+                quad.subject.termType === 'BlankNode' ||
+                (quad.subject.termType === 'NamedNode' && quad.subject.value === action.url)
+              ) && quad.object.termType === 'NamedNode'
+            ) {
+              // The specification says the endpoint is an IRI.
+              metadata.sparqlService = resolveIri(quad.object.value, action.url);
+              // Also fix a common mistake in SPARQL endpoint setups where HTTPS SD's refer to a non-existing HTTP API.
+              if (this.inferHttpsEndpoint && action.url.startsWith('https') && !quad.object.value.startsWith('https')) {
+                metadata.sparqlService = metadata.sparqlService.replace(/^http:/u, 'https:');
+              }
+            }
+            break;
+          case 'http://www.w3.org/ns/sparql-service-description#feature':
+            if (quad.object.termType === 'NamedNode' && quad.object.value === 'http://www.w3.org/ns/sparql-service-description#UnionDefaultGraph') {
+              metadata.unionDefaultGraph = true;
+            }
+            break;
         }
       });
 
-      // If no value has been found, emit nothing.
+      // Only return the metadata if an endpoint IRI was discovered
       action.metadata.on('end', () => {
-        resolve({ metadata });
+        resolve({ metadata: metadata.sparqlService ? metadata : {}});
       });
     });
   }
