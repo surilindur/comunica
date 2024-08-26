@@ -33,17 +33,23 @@ export class ActorRdfMetadataExtractSparqlService extends ActorRdfMetadataExtrac
         switch (quad.predicate.value) {
           case 'http://www.w3.org/ns/sparql-service-description#endpoint':
             if (
-              (
-                quad.subject.termType === 'BlankNode' ||
-                (quad.subject.termType === 'NamedNode' && quad.subject.value === action.url)
-              ) && quad.object.termType === 'NamedNode'
+              quad.subject.termType === 'BlankNode' ||
+              (quad.subject.termType === 'NamedNode' && quad.subject.value === action.url)
             ) {
-              // The specification says the endpoint is an IRI.
+              // The specification says the endpoint is an IRI, but does not specify whether or not it can be a literal.
               metadata.sparqlService = resolveIri(quad.object.value, action.url);
               // Also fix a common mistake in SPARQL endpoint setups where HTTPS SD's refer to a non-existing HTTP API.
               if (this.inferHttpsEndpoint && action.url.startsWith('https') && !quad.object.value.startsWith('https')) {
                 metadata.sparqlService = metadata.sparqlService.replace(/^http:/u, 'https:');
               }
+            }
+            break;
+          case 'http://www.w3.org/ns/sparql-service-description#defaultDataset':
+            metadata.defaultDataset = quad.object;
+            break;
+          case 'http://www.w3.org/ns/sparql-service-description#defaultGraph':
+            if (quad.subject.value === metadata.defaultDataset?.value) {
+              metadata.defaultGraph = quad.object;
             }
             break;
           case 'http://www.w3.org/ns/sparql-service-description#feature':
@@ -53,6 +59,10 @@ export class ActorRdfMetadataExtractSparqlService extends ActorRdfMetadataExtrac
             break;
         }
       });
+
+      if (metadata.sparqlService) {
+        console.log('SPARQL SERVICE', metadata);
+      }
 
       // Only return the metadata if an endpoint IRI was discovered
       action.metadata.on('end', () => {

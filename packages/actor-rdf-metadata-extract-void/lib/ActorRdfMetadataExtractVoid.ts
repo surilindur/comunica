@@ -9,8 +9,8 @@ import { ActorRdfMetadataExtract } from '@comunica/bus-rdf-metadata-extract';
 import type { IActorTest } from '@comunica/core';
 import type * as RDF from '@rdfjs/types';
 import { storeStream } from 'rdf-store-stream';
-
-// TODO: import { VoidCardinalityProvider } from './VoidCardinalityProvider';
+import { termToString } from 'rdf-string-ttl';
+import { VoidCardinalityProvider } from './VoidCardinalityProvider';
 
 /**
  * A comunica Void RDF Metadata Extract Actor.
@@ -32,15 +32,15 @@ export class ActorRdfMetadataExtractVoid extends ActorRdfMetadataExtract {
   public async run(action: IActionRdfMetadataExtract): Promise<IActorRdfMetadataExtractOutput> {
     const metadataStore = await storeStream(action.metadata);
     const datasets = await this.getDatasets(metadataStore);
+    const metadata = datasets ?
+        { voidDescriptions: datasets, voidCardinalityProvider: new VoidCardinalityProvider(datasets) } :
+        {};
 
-    return { metadata: datasets.length > 0 ?
-        { voidDescriptions: datasets, voidCardinalityProvider: undefined } :
-        {},
-    };
+    return { metadata };
   }
 
-  public async getDatasets(store: RDF.Store): Promise<IVoidDataset[]> {
-    const datasets: IVoidDataset[] = [];
+  public async getDatasets(store: RDF.Store): Promise<Record<string, IVoidDataset>> {
+    const datasets: Record<string, IVoidDataset> = {};
 
     const query = `
       PREFIX void: <http://rdfs.org/ns/void#>
@@ -63,9 +63,8 @@ export class ActorRdfMetadataExtractVoid extends ActorRdfMetadataExtract {
 
     for (const bindings of datasetBindings) {
       const dataset = bindings.get('dataset')!;
-      if (dataset.termType === 'NamedNode') {
-        datasets.push({
-          iri: dataset.value,
+      if (dataset.termType === 'NamedNode' || dataset.termType === 'BlankNode') {
+        datasets[dataset.value] = {
           triples: Number.parseInt(bindings.get('triples')?.value ?? '0', 10),
           uriSpace: bindings.get('uriSpace')?.value ?? (
             this.inferUriSpace ? dataset.value.split('.well-known')[0] : undefined
@@ -73,17 +72,21 @@ export class ActorRdfMetadataExtractVoid extends ActorRdfMetadataExtract {
           sparqlEndpoint: bindings.get('sparqlEndpoint')?.value,
           distinctObjects: Number.parseInt(bindings.get('distinctObjects')?.value ?? '0', 10),
           distinctSubjects: Number.parseInt(bindings.get('distinctSubjects')?.value ?? '0', 10),
-          classPartitions: await this.getClassPartitions(dataset.value, store),
-          propertyPartitions: await this.getPropertyPartitions(dataset.value, store),
-        });
+          classPartitions: await this.getClassPartitions(dataset, store),
+          propertyPartitions: await this.getPropertyPartitions(dataset, store),
+        };
       }
+    }
+
+    if (datasets) {
+      console.log('DATASETS', datasets);
     }
 
     return datasets;
   }
 
   public async getClassPartitions(
-    dataset: string,
+    dataset: RDF.NamedNode | RDF.BlankNode,
     store: RDF.Store,
   ): Promise<Record<string, IVoidClassPartition>> {
     const partitions: Record<string, IVoidClassPartition> = {};
@@ -94,7 +97,7 @@ export class ActorRdfMetadataExtractVoid extends ActorRdfMetadataExtract {
       PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
       SELECT * WHERE {
-        <${dataset}> void:classPartition ?classPartition.
+        ${termToString(dataset)} void:classPartition ?classPartition.
         ?classPartition void:class ?class.
 
         OPTIONAL { ?classPartition void:entities ?entities }
@@ -106,10 +109,11 @@ export class ActorRdfMetadataExtractVoid extends ActorRdfMetadataExtract {
 
     for (const bindings of classPartitionBindings) {
       const classIri = bindings.get('class')!;
-      if (classIri.termType === 'NamedNode') {
+      const classPartition = bindings.get('classPartition')!;
+      if (classPartition.termType === 'NamedNode' || classPartition.termType === 'BlankNode') {
         partitions[classIri.value] = {
           entities: Number.parseInt(bindings.get('entities')?.value ?? '0', 10),
-          propertyPartitions: await this.getPropertyPartitions(bindings.get('classPartition')!.value, store),
+          propertyPartitions: await this.getPropertyPartitions(classPartition, store),
         };
       }
     }
@@ -118,7 +122,7 @@ export class ActorRdfMetadataExtractVoid extends ActorRdfMetadataExtract {
   };
 
   public async getPropertyPartitions(
-    dataset: string,
+    dataset: RDF.NamedNode | RDF.BlankNode,
     store: RDF.Store,
   ): Promise<Record<string, IVoidPropertyPartition>> {
     const partitions: Record<string, IVoidPropertyPartition> = {};
@@ -129,7 +133,7 @@ export class ActorRdfMetadataExtractVoid extends ActorRdfMetadataExtract {
       PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 
       SELECT * WHERE {
-        <${dataset}> void:propertyPartition ?propertyPartition.
+        ${termToString(dataset)} void:propertyPartition ?propertyPartition.
         ?propertyPartition void:property ?property.
 
         OPTIONAL { ?propertyPartition void:triples ?triples }
@@ -143,13 +147,11 @@ export class ActorRdfMetadataExtractVoid extends ActorRdfMetadataExtract {
 
     for (const bindings of propertyPartitionBindings) {
       const propertyIri = bindings.get('property')!;
-      if (propertyIri.termType === 'NamedNode') {
-        partitions[propertyIri.value] = {
-          triples: Number.parseInt(bindings.get('triples')?.value ?? '0', 10),
-          distinctObjects: Number.parseInt(bindings.get('distinctObjects')?.value ?? '0', 10),
-          distinctSubjects: Number.parseInt(bindings.get('distinctSubjects')?.value ?? '0', 10),
-        };
-      }
+      partitions[propertyIri.value] = {
+        triples: Number.parseInt(bindings.get('triples')?.value ?? '0', 10),
+        distinctObjects: Number.parseInt(bindings.get('distinctObjects')?.value ?? '0', 10),
+        distinctSubjects: Number.parseInt(bindings.get('distinctSubjects')?.value ?? '0', 10),
+      };
     }
 
     return partitions;
@@ -170,7 +172,6 @@ export interface IActorRdfMetadataExtractVoidArgs extends IActorRdfMetadataExtra
 }
 
 export interface IVoidDataset {
-  iri: string;
   triples: number;
   uriSpace?: string;
   sparqlEndpoint?: string;
@@ -196,6 +197,6 @@ export interface IVoidCardinalityProvider {
     subject: RDF.Term,
     predicate: RDF.Term,
     object: RDF.Term,
-    graph: RDF.Term,
+    graph: RDF.NamedNode | RDF.BlankNode | RDF.DefaultGraph,
   ) => RDF.QueryResultCardinality;
 }

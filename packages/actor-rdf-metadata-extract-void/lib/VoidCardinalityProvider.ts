@@ -2,7 +2,7 @@ import type * as RDF from '@rdfjs/types';
 import type { IVoidCardinalityProvider, IVoidDataset } from './ActorRdfMetadataExtractVoid';
 
 export class VoidCardinalityProvider implements IVoidCardinalityProvider {
-  public constructor(public data: IVoidDataset) {}
+  public constructor(public datasets: Record<string, IVoidDataset>, public unionDefaultGraph = false) {}
 
   public getCardinality(
     subject: RDF.Term,
@@ -11,6 +11,13 @@ export class VoidCardinalityProvider implements IVoidCardinalityProvider {
     graph: RDF.Term,
   ): RDF.QueryResultCardinality {
     const value = this.getCardinalityRaw(subject, predicate, object, graph);
+    //
+    // console.log([
+    // 'CARDINALITY:',
+    // `\tquad: ${subject.value}, ${predicate.value}, ${object.value}, ${graph.value}`,
+    // `\tcardinality: ${value}`,
+    // ].join('\n'));
+    //
     return { type: 'estimate', value };
   }
 
@@ -74,17 +81,14 @@ export class VoidCardinalityProvider implements IVoidCardinalityProvider {
   }
 
   public getTriples(graph: RDF.Term): number {
-    if (graph.termType === 'Variable' || graph.termType === 'DefaultGraph') {
-      if (this.data.unionDefaultGraph) {
-        let sum = 0;
-        for (const dataGraph of Object.values(this.data.graphs)) {
-          sum += dataGraph.triples;
-        }
-        return sum;
+    if ((graph.termType === 'Variable' || graph.termType === 'DefaultGraph') && (this.unionDefaultGraph)) {
+      let sum = 0;
+      for (const dataset of Object.values(this.datasets)) {
+        sum += dataset.triples;
       }
-      return this.data.graphs.DEFAULT?.triples || 0;
+      return sum;
     }
-    return this.data.graphs[graph.value]?.triples || 0;
+    return this.datasets[graph.value]?.triples || 0;
   }
 
   public getDistinctSubjects(graph: RDF.Term): number {
@@ -111,20 +115,22 @@ export class VoidCardinalityProvider implements IVoidCardinalityProvider {
     return this.getGraphValue(graph, g => g.classPartitions[object.value]?.entities);
   }
 
-  protected getGraphValue(graph: RDF.Term, graphValueSelector: (voidGraph: IVoidGraph) => number | undefined): number {
-    let voidGraph: IVoidGraph | undefined;
+  protected getGraphValue(
+    graph: RDF.Term,
+    graphValueSelector: (dataset: IVoidDataset) => number | undefined,
+  ): number {
+    let voidDataset: IVoidDataset | undefined;
     if (graph.termType === 'Variable' || graph.termType === 'DefaultGraph') {
-      if (this.data.unionDefaultGraph) {
+      if (this.unionDefaultGraph) {
         let sum = 0;
-        for (const dataGraph of Object.values(this.data.graphs)) {
-          sum += graphValueSelector(dataGraph) ?? 0;
+        for (const dataset of Object.values(this.datasets)) {
+          sum += graphValueSelector(dataset) ?? 0;
         }
         return sum;
       }
-      voidGraph = this.data.graphs.DEFAULT;
     } else {
-      voidGraph = this.data.graphs[graph.value];
+      voidDataset = this.datasets[graph.value];
     }
-    return voidGraph ? graphValueSelector(voidGraph) ?? 0 : 0;
+    return voidDataset ? graphValueSelector(voidDataset) ?? 0 : 0;
   }
 }

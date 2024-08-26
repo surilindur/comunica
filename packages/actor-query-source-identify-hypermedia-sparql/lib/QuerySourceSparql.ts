@@ -62,6 +62,8 @@ export class QuerySourceSparql implements IQuerySource {
   private readonly bindMethod: BindMethod;
   private readonly countTimeout: number;
   private readonly bindingsFactory: BindingsFactory;
+  private readonly defaultGraph: RDF.NamedNode | RDF.BlankNode | undefined;
+  private readonly unionDefaultGraph: boolean | undefined;
   private readonly cardinalityProvider: IVoidCardinalityProvider | undefined;
 
   private readonly endpointFetcher: SparqlEndpointFetcher;
@@ -78,6 +80,8 @@ export class QuerySourceSparql implements IQuerySource {
     forceHttpGet: boolean,
     cacheSize: number,
     countTimeout: number,
+    defaultGraph: RDF.NamedNode | RDF.BlankNode | undefined,
+    unionDefaultGraph: boolean | undefined,
     cardinalityProvider: IVoidCardinalityProvider | undefined,
   ) {
     this.referenceValue = url;
@@ -97,6 +101,8 @@ export class QuerySourceSparql implements IQuerySource {
       new LRUCache<string, RDF.QueryResultCardinality>({ max: cacheSize }) :
       undefined;
     this.countTimeout = countTimeout;
+    this.defaultGraph = defaultGraph;
+    this.unionDefaultGraph = unionDefaultGraph;
     this.cardinalityProvider = cardinalityProvider;
   }
 
@@ -186,22 +192,45 @@ export class QuerySourceSparql implements IQuerySource {
 
         // Use cardinality provider if applicable
         if (this.cardinalityProvider && operation.type === 'pattern') {
-          // console.log('GET FROM VOID!'); // TODO
+          // Console.log('GET FROM VOID!'); // TODO
           // console.log(this.cardinalityProvider.getCardinality(
           //   operation.subject,
           //   operation.predicate,
           //   operation.object,
           //   operation.graph,
           // )); // TODO
-          resolve(this.cardinalityProvider.getCardinality(
-            operation.subject,
-            operation.predicate,
-            operation.object,
-            operation.graph,
-          ));
+          let graph: RDF.NamedNode | RDF.DefaultGraph | RDF.BlankNode | undefined;
+          if (operation.graph.termType === 'Variable') {
+            if (this.unionDefaultGraph) {
+              graph = DF.defaultGraph();
+            }
+          } else if (operation.graph.termType === 'NamedNode' || operation.graph.termType === 'BlankNode') {
+            graph = operation.graph;
+          } else if (operation.graph.termType === 'DefaultGraph') {
+            if (this.defaultGraph) {
+              graph = this.defaultGraph;
+            } else if (this.unionDefaultGraph) {
+              graph = operation.graph;
+            } else {
+              graph = undefined;
+            }
+          }
+
+          const estimate: RDF.QueryResultCardinality = graph ?
+            this.cardinalityProvider.getCardinality(
+              operation.subject,
+              operation.predicate,
+              operation.object,
+              graph,
+            ) :
+              {
+                type: 'exact',
+                value: 0,
+              };
+          resolve(estimate);
           return;
         }
-        // console.log('NOT FROM VOID!'); // TODO
+        // Console.log('NOT FROM VOID!'); // TODO
         // console.log(operation); // TODO
 
         const cachedCardinality = this.cache?.get(countQuery);
