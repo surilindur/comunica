@@ -40,6 +40,11 @@ export class ActorQuerySourceIdentifyHypermediaSparql extends ActorQuerySourceId
 
   public async run(action: IActionQuerySourceIdentifyHypermedia): Promise<IActorQuerySourceIdentifyHypermediaOutput> {
     this.logInfo(action.context, `Identified ${action.url} as sparql source with service URL: ${action.metadata.sparqlService || action.url}`);
+    const voidCardinalityProvider = action.metadata.voidCardinalityProvider;
+    if (voidCardinalityProvider) {
+      voidCardinalityProvider.unionDefaultGraph = action.metadata.unionDefaultGraph === true;
+      // console.log(voidCardinalityProvider);
+    }
     const source = new QuerySourceSparql(
       action.forceSourceType ? action.url : action.metadata.sparqlService || action.url,
       action.context,
@@ -49,9 +54,7 @@ export class ActorQuerySourceIdentifyHypermediaSparql extends ActorQuerySourceId
       this.forceHttpGet,
       this.cacheSize,
       this.countTimeout,
-      action.metadata.defaultGraph,
-      action.metadata.unionDefaultGraph,
-      action.metadata.voidCardinalityProvider,
+      voidCardinalityProvider,
     );
     return { source };
   }

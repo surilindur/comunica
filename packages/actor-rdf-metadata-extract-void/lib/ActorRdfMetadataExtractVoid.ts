@@ -31,9 +31,9 @@ export class ActorRdfMetadataExtractVoid extends ActorRdfMetadataExtract {
 
   public async run(action: IActionRdfMetadataExtract): Promise<IActorRdfMetadataExtractOutput> {
     const metadataStore = await storeStream(action.metadata);
-    const datasets = await this.getDatasets(metadataStore);
-    const metadata = datasets ?
-        { voidDescriptions: datasets, voidCardinalityProvider: new VoidCardinalityProvider(datasets) } :
+    const voidDescriptions = await this.getDatasets(metadataStore);
+    const metadata = voidDescriptions ?
+        { voidDescriptions, voidCardinalityProvider: new VoidCardinalityProvider(voidDescriptions) } :
         {};
 
     return { metadata };
@@ -63,7 +63,7 @@ export class ActorRdfMetadataExtractVoid extends ActorRdfMetadataExtract {
 
     for (const bindings of datasetBindings) {
       const dataset = bindings.get('dataset')!;
-      if (dataset.termType === 'NamedNode' || dataset.termType === 'BlankNode') {
+      if (dataset.termType === 'NamedNode') {
         datasets[dataset.value] = {
           triples: Number.parseInt(bindings.get('triples')?.value ?? '0', 10),
           uriSpace: bindings.get('uriSpace')?.value ?? (
@@ -76,10 +76,6 @@ export class ActorRdfMetadataExtractVoid extends ActorRdfMetadataExtract {
           propertyPartitions: await this.getPropertyPartitions(dataset, store),
         };
       }
-    }
-
-    if (datasets) {
-      console.log('DATASETS', datasets);
     }
 
     return datasets;
@@ -166,7 +162,7 @@ export interface IActorRdfMetadataExtractVoidArgs extends IActorRdfMetadataExtra
   actorInitQuery: ActorInitQueryBase;
   /**
    * Whether URI prefixes should be inferred based on dataset URI if not present in the VoID description.
-   * @default {false}
+   * @default {true}
    */
   inferUriSpace: boolean;
 }
@@ -197,6 +193,6 @@ export interface IVoidCardinalityProvider {
     subject: RDF.Term,
     predicate: RDF.Term,
     object: RDF.Term,
-    graph: RDF.NamedNode | RDF.BlankNode | RDF.DefaultGraph,
+    graph: RDF.Term,
   ) => RDF.QueryResultCardinality;
 }

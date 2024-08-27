@@ -23,9 +23,10 @@ export class ActorHttpFetch extends ActorHttp {
   }
 
   public static createUserAgent(): string {
-    return `Comunica/actor-http-fetch (${typeof globalThis.navigator === 'undefined' ?
-      `Node.js ${process.version}; ${process.platform}` :
-      `Browser-${globalThis.navigator.userAgent}`})`;
+    const systemInformation = typeof globalThis.process === 'undefined' ?
+      'browser' :
+      `${globalThis.process.platform}; ${globalThis.process.arch}`;
+    return `Comunica/actor-http-fetch (${systemInformation}) ${globalThis.navigator.userAgent}`;
   }
 
   public async test(_action: IActionHttp): Promise<IMediatorTypeTime> {

@@ -1,5 +1,5 @@
 import type * as RDF from '@rdfjs/types';
-import type { IVoidCardinalityProvider, IVoidDataset } from './ActorRdfMetadataExtractVoid';
+import type { IVoidDataset, IVoidCardinalityProvider } from './ActorRdfMetadataExtractVoid';
 
 export class VoidCardinalityProvider implements IVoidCardinalityProvider {
   public constructor(public datasets: Record<string, IVoidDataset>, public unionDefaultGraph = false) {}
@@ -11,13 +11,13 @@ export class VoidCardinalityProvider implements IVoidCardinalityProvider {
     graph: RDF.Term,
   ): RDF.QueryResultCardinality {
     const value = this.getCardinalityRaw(subject, predicate, object, graph);
-    //
-    // console.log([
-    // 'CARDINALITY:',
-    // `\tquad: ${subject.value}, ${predicate.value}, ${object.value}, ${graph.value}`,
-    // `\tcardinality: ${value}`,
-    // ].join('\n'));
-    //
+    if (Number.isNaN(value)) {
+      console.log([
+        'CARDINALITY:',
+        `\tquad: ( ${subject.value}, ${predicate.value}, ${object.value}, ${graph.value} )`,
+        `\tcardinality: ${value}`,
+      ].join('\n'));
+    }
     return { type: 'estimate', value };
   }
 
@@ -42,7 +42,8 @@ export class VoidCardinalityProvider implements IVoidCardinalityProvider {
 
     // <s> ?p ?o
     if (subject.termType !== 'Variable' && predicate.termType === 'Variable' && object.termType === 'Variable') {
-      return this.getTriples(graph) / this.getDistinctSubjects(graph);
+      const graphTriples = this.getTriples(graph);
+      return graphTriples === 0 ? 0 : graphTriples / this.getDistinctSubjects(graph);
     }
 
     // ?s <p> ?o
@@ -57,23 +58,28 @@ export class VoidCardinalityProvider implements IVoidCardinalityProvider {
 
     // <s> <p> ?o
     if (subject.termType !== 'Variable' && predicate.termType !== 'Variable' && object.termType === 'Variable') {
-      return this.getPredicateTriples(predicate, graph) / this.getPredicateSubjects(predicate, graph);
+      const predicateTriples = this.getPredicateTriples(predicate, graph);
+      return predicateTriples === 0 ? 0 : predicateTriples / this.getPredicateSubjects(predicate, graph);
     }
 
     // <s> ?p <o>
     if (subject.termType !== 'Variable' && predicate.termType === 'Variable' && object.termType !== 'Variable') {
-      return this.getTriples(graph) / (this.getDistinctSubjects(graph) * this.getDistinctObjects(graph));
+      const graphTriples = this.getTriples(graph);
+      return graphTriples === 0 ? 0 : graphTriples / (this.getDistinctSubjects(graph) * this.getDistinctObjects(graph));
     }
 
     // ?s <p> <o>
     if (subject.termType === 'Variable' && predicate.termType !== 'Variable' && object.termType !== 'Variable') {
-      return this.getPredicateTriples(predicate, graph) / this.getPredicateObjects(predicate, graph);
+      const predicateTriples = this.getPredicateTriples(predicate, graph);
+      return predicateTriples === 0 ? 0 : predicateTriples / this.getPredicateObjects(predicate, graph);
     }
 
     // <s> <p> <o>
     if (subject.termType !== 'Variable' && predicate.termType !== 'Variable' && object.termType !== 'Variable') {
-      return this.getPredicateTriples(predicate, graph) /
-        (this.getPredicateSubjects(predicate, graph) * this.getPredicateObjects(predicate, graph));
+      const predicateTriples = this.getPredicateTriples(predicate, graph);
+      return predicateTriples === 0 ?
+        0 :
+        predicateTriples / (this.getPredicateSubjects(predicate, graph) * this.getPredicateObjects(predicate, graph));
     }
 
     // In all other cases, return infinity
