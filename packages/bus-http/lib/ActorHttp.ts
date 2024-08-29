@@ -24,6 +24,13 @@ const toWebReadableStream = require('readable-stream-node-to-web');
  */
 export abstract class ActorHttp extends Actor<IActionHttp, IActorTest, IActorHttpOutput> {
   /**
+   * @param args - @defaultNested {<default_bus> a <cc:components/Bus.jsonld#Bus>} bus
+   */
+  public constructor(args: IActorHttpArgs) {
+    super(args);
+  }
+
+  /**
    * Converts WhatWG streams to Node streams if required.
    * Returns the input in case the stream already is a Node stream.
    * @param {ReadableStream} body
@@ -78,9 +85,7 @@ export interface IActionHttp extends IAction {
 /**
  * The HTTP output, which contains the HTTP response.
  */
-export interface IActorHttpOutput extends IActorOutput, Response {
-
-}
+export type IActorHttpOutput = IActorOutput & Response;
 
 export type IActorHttpArgs = IActorArgs<IActionHttp, IActorTest, IActorHttpOutput>;
 
