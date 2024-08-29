@@ -23,22 +23,22 @@ describe('ActorHttpRetry', () => {
   describe('test', () => {
     it('should reject without retry count in the context', async() => {
       const context = new ActionContext();
-      await expect(actor.test({ input: '', context })).rejects.toThrow(`${actor.name} requires a retry count greater than zero to function`);
+      await expect(actor.test({ input, context })).rejects.toThrow(`${actor.name} requires a retry count greater than zero to function`);
     });
 
     it('should reject with retry count below 1 in the context', async() => {
       const context = new ActionContext({ [KeysHttp.httpRetryCount.name]: 0 });
-      await expect(actor.test({ input: '', context })).rejects.toThrow(`${actor.name} requires a retry count greater than zero to function`);
+      await expect(actor.test({ input, context })).rejects.toThrow(`${actor.name} requires a retry count greater than zero to function`);
     });
 
     it('should reject when the action has already been wrapped by it once', async() => {
       const context = new ActionContext({ [(<any>ActorHttpRetry).keyWrapped.name]: true });
-      await expect(actor.test({ input: '', context })).rejects.toThrow(`${actor.name} can only wrap a request once`);
+      await expect(actor.test({ input, context })).rejects.toThrow(`${actor.name} can only wrap a request once`);
     });
 
     it('should accept when retry count is provided in the context', async() => {
       const context = new ActionContext({ [KeysHttp.httpRetryCount.name]: 1 });
-      await expect(actor.test({ input: '', context })).resolves.toEqual({ time: 0 });
+      await expect(actor.test({ input, context })).resolves.toEqual({ time: 0 });
     });
   });
 
@@ -141,6 +141,13 @@ describe('ActorHttpRetry', () => {
       expect(actor.parseRetryAfterHeader).toHaveBeenNthCalledWith(1, '200');
       expect(actor.parseRetryAfterHeader).toHaveBeenNthCalledWith(2, '200');
       expect(mediatorHttp.mediate).toHaveBeenCalledTimes(2);
+    });
+
+    it('should propagate errors from the mediator', async() => {
+      const error = new Error('mediator error');
+      const context = new ActionContext({ [KeysHttp.httpRetryCount.name]: 1 });
+      jest.spyOn(mediatorHttp, 'mediate').mockRejectedValue(error);
+      await expect(actor.run({ input, context })).rejects.toThrow(error);
     });
   });
 
