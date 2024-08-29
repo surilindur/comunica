@@ -1,14 +1,14 @@
 {
-  "name": "@comunica/actor-http-limit",
+  "name": "@comunica/actor-http-limit-rate",
   "version": "3.2.1",
-  "description": "A limit http actor",
+  "description": "Comunica HTTP bus actor that can limit the number of requests per second per host",
   "lsd:module": true,
   "license": "MIT",
   "homepage": "https://comunica.dev/",
   "repository": {
     "type": "git",
     "url": "https://github.com/comunica/comunica.git",
-    "directory": "packages/actor-http-limit"
+    "directory": "packages/actor-http-limit-rate"
   },
   "bugs": {
     "url": "https://github.com/comunica/comunica/issues"
@@ -38,7 +38,6 @@
     "@comunica/bus-http": "^3.2.1",
     "@comunica/context-entries": "^3.2.1",
     "@comunica/core": "^3.2.1",
-    "@comunica/mediatortype-time": "^3.2.1",
-    "abort-controller": "^3.0.0"
+    "@comunica/mediatortype-time": "^3.2.1"
   }
 }

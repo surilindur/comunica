@@ -24,13 +24,6 @@ const toWebReadableStream = require('readable-stream-node-to-web');
  */
 export abstract class ActorHttp extends Actor<IActionHttp, IActorTest, IActorHttpOutput> {
   /**
-   * @param args - @defaultNested {<default_bus> a <cc:components/Bus.jsonld#Bus>} bus
-   */
-  public constructor(args: IActorHttpArgs) {
-    super(args);
-  }
-
-  /**
    * Converts WhatWG streams to Node streams if required.
    * Returns the input in case the stream already is a Node stream.
    * @param {ReadableStream} body
@@ -62,6 +55,15 @@ export abstract class ActorHttp extends Actor<IActionHttp, IActorTest, IActorHtt
       hash[key] = value;
     });
     return hash;
+  }
+
+  /**
+   * Extract the requested URL from the action input.
+   * @param {RequestInfo | URL} input The request input.
+   * @returns {URL} The extracted URL.
+   */
+  public static getInputUrl(input: RequestInfo | URL): URL {
+    return new URL(input instanceof Request ? input.url : input);
   }
 }
 

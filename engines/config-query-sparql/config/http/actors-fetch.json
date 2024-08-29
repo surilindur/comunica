@@ -2,7 +2,8 @@
   "@context": [
     "https://linkedsoftwaredependencies.org/bundles/npm/@comunica/runner/^3.0.0/components/context.jsonld",
 
-    "https://linkedsoftwaredependencies.org/bundles/npm/@comunica/actor-http-limit/^3.0.0/components/context.jsonld",
+    "https://linkedsoftwaredependencies.org/bundles/npm/@comunica/actor-http-limit-rate/^3.0.0/components/context.jsonld",
+    "https://linkedsoftwaredependencies.org/bundles/npm/@comunica/actor-http-retry/^3.0.0/components/context.jsonld",
     "https://linkedsoftwaredependencies.org/bundles/npm/@comunica/actor-http-fetch/^3.0.0/components/context.jsonld",
     "https://linkedsoftwaredependencies.org/bundles/npm/@comunica/actor-http-proxy/^3.0.0/components/context.jsonld"
   ],
@@ -10,11 +11,16 @@
   "@type": "Runner",
   "actors": [
     {
-      "@id": "urn:comunica:default:http/actors#limit",
-      "@type": "ActorHttpLimit",
+      "@id": "urn:comunica:default:http/actors#retry",
+      "@type": "ActorHttpRetry",
       "mediatorHttp": { "@id": "urn:comunica:default:http/mediators#main" },
-      "beforeActors": { "@id": "urn:comunica:default:http/actors#proxy" },
-      "requestsPerSecond": 100
+      "beforeActors": { "@id": "urn:comunica:default:http/actors#limit-rate" }
+    },
+    {
+      "@id": "urn:comunica:default:http/actors#limit-rate",
+      "@type": "ActorHttpLimitRate",
+      "mediatorHttp": { "@id": "urn:comunica:default:http/mediators#main" },
+      "beforeActors": { "@id": "urn:comunica:default:http/actors#proxy" }
     },
     {
       "@id": "urn:comunica:default:http/actors#proxy",
