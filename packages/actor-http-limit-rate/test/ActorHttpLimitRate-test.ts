@@ -44,7 +44,7 @@ describe('ActorHttpLimitRate', () => {
 
   describe('run', () => {
     beforeEach(() => {
-      jest.spyOn((<any>actor), 'registerRequest').mockImplementation(() => undefined);
+      jest.spyOn(actor, 'registerRequest').mockImplementation(() => undefined);
       jest.spyOn(Date, 'now').mockReturnValue(0);
     });
 
@@ -53,11 +53,11 @@ describe('ActorHttpLimitRate', () => {
       const response: Response = <any> { ok: true };
       jest.spyOn(mediatorHttp, 'mediate').mockResolvedValue(response);
       expect(mediatorHttp.mediate).not.toHaveBeenCalled();
-      expect((<any>actor).registerRequest).not.toHaveBeenCalled();
+      expect(actor.registerRequest).not.toHaveBeenCalled();
       await expect(actor.run({ input: input.href, context })).resolves.toEqual(response);
       expect(mediatorHttp.mediate).toHaveBeenCalledTimes(1);
-      expect((<any>actor).registerRequest).toHaveBeenCalledTimes(1);
-      expect((<any>actor).registerRequest).toHaveBeenNthCalledWith(1, input.host, 0, 0);
+      expect(actor.registerRequest).toHaveBeenCalledTimes(1);
+      expect(actor.registerRequest).toHaveBeenNthCalledWith(1, input.host, 0, 0);
     });
 
     it('should properly delay requests above the limit', async() => {
@@ -66,11 +66,11 @@ describe('ActorHttpLimitRate', () => {
       const response: Response = <any> { ok: true };
       jest.spyOn(mediatorHttp, 'mediate').mockResolvedValue(response);
       expect(mediatorHttp.mediate).not.toHaveBeenCalled();
-      expect((<any>actor).registerRequest).not.toHaveBeenCalled();
+      expect(actor.registerRequest).not.toHaveBeenCalled();
       await expect(actor.run({ input: input.href, context })).resolves.toEqual(response);
       expect(mediatorHttp.mediate).toHaveBeenCalledTimes(1);
-      expect((<any>actor).registerRequest).toHaveBeenCalledTimes(1);
-      expect((<any>actor).registerRequest).toHaveBeenNthCalledWith(1, input.host, 0, 1_100);
+      expect(actor.registerRequest).toHaveBeenCalledTimes(1);
+      expect(actor.registerRequest).toHaveBeenNthCalledWith(1, input.host, 0, 1_100);
     });
 
     it('should propagate errors from the mediator', async() => {
@@ -86,7 +86,7 @@ describe('ActorHttpLimitRate', () => {
       jest.spyOn(globalThis, 'setTimeout').mockReturnValue(<any>'timeout');
       expect(setTimeout).not.toHaveBeenCalled();
       expect((<any>actor).requests[input.host]).toBeUndefined();
-      (<any>actor).registerRequest(input.host, 100, 10);
+      actor.registerRequest(input.host, 100, 10);
       expect(setTimeout).toHaveBeenCalledTimes(1);
       expect(setTimeout).toHaveBeenNthCalledWith(1, expect.any(Function), 2_010);
       expect((<any>actor).requests[input.host]).toEqual({ timestamps: [ 110 ], timeout: 'timeout' });
@@ -98,7 +98,7 @@ describe('ActorHttpLimitRate', () => {
       expect(setTimeout).not.toHaveBeenCalled();
       expect(clearTimeout).not.toHaveBeenCalled();
       (<any>actor).requests[input.host] = { timestamps: [ 10, 50, 100 ], timeout: 'old timeout' };
-      (<any>actor).registerRequest(input.host, 100, 10);
+      actor.registerRequest(input.host, 100, 10);
       expect(clearTimeout).toHaveBeenCalledTimes(1);
       expect(clearTimeout).toHaveBeenNthCalledWith(1, 'old timeout');
       expect(setTimeout).toHaveBeenCalledTimes(1);

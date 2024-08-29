@@ -50,7 +50,7 @@ export class ActorHttpLimitRate extends ActorHttp {
     });
   }
 
-  private registerRequest(host: string, currentTimestamp: number, requestDelay: number): void {
+  public registerRequest(host: string, currentTimestamp: number, requestDelay: number): void {
     if (host in this.requests) {
       clearTimeout(this.requests[host].timeout);
     } else {

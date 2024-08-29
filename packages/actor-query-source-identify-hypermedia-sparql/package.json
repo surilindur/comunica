@@ -37,6 +37,7 @@
     "build:components": "componentsjs-generator"
   },
   "dependencies": {
+    "@comunica/actor-rdf-metadata-extract-void": "^3.2.1",
     "@comunica/bindings-factory": "^3.2.1",
     "@comunica/bus-http": "^3.2.1",
     "@comunica/bus-merge-bindings-context": "^3.2.1",
