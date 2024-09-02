@@ -60,6 +60,8 @@ export class ActorHttpFetch extends ActorHttp {
     }
 
     const httpTimeout = action.context.get<number>(KeysHttp.httpTimeout);
+    const httpBodyTimeout = action.context.get<boolean>(KeysHttp.httpBodyTimeout);
+
     let requestTimeout: NodeJS.Timeout | undefined;
     let onTimeout: (() => void) | undefined;
 
@@ -76,19 +78,15 @@ export class ActorHttpFetch extends ActorHttp {
 
       const response = await (customFetch ?? fetch)(action.input, requestInit);
 
-      // We remove or update the timeout
-      if (requestTimeout) {
-        const httpBodyTimeout = action.context.get<boolean>(KeysHttp.httpBodyTimeout) ?? false;
-        if (httpBodyTimeout && response.body) {
-          // eslint-disable-next-line ts/no-misused-promises
-          onTimeout = () => response.body?.cancel(new Error(`HTTP timeout when reading the body of ${response.url}.
+      // When the timeout should also encompass the receiving of the response body, adjust the clearing
+      // of it to happen after the body stream has ended, otherwise clear it immediately
+      if (requestTimeout && httpBodyTimeout && response.body) {
+        // eslint-disable-next-line ts/no-misused-promises
+        onTimeout = () => response.body?.cancel(new Error(`HTTP timeout when reading the body of ${response.url}.
 This error can be disabled by modifying the 'httpBodyTimeout' and/or 'httpTimeout' options.`));
-          (<Readable><any>response.body).on('close', () => {
-            clearTimeout(requestTimeout);
-          });
-        } else {
-          clearTimeout(requestTimeout);
-        }
+        (<Readable><any>response.body).on('close', () => clearTimeout(requestTimeout));
+      } else {
+        clearTimeout(requestTimeout);
       }
 
       // Node-fetch does not support body.cancel, while it is mandatory according to the fetch and readablestream api.
@@ -105,9 +103,7 @@ This error can be disabled by modifying the 'httpBodyTimeout' and/or 'httpTimeou
 
       return response;
     } catch (error: unknown) {
-      if (requestTimeout !== undefined) {
-        clearTimeout(requestTimeout);
-      }
+      clearTimeout(requestTimeout);
       throw error;
     }
   }

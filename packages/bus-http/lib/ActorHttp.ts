@@ -85,7 +85,7 @@ export interface IActionHttp extends IAction {
 /**
  * The HTTP output, which contains the HTTP response.
  */
-export type IActorHttpOutput = IActorOutput & Response;
+export interface IActorHttpOutput extends IActorOutput, Response {}
 
 export type IActorHttpArgs = IActorArgs<IActionHttp, IActorTest, IActorHttpOutput>;
 
