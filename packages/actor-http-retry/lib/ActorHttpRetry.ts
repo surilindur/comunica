@@ -52,13 +52,28 @@ export class ActorHttpRetry extends ActorHttp {
         }));
         await this.waitUntil(this.activeDelays[url.host].date);
       }
-      const response = await this.mediatorHttp.mediate({
-        ...action,
-        context: action.context.set(ActorHttpRetry.keyWrapped, true),
-      });
+
+      let response: IActorHttpOutput;
+
+      try {
+        response = await this.mediatorHttp.mediate({
+          ...action,
+          context: action.context.set(ActorHttpRetry.keyWrapped, true),
+        });
+      } catch (error: unknown) {
+        this.logDebug(action.context, `Mediation failed`, () => ({
+          url: url.href,
+          errorName: (<Error>error).name,
+          errorMessage: (<Error>error).message,
+          attemptCount: attempt,
+        }));
+        continue;
+      }
+
       if (response.ok) {
         return response;
       }
+
       if (response.status === 429 || response.status === 503) {
         // When the server reports a rate limit or temporary unavailability,
         // then wait for the amount of time or for the specific date/time specified in Retry-After,
@@ -86,6 +101,7 @@ export class ActorHttpRetry extends ActorHttp {
 
         continue;
       }
+
       if (response.status >= 400 && response.status < 500) {
         // When the server reports a missing document, insufficient permissions, bad request or other error
         // in the 400 range except for the rate limit, it makes sense to skip further retries.
@@ -98,6 +114,7 @@ export class ActorHttpRetry extends ActorHttp {
         }));
         break;
       }
+
       if (response.status >= 500 && response.status < 600 && !retryOnServerError) {
         this.logDebug(action.context, 'Server-side error encountered without retry flag, terminating', () => ({
           url: url.href,

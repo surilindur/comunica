@@ -1,7 +1,10 @@
 /* eslint-disable import/no-nodejs-modules */
 import { Agent as HttpAgent } from 'node:http';
 import { Agent as HttpsAgent } from 'node:https';
+
+/* eslint-enable import/no-nodejs-modules */
 import { ActorHttp } from '@comunica/bus-http';
+import { AbortController as AbortControllerPolyfill } from 'abort-controller';
 import type { IFetchInitPreprocessor } from './IFetchInitPreprocessor';
 
 /**
@@ -38,8 +41,7 @@ export class FetchInitPreprocessor implements IFetchInitPreprocessor {
   public async createAbortController(): Promise<AbortController> {
     // Fallback to abort-controller for Node 14 backward compatibility
     /* istanbul ignore next */
-    const AbortController = globalThis.AbortController || await import('abort-controller');
-    return new AbortController();
+    const AbortControllerImplementation = globalThis.AbortController || AbortControllerPolyfill;
+    return new AbortControllerImplementation();
   }
 }
-/* eslint-enable import/no-nodejs-modules */

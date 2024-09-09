@@ -16,8 +16,15 @@ QUERYX="$(pwd)/testing/qvX.sparql"
 
 # --httpRequestsPerSecond 10
 
-##COMUNICA_CONFIG="$COMUNICA_CONFIG" node "$COMUNICA_BIN" https://sparql.uniprot.org/sparql https://sparql.rhea-db.org/sparql --file "$QUERY2" --showStackTrace -l debug --httpRetryCount 3 --httpRetryDelay 1000
+COMUNICA_CONFIG="$COMUNICA_CONFIG" node "$COMUNICA_BIN" https://sparql.uniprot.org/sparql https://sparql.rhea-db.org/sparql \
+    --file "$QUERY2" \
+    --showStackTrace \
+    --httpRetryCount 1 \
+    --httpRetryDelay 100 \
+    --httpTimeout 10000 \
+    --httpBodyTimeout
+    # --logLevel debug
 
-COMUNICA_CONFIG="$COMUNICA_CONFIG" node --max-old-space-size=16384 "$COMUNICA_BIN" sparql@https://query.wikidata.org/sparql sparql@https://sparql.rhea-db.org/sparql --file "$QUERY3" --showStackTrace --httpRequestsPerSecond 5 --httpRetryCount 10 --logLevel debug
+#COMUNICA_CONFIG="$COMUNICA_CONFIG" node --max-old-space-size=16384 "$COMUNICA_BIN" sparql@https://query.wikidata.org/sparql sparql@https://sparql.rhea-db.org/sparql --file "$QUERY3" --showStackTrace --httpRequestsPerSecond 5 --httpRetryCount 10 --logLevel debug
 
 #COMUNICA_CONFIG="$COMUNICA_CONFIG" node "$COMUNICA_BIN" https://sparql.uniprot.org/sparql https://sparql.rhea-db.org/sparql --file "$QUERY4" --showStackTrace -l debug --httpRetryCount 3 --httpRetryDelay 1000 --explain logical
