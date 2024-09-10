@@ -51,7 +51,6 @@ describe('ActorHttpFetch', () => {
       jest.spyOn(ActorHttp, 'headersToHash').mockReturnValue(<any>'headersDict');
       jest.replaceProperty(<any>actor, 'fetchInitPreprocessor', {
         handle: jest.fn().mockResolvedValue('requestInit'),
-        createAbortController: jest.fn().mockResolvedValue(new AbortController()),
       });
     });
 
@@ -102,26 +101,6 @@ describe('ActorHttpFetch', () => {
       });
       expect(globalThis.fetch).toHaveBeenCalledTimes(1);
       expect(globalThis.fetch).toHaveBeenNthCalledWith(1, input, 'requestInit');
-    });
-
-    // TODO: this is a workaround and can be removed when cross-fetch/node-fetch has been dropped
-    it('should patch response.body.cancel for node-fetch', async() => {
-      const response = { body: { destroy: jest.fn() }};
-      jest.spyOn(globalThis, 'fetch').mockResolvedValue(<any>response);
-      const output = await actor.run({ input, context });
-      expect(output.body!.cancel).toBeInstanceOf(Function);
-      expect((<any>output.body).destroy).toBe(response.body.destroy);
-      expect(actor.prepareRequestHeaders).toHaveBeenCalledTimes(1);
-      expect(ActorHttp.headersToHash).not.toHaveBeenCalled();
-      expect((<any>actor).fetchInitPreprocessor.handle).toHaveBeenCalledTimes(1);
-      expect((<any>actor).fetchInitPreprocessor.handle).toHaveBeenNthCalledWith(1, { method: 'GET', headers });
-      expect(globalThis.fetch).toHaveBeenCalledTimes(1);
-      expect(globalThis.fetch).toHaveBeenNthCalledWith(1, input, 'requestInit');
-      // Attempt to call the close method, which is expected to invoke the destroy
-      const error = 'cancel error';
-      await expect(output.body!.cancel(error)).resolves.not.toThrow();
-      expect(response.body.destroy).toHaveBeenCalledTimes(1);
-      expect(response.body.destroy).toHaveBeenNthCalledWith(1, error);
     });
 
     it('should handle initial response timeout when it is reached', async() => {

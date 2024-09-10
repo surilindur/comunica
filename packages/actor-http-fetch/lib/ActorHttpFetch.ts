@@ -2,8 +2,6 @@ import type { IActionHttp, IActorHttpOutput, IActorHttpArgs } from '@comunica/bu
 import { ActorHttp } from '@comunica/bus-http';
 import { KeysHttp } from '@comunica/context-entries';
 import type { IMediatorTypeTime } from '@comunica/mediatortype-time';
-import type { Readable } from 'readable-stream';
-import 'cross-fetch/polyfill';
 
 // eslint-disable-next-line import/extensions
 import { version as actorVersion } from '../package.json';
@@ -55,7 +53,7 @@ export class ActorHttpFetch extends ActorHttp {
     let timeoutHandle: NodeJS.Timeout | undefined;
 
     if (httpTimeout) {
-      const abortController = await this.fetchInitPreprocessor.createAbortController();
+      const abortController = new AbortController();
       requestInit.signal = abortController.signal;
       timeoutCallback = () => abortController.abort(new Error(`Dereferencing timed out for ${ActorHttp.getInputUrl(action.input).href} after ${httpTimeout} ms`));
       timeoutHandle = setTimeout(() => timeoutCallback(), httpTimeout);
@@ -65,15 +63,6 @@ export class ActorHttpFetch extends ActorHttp {
 
     if (httpTimeout && (!httpBodyTimeout || !response.body)) {
       clearTimeout(timeoutHandle);
-    }
-
-    // TODO: remove the following workaround when cross-fetch is removed
-    // Node-fetch does not support body.cancel, while it is mandatory according to the fetch and readablestream api.
-    // If it doesn't exist, we monkey-patch it.
-    if (response.body && !response.body.cancel && 'destroy' in response.body) {
-      response.body.cancel = async(error?: Error) => {
-        (<Readable><any>response.body).destroy(error);
-      };
     }
 
     return response;

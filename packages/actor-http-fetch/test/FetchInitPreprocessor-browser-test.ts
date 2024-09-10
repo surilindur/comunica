@@ -32,10 +32,4 @@ describe('FetchInitPreprocessor-browser', () => {
       });
     });
   });
-
-  describe('createAbortController', () => {
-    it('should create abort controller', async() => {
-      await expect(preprocessor.createAbortController()).resolves.toBeInstanceOf(AbortController);
-    });
-  });
 });

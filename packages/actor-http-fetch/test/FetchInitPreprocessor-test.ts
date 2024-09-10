@@ -1,6 +1,5 @@
 import { Agent as HttpAgent } from 'node:http';
 import { Agent as HttpsAgent } from 'node:https';
-import { Readable } from 'readable-stream';
 import { FetchInitPreprocessor } from '../lib/FetchInitPreprocessor';
 import type { IFetchInitPreprocessor } from '../lib/IFetchInitPreprocessor';
 
@@ -40,26 +39,15 @@ describe('FetchInitPreprocessor', () => {
       });
       await expect(preprocessor.handle({ body })).resolves.toEqual({
         agent: expect.any(Function),
-        body: expect.any(Readable),
+        body: expect.any(ReadableStream),
         duplex: 'half',
-        keepalive: undefined,
+        keepalive: false,
       });
     });
 
     it('should provide agents for http and https', async() => {
       expect((<any>preprocessor).agent(new URL('http://example.org/'))).toBeInstanceOf(HttpAgent);
       expect((<any>preprocessor).agent(new URL('https://example.org/'))).toBeInstanceOf(HttpsAgent);
-    });
-  });
-
-  describe('createAbortController', () => {
-    it('should create abort controller', async() => {
-      await expect(preprocessor.createAbortController()).resolves.toBeInstanceOf(AbortController);
-    });
-
-    it('should create abort controller using polyfill when not available globally', async() => {
-      delete (<any>globalThis).AbortController;
-      await expect(preprocessor.createAbortController()).resolves.toBeDefined();
     });
   });
 });
