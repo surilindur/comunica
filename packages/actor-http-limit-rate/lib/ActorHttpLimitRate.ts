@@ -7,15 +7,15 @@ export class ActorHttpLimitRate extends ActorHttp {
   private readonly mediatorHttp: MediatorHttp;
   private readonly concurrentRequestLimit: number;
   private readonly requestDelayLimit: number;
-  private readonly requests: Record<string, IHostRequestLimitMetadata>;
+  private readonly requests: Record<string, IHostRequestData>;
 
   private static readonly keyWrapped = new ActionContextKey<boolean>('urn:comunica:actor-http-limit-rate#wrapped');
 
   public constructor(args: IActorHttpQueueArgs) {
     super(args);
     this.mediatorHttp = args.mediatorHttp;
-    this.concurrentRequestLimit = args.concurrentRequestLimit;
-    this.requestDelayLimit = args.requestDelayLimit;
+    this.concurrentRequestLimit = args.concurrentRequestLimit ?? 1_000;
+    this.requestDelayLimit = args.requestDelayLimit ?? 60_000;
     this.requests = {};
   }
 
@@ -42,7 +42,7 @@ export class ActorHttpLimitRate extends ActorHttp {
       new Promise<void>((stopWaiting) => {
         enqueue = stopWaiting;
       }).then(() => {
-        ActorHttpLimitRate.sleep(this.requests[host].delay).then(() => {
+        this.sleep(this.requests[host].delay).then(() => {
           this.requests[host].open++;
           this.mediatorHttp.mediate({
             ...action,
@@ -50,7 +50,11 @@ export class ActorHttpLimitRate extends ActorHttp {
           }).then((response) => {
             success = response.ok;
             resolve(response);
-          }).catch(reject).finally(() => this.onRequestFinished(action, host, success));
+          }).catch(reject).finally(() => {
+            this.updateRateLimits(action, host, this.requests[host], success);
+            this.requests[host].open--;
+            this.advanceRequestQueue(this.requests[host]);
+          });
         }).catch(reject);
       }).catch(reject);
     });
@@ -68,40 +72,40 @@ export class ActorHttpLimitRate extends ActorHttp {
    * Register a request at a host as finished. This function will despatch the next requests from the queue,
    * as well as update the request limit and delay accordingly.
    * @param {IActionHttp} action The original action from run method.
-   * @param {string} host The hostname for which the request was sent.
+   * @param {string} host The host for which the data is.
+   * @param {IHostRequestData} data The host request data in need of updating.
    * @param {boolean} success Whether the request was successful or not.
    */
-  public onRequestFinished(action: IActionHttp, host: string, success: boolean): void {
+  private updateRateLimits(action: IActionHttp, host: string, data: IHostRequestData, success: boolean): void {
     if (!success) {
-      this.requests[host].delay = Math.min(this.requestDelayLimit, this.requests[host].delay * 2);
-      this.requests[host].limit = Math.round(Math.sqrt(this.requests[host].limit));
-    } else if (this.requests[host].previousSuccess) {
-      this.requests[host].delay = Math.ceil(this.requests[host].delay * 0.9);
-      if (
-        this.requests[host].open >= this.requests[host].limit &&
-        this.requests[host].limit < this.concurrentRequestLimit
-      ) {
-        this.requests[host].limit++;
+      data.delay = Math.min(this.requestDelayLimit, data.delay * 2);
+      data.limit = Math.round(Math.sqrt(data.limit));
+    } else if (data.previousSuccess) {
+      data.delay = Math.ceil(data.delay * 0.9);
+      if (data.open >= data.limit && data.limit < this.concurrentRequestLimit) {
+        data.limit++;
       }
     }
 
-    this.logDebug(action.context, `Finished request to ${host}`, () => ({
+    this.logDebug(action.context, `Updated rate limits for ${host}`, () => ({
       success,
-      previousSuccess: this.requests[host].previousSuccess,
-      openRequests: this.requests[host].open,
-      concurrentRequestLimit: this.requests[host].limit,
-      requestQueueLength: this.requests[host].queue.length,
-      requestDelayMilliseconds: this.requests[host].delay,
+      previousSuccess: data.previousSuccess,
+      openRequests: data.open,
+      concurrentRequestLimit: data.limit,
+      requestQueueLength: data.queue.length,
+      requestDelayMilliseconds: data.delay,
     }));
 
-    this.requests[host].previousSuccess = success;
-    this.requests[host].open--;
+    data.previousSuccess = success;
+  }
 
-    for (let i = this.requests[host].limit - this.requests[host].open; i > 0; i--) {
-      const next = this.requests[host].queue.shift();
-      if (next) {
-        next();
-      }
+  /**
+   * Advances the request queue for the specified host to fill the allowed open requests.
+   * @param {IHostRequestData} data The host request data to advance the queue for.
+   */
+  private advanceRequestQueue(data: IHostRequestData): void {
+    for (let i = Math.min(data.queue.length, data.limit - data.open); i > 0; i--) {
+      data.queue.shift()!();
     }
   }
 
@@ -109,33 +113,16 @@ export class ActorHttpLimitRate extends ActorHttp {
    * Waits for the specified number of milliseconds.
    * @param {number} ms The amount of time to wait
    */
-  public static async sleep(ms: number): Promise<void> {
+  private async sleep(ms: number): Promise<void> {
     await new Promise(resolve => setTimeout(resolve, ms));
   }
 }
 
-interface IHostRequestLimitMetadata {
-  /**
-   * The pending request queue, containing functions
-   * that trigger their correpsonding requests when invoked.
-   */
+interface IHostRequestData {
   queue: (() => void)[];
-  /**
-   * The number of open requests at the host.
-   */
   open: number;
-  /**
-   * The delay between subsequent requests.
-   */
   delay: number;
-  /**
-   * The concurrent open request limit.
-   */
   limit: number;
-  /**
-   * Whether the previous request was a success or not,
-   * to determine whether rate limits should be adjusted or not.
-   */
   previousSuccess: boolean;
 };
 
@@ -146,12 +133,10 @@ export interface IActorHttpQueueArgs extends IActorHttpArgs {
   mediatorHttp: MediatorHttp;
   /**
    * The maximum number of concurrent requests to send to a server.
-   * @default {1000}
    */
-  concurrentRequestLimit: number;
+  concurrentRequestLimit?: number;
   /**
    * The maximum delay between subsequent requests.
-   * @default {60000}
    */
-  requestDelayLimit: number;
+  requestDelayLimit?: number;
 }
