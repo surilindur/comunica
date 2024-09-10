@@ -53,22 +53,10 @@ export class ActorHttpRetry extends ActorHttp {
         await this.waitUntil(this.activeDelays[url.host].date);
       }
 
-      let response: IActorHttpOutput;
-
-      try {
-        response = await this.mediatorHttp.mediate({
-          ...action,
-          context: action.context.set(ActorHttpRetry.keyWrapped, true),
-        });
-      } catch (error: unknown) {
-        this.logDebug(action.context, `Mediation failed`, () => ({
-          url: url.href,
-          errorName: (<Error>error).name,
-          errorMessage: (<Error>error).message,
-          attemptCount: attempt,
-        }));
-        continue;
-      }
+      const response = await this.mediatorHttp.mediate({
+        ...action,
+        context: action.context.set(ActorHttpRetry.keyWrapped, true),
+      });
 
       if (response.ok) {
         return response;

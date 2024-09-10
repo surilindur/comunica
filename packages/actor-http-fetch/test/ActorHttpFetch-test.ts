@@ -252,19 +252,4 @@ describe('ActorHttpFetch', () => {
       expect(actor.prepareRequestHeaders({ input, context: contextWithAuth }).has('authorization')).toBeFalsy();
     });
   });
-
-  describe('createUserAgent', () => {
-    it('should reuse browser agent in browser environments', () => {
-      const browserAgent = 'browser user-agent';
-      globalThis.window = <any>{ document: 'document' };
-      jest.spyOn(globalThis.navigator, 'userAgent', 'get').mockReturnValue(browserAgent);
-      expect(ActorHttpFetch.createUserAgent()).toBe(browserAgent);
-      delete (<any>globalThis).window;
-    });
-
-    it('should construct custom agent in Node.js environments', () => {
-      const expected = /^Comunica\/[0-9]+\.0 \([A-z0-9 ;]+\) [A-z]+\/[0-9]+\.[0-9]+\.[0-9]+ Node\.js\/[0-9]+$/u;
-      expect(ActorHttpFetch.createUserAgent()).toMatch(expected);
-    });
-  });
 });

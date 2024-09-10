@@ -71,4 +71,22 @@ describe('ActorHttp', () => {
       expect(ActorHttp.getInputUrl(new URL(url)).href).toBe(url);
     });
   });
+
+  describe('createUserAgent', () => {
+    const actorName = ActorHttp.name;
+    const actorVersion = '1.2.3';
+
+    it('should reuse browser agent in browser environments', () => {
+      globalThis.window = <any>{ document: 'document' };
+      expect(ActorHttp.createUserAgent(actorName, actorVersion)).toBe(globalThis.navigator.userAgent);
+      delete (<any>globalThis).window;
+    });
+
+    it('should construct custom agent in Node.js environments', () => {
+      const expected = /^Comunica\/[0-9]+\.0 \([A-z0-9 ;]+\) [A-z]+\/[0-9]+\.[0-9]+\.[0-9]+ [A-z.]+\/[0-9]+$/u;
+      const userAgent = ActorHttp.createUserAgent(actorName, actorVersion);
+      expect(userAgent).toMatch(expected);
+      expect(userAgent.endsWith(globalThis.navigator.userAgent)).toBeTruthy();
+    });
+  });
 });

@@ -16,7 +16,7 @@ type Fetch = (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>
 export class ActorHttpFetch extends ActorHttp {
   private readonly fetchInitPreprocessor: IFetchInitPreprocessor;
 
-  private static readonly userAgent = ActorHttpFetch.createUserAgent();
+  private static readonly userAgent = ActorHttp.createUserAgent(ActorHttpFetch.name, actorVersion);
 
   public constructor(args: IActorHttpFetchArgs) {
     super(args);
@@ -32,7 +32,7 @@ export class ActorHttpFetch extends ActorHttp {
 
     const init: RequestInit = { method: 'GET', ...action.init, headers };
 
-    this.logInfo(action.context, `Requesting ${ActorHttpFetch.getInputUrl(action.input).href}`, () => ({
+    this.logInfo(action.context, `Requesting ${ActorHttp.getInputUrl(action.input).href}`, () => ({
       headers: ActorHttp.headersToHash(headers),
       method: init.method,
     }));
@@ -100,24 +100,6 @@ export class ActorHttpFetch extends ActorHttp {
     }
 
     return headers;
-  }
-
-  /**
-   * Creates an appropriate User-Agent header string for Node.js or browser environment.
-   * Within browser environments, the browser agent header is used as-is to avoid problems.
-   * The function checks for globalThis.window.document being defined,
-   * because globalThis.process could have been polyfilled and thus produce false positives.
-   * @returns {string} User agent string
-   */
-  public static createUserAgent(): string {
-    if (typeof globalThis.window === 'undefined' || typeof globalThis.window.document === 'undefined') {
-      return [
-        `Comunica/${actorVersion.split('.')[0]}.0 (${globalThis.process.platform}; ${globalThis.process.arch})`,
-        `ActorHttpFetch/${actorVersion}`,
-        `${globalThis.navigator.userAgent}`,
-      ].join(' ');
-    }
-    return globalThis.navigator.userAgent;
   }
 }
 

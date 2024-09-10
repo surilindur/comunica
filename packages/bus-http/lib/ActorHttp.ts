@@ -72,6 +72,24 @@ export abstract class ActorHttp extends Actor<IActionHttp, IActorTest, IActorHtt
   public static getInputUrl(input: RequestInfo | URL): URL {
     return new URL(input instanceof Request ? input.url : input);
   }
+
+  /**
+   * Creates an appropriate User-Agent header string for Node.js or browser environment.
+   * Within browser environments, the browser agent header is used as-is to avoid problems.
+   * The function checks for globalThis.window.document being defined,
+   * because globalThis.process could have been polyfilled and thus produce false positives.
+   * @returns {string} User agent string
+   */
+  public static createUserAgent(actorName: string, actorVersion: string): string {
+    if (typeof globalThis.window === 'undefined' || typeof globalThis.window.document === 'undefined') {
+      return [
+        `Comunica/${actorVersion.split('.')[0]}.0 (${globalThis.process.platform}; ${globalThis.process.arch})`,
+        `${actorName}/${actorVersion}`,
+        `${globalThis.navigator.userAgent}`,
+      ].join(' ');
+    }
+    return globalThis.navigator.userAgent;
+  }
 }
 
 /**
