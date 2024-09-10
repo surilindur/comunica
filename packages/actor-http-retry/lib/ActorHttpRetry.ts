@@ -36,7 +36,6 @@ export class ActorHttpRetry extends ActorHttp {
 
     const retryCount = action.context.getSafe<number>(KeysHttp.httpRetryCount) + 1;
     const retryDelay = action.context.get<number>(KeysHttp.httpRetryDelay) ?? 0;
-    const retryOnServerError = action.context.get<boolean>(KeysHttp.httpRetryOnServerError) ?? false;
 
     // This is declared outside the loop so it can be used for the final error message
     let attempt = 0;
@@ -103,8 +102,11 @@ export class ActorHttpRetry extends ActorHttp {
         break;
       }
 
-      if (response.status >= 500 && response.status < 600 && !retryOnServerError) {
-        this.logDebug(action.context, 'Server-side error encountered without retry flag, terminating', () => ({
+      if (response.status >= 500 && response.status < 600) {
+        // When a server-side error is encountered, it will likely not be fixable client-side,
+        // and sending the same request again will most likely result in the same server-side failure.
+        // Therefore, it makes sense not to retry on such errors at all.
+        this.logDebug(action.context, 'Server-side error encountered, terminating', () => ({
           url: url.href,
           status: response.status,
           statusText: response.statusText,

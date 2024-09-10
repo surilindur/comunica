@@ -87,22 +87,6 @@ describe('ActorHttpRetry', () => {
       expect(mediatorHttp.mediate).toHaveBeenCalledTimes(1);
     });
 
-    it('should handle error codes in the 500 range with the retry flag', async() => {
-      const context = new ActionContext({
-        [KeysHttp.httpRetryCount.name]: 1,
-        [KeysHttp.httpRetryOnServerError.name]: true,
-      });
-      const response: Response = <any> { ok: false, status: 500 };
-      jest.spyOn(mediatorHttp, 'mediate').mockResolvedValue(response);
-      expect(actor.waitUntil).not.toHaveBeenCalled();
-      expect(actor.parseRetryAfterHeader).not.toHaveBeenCalled();
-      expect(mediatorHttp.mediate).not.toHaveBeenCalled();
-      await expect(actor.run({ input, context })).rejects.toThrow(`Dereferencing failed after 2 attempts: ${input}`);
-      expect(actor.waitUntil).not.toHaveBeenCalled();
-      expect(actor.parseRetryAfterHeader).not.toHaveBeenCalled();
-      expect(mediatorHttp.mediate).toHaveBeenCalledTimes(2);
-    });
-
     it('should handle server-side rate limiting with retry-after header', async() => {
       const retryAfterDate = new Date(1_000);
       jest.spyOn(Date, 'now').mockReturnValue(0);

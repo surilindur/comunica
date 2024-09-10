@@ -134,14 +134,6 @@ export class CliArgsHandlerBase implements ICliArgsHandler {
           type: 'number',
           describe: 'The number of milliseconds to wait between fetch retries',
         },
-        httpRetryOnServerError: {
-          type: 'boolean',
-          describe: 'If fetch should be retried on 5xx server error responses, instead of being resolved.',
-        },
-        httpRequestsPerSecond: {
-          type: 'number',
-          describe: 'The maximum number of requests per second the engine should send to a single host',
-        },
         unionDefaultGraph: {
           type: 'boolean',
           describe: 'If the default graph should also contain the union of all named graphs',
@@ -251,19 +243,6 @@ export class CliArgsHandlerBase implements ICliArgsHandler {
         throw new Error('The --httpRetryDelay option requires the --httpRetryCount option to be set');
       }
       context[KeysHttp.httpRetryDelay.name] = args.httpRetryDelay;
-    }
-
-    // Define HTTP retry on server error response
-    if (args.httpRetryOnServerError) {
-      if (!args.httpRetryCount) {
-        throw new Error('The --httpRetryOnServerError option requires the --httpRetryCount option to be set');
-      }
-      context[KeysHttp.httpRetryOnServerError.name] = args.httpRetryOnServerError;
-    }
-
-    // Define HTTP request limit per host per second
-    if (args.httpRequestsPerSecond) {
-      context[KeysHttp.httpRequestsPerSecond.name] = args.httpRequestsPerSecond;
     }
 
     // Define union default graph
