@@ -51,15 +51,17 @@
     "@types/yargs": "^17.0.24",
     "asynciterator": "^3.9.0",
     "negotiate": "^1.0.1",
-    "process": "^0.11.10",
     "rdf-quad": "^1.5.0",
     "readable-stream": "^4.5.2",
     "yargs": "^17.7.2"
   },
-  "optionalDependencies": {
-    "process": "^0.11.10"
+  "devDependencies": {
+    "@types/readable-stream": "^4.0.0"
   },
   "browser": {
+    "./lib/ActorInitQuery": "./lib/ActorInitQuery-browser",
+    "./lib/ActorInitQuery.js": "./lib/ActorInitQuery-browser.js",
+    "./lib/index": "./lib/index-browser",
     "./lib/index.js": "./lib/index-browser.js"
   }
 }

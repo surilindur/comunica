@@ -44,6 +44,7 @@
     "relative-to-absolute-iri": "^1.0.7"
   },
   "browser": {
+    "./lib/ActorDereferenceHttp": "./lib/ActorDereferenceHttp-browser",
     "./lib/ActorDereferenceHttp.js": "./lib/ActorDereferenceHttp-browser.js"
   }
 }

@@ -23,13 +23,11 @@ module.exports = config([
       'ts/no-unsafe-assignment': 'off',
 
       'ts/no-require-imports': [ 'error', { allow: [
-        'process/',
         'web-streams-ponyfill',
         'is-stream',
         'readable-stream-node-to-web',
       ]}],
       'ts/no-var-requires': [ 'error', { allow: [
-        'process/',
         'web-streams-ponyfill',
         'is-stream',
         'readable-stream-node-to-web',
@@ -50,6 +48,26 @@ module.exports = config([
       'unused-imports/no-unused-vars': 'off',
       'ts/no-require-imports': 'off',
       'ts/no-var-requires': 'off',
+    },
+  },
+  {
+    // Webpack config-specific overrides
+    files: [
+      '**/webpack.config.ts',
+    ],
+    rules: {
+      'import/extensions': 'off',
+      'import/no-nodejs-modules': 'off',
+      'import/no-extraneous-dependencies': 'off',
+    },
+  },
+  {
+    // The browser alternatives end in -browser.ts and cannot follow camelCase
+    files: [
+      '**/*-browser.ts',
+    ],
+    rules: {
+      'unicorn/filename-case': 'off',
     },
   },
   {

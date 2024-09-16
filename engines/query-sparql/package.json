@@ -30,9 +30,9 @@
     "access": "public"
   },
   "bin": {
+    "comunica-dynamic-sparql": "bin/query-dynamic.js",
     "comunica-sparql": "bin/query.js",
-    "comunica-sparql-http": "bin/http.js",
-    "comunica-dynamic-sparql": "bin/query-dynamic.js"
+    "comunica-sparql-http": "bin/http.js"
   },
   "files": [
     "bin/**/*.d.ts",
@@ -211,10 +211,10 @@
     "@comunica/mediator-race": "^3.2.1",
     "@comunica/runner": "^3.2.1",
     "@comunica/runner-cli": "^3.2.1",
-    "@comunica/types": "^3.2.1",
-    "process": "^0.11.10"
+    "@comunica/types": "^3.2.1"
   },
   "browser": {
+    "./lib/index": "./lib/index-browser",
     "./lib/index.js": "./lib/index-browser.js"
   }
 }
