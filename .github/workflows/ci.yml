@@ -26,7 +26,7 @@ jobs:
       - run: yarn install --immutable
       - run: yarn playwright install --with-deps ${{ matrix.browser }}
       - run: yarn build
-      - run: yarn workspaces foreach --all --include 'engines/query-sparql' run test:browser --browser ${{ matrix.browser }}
+      - run: yarn playwright test --config engines/query-sparql/playwright.config.ts --browser ${{ matrix.browser }}
 
   # lint:
   #   name: Lint & Depcheck
