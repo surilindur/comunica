@@ -1,9 +1,9 @@
 import { resolve } from 'node:path';
-import NodePolyfillPlugin from 'node-polyfill-webpack-plugin';
 import { ProgressPlugin } from 'webpack';
 import type { Configuration } from 'webpack';
 import type { Configuration as DevServerConfiguration } from 'webpack-dev-server';
 
+const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
 const devServerHost = process.env.WEBPACK_HOST ?? '127.0.0.1';
 const devServerPort = process.env.WEBPACK_PORT ?? 4000;
 
