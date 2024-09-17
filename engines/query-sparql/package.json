@@ -46,8 +46,6 @@
     "lib/**/*.js.map"
   ],
   "scripts": {
-    "build": "yarn run build:ts && yarn run build:engine",
-    "build:ts": "tsc",
     "build:engine": "comunica-compile-config config/config-default.json > engine-default.js",
     "build:browser": "yarn run build:engine && webpack --mode production",
     "build:browser-profile": "yarn run build:engine && webpack --profile --mode production --json > stats.json && webpack-bundle-analyzer stats.json && rm stats.json",
