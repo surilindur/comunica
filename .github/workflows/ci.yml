@@ -19,8 +19,8 @@ jobs:
         ports:
           - 3030:3030
         volumes:
-          - .github/jena-fuseki/assembler.ttl:/fuseki-base/configuration/assembler.ttl:ro
-          - .github/jena-fuseki/config.ttl:/fuseki-base/config.ttl:ro
+          - ${{ github.workspace }}/.github/jena-fuseki/assembler.ttl:/fuseki-base/configuration/assembler.ttl:ro
+          - ${{ github.workspace }}/.github/jena-fuseki/config.ttl:/fuseki-base/config.ttl:ro
     strategy:
       matrix:
         browser:
