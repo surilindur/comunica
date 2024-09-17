@@ -7,11 +7,26 @@ concurrency:
 
 jobs:
 
+  dummy:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "aaaa"
+
   browser:
+    services:
+      jenafuseki:
+        image: secoresearch/fuseki:latest
+        ports:
+          - 3030:3030
+        volumes:
+          - .github/jena-fuseki/assembler.ttl:/fuseki-base/configuration/assembler.ttl:ro
+          - .github/jena-fuseki/config.ttl:/fuseki-base/config.ttl:ro
     strategy:
       matrix:
         browser:
           - firefox
+          - chromium
+          - webkit
     runs-on: ubuntu-latest
     steps:
       - uses: actions/setup-node@v4
@@ -24,8 +39,8 @@ jobs:
           path: .yarn
           key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
       - run: yarn install --immutable
+      - run: yarn workspaces foreach --all run build
       - run: yarn playwright install --with-deps ${{ matrix.browser }}
-      - run: yarn build
       - run: yarn playwright test --config engines/query-sparql/playwright.config.ts --browser ${{ matrix.browser }}
 
   # lint:

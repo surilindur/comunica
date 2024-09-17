@@ -1,5 +1,5 @@
 import { PlaywrightTestConfig, defineConfig } from '@playwright/test';
-import { devServerHost, devServerPort } from './webpack.config';
+import { devServerUrl } from './webpack.config';
 
 const config: PlaywrightTestConfig = defineConfig({
   testMatch: /test(\/.+)?\/[A-z]+-browser\.ts$/u,
@@ -7,7 +7,7 @@ const config: PlaywrightTestConfig = defineConfig({
   preserveOutput: 'never',
   webServer: {
     command: 'webpack-dev-server',
-    url: `http://${devServerHost}:${devServerPort}`,
+    url: devServerUrl,
     reuseExistingServer: !process.env.CI,
     stdout: 'ignore',
     stderr: 'pipe',

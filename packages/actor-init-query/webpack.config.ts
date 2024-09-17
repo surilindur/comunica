@@ -3,9 +3,14 @@ import { ProgressPlugin } from 'webpack';
 import type { Configuration } from 'webpack';
 import type { Configuration as DevServerConfiguration } from 'webpack-dev-server';
 
+// TODO: investigate the possibility of getting rid of this require via esModuleInterop
 const NodePolyfillPlugin = require('node-polyfill-webpack-plugin');
+
+const bundleName = 'comunica-browser.js';
+
 const devServerHost = process.env.WEBPACK_HOST ?? '127.0.0.1';
 const devServerPort = process.env.WEBPACK_PORT ?? 4000;
+const devServerUrl = `http://${devServerHost}:${devServerPort}`;
 
 function config(packagePath: string): Configuration & DevServerConfiguration {
   return {
@@ -14,11 +19,9 @@ function config(packagePath: string): Configuration & DevServerConfiguration {
       host: devServerHost,
       static: packagePath,
     },
-    entry: {
-      index: resolve(packagePath, 'lib/index-browser.js'),
-    },
+    entry: resolve(packagePath, 'lib', 'index-browser.ts'),
     output: {
-      filename: 'comunica-browser.js',
+      filename: bundleName,
       path: packagePath,
       libraryTarget: 'var',
       library: 'Comunica',
@@ -53,5 +56,5 @@ function config(packagePath: string): Configuration & DevServerConfiguration {
   };
 }
 
-export { config, devServerHost, devServerPort };
+export { config, devServerUrl, bundleName };
 export default config(__dirname);
