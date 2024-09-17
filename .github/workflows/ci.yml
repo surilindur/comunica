@@ -27,8 +27,8 @@ jobs:
       - run: yarn playwright install --with-deps ${{ matrix.browser }}
       - run: yarn build
       - run: yarn workspaces foreach --all --include 'engines/query-sparql' run prepare
-      - run: yarn workspaces foreach --all --include 'engines/query-sparql' run browser
-      - run: yarn workspaces foreach --all --include 'engines/query-sparql' playwright test --browser ${{ matrix.browser }}
+      #- run: yarn workspaces foreach --all --include 'engines/query-sparql' run browser
+      - run: yarn workspaces foreach --all --include 'engines/query-sparql' run playwright test --browser ${{ matrix.browser }}
 
   # lint:
   #   name: Lint & Depcheck
