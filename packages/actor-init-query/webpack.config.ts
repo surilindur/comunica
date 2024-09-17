@@ -1,5 +1,5 @@
 import { resolve } from 'node:path';
-import * as NodePolyfillPlugin from 'node-polyfill-webpack-plugin';
+import NodePolyfillPlugin from 'node-polyfill-webpack-plugin';
 import { ProgressPlugin } from 'webpack';
 import type { Configuration } from 'webpack';
 import type { Configuration as DevServerConfiguration } from 'webpack-dev-server';
