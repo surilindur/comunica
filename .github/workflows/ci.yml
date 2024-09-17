@@ -33,7 +33,7 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
       - run: yarn install --immutable
       - run: yarn run build
-      - run: yarn workspaces foreach --all --include 'engines/*' run build
+      - run: yarn workspaces foreach --all --include 'engines/query-sparql' run build
       - run: yarn playwright install --with-deps ${{ matrix.browser }}
       - run: yarn playwright test --config engines/query-sparql/playwright.config.ts --browser ${{ matrix.browser }}
       - run: .github/jena-fuseki/endpoint.sh stop "jenafuseki-${{ matrix.browser }}"
