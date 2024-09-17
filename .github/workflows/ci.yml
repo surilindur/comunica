@@ -80,6 +80,7 @@ jobs:
 
   jest:
     name: Jest
+    needs: linter
     strategy:
       matrix:
         os:
