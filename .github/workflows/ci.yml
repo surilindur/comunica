@@ -13,14 +13,6 @@ jobs:
       - run: echo "aaaa"
 
   browser:
-    services:
-      jenafuseki:
-        image: secoresearch/fuseki:latest
-        ports:
-          - 3030:3030
-        volumes:
-          - ${{ github.workspace }}/.github/jena-fuseki/assembler.ttl:/fuseki-base/configuration/assembler.ttl:ro
-          - ${{ github.workspace }}/.github/jena-fuseki/config.ttl:/fuseki-base/config.ttl:ro
     strategy:
       matrix:
         browser:
@@ -34,6 +26,7 @@ jobs:
           node-version: 22.x
       - run: corepack enable
       - uses: actions/checkout@v4
+      - run: .github/jena-fuseki/endpoint.sh start "jenafuseki-${{ matrix.browser }}"
       - uses: actions/cache@v4
         with:
           path: .yarn
@@ -42,6 +35,8 @@ jobs:
       - run: yarn workspaces foreach --all run build
       - run: yarn playwright install --with-deps ${{ matrix.browser }}
       - run: yarn playwright test --config engines/query-sparql/playwright.config.ts --browser ${{ matrix.browser }}
+      - run: .github/jena-fuseki/endpoint.sh stop "jenafuseki-${{ matrix.browser }}"
+        if: always()
 
   # lint:
   #   name: Lint & Depcheck
