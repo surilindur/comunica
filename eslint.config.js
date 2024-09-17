@@ -1,11 +1,10 @@
 const config = require('@rubensworks/eslint-config');
 
-export default config([
+module.exports = config([
   {
     files: [ '**/*.ts' ],
     languageOptions: {
       parserOptions: {
-        tsconfigRootDir: __dirname,
         project: [ './tsconfig.eslint.json' ],
       },
     },
@@ -58,6 +57,27 @@ export default config([
     rules: {
       'import/extensions': 'off',
       'import/no-nodejs-modules': 'off',
+      'import/no-extraneous-dependencies': 'off',
+      'ts/no-var-requires': 'off',
+      'ts/no-require-imports': 'off',
+    },
+  },
+  {
+    // Playwright-specific overrides
+    files: [
+      '**/playwright.config.ts',
+    ],
+    rules: {
+      'import/extensions': 'off',
+      'import/no-extraneous-dependencies': 'off',
+    },
+  },
+  {
+    // Jest-specific overrides
+    files: [
+      'jest.setup.ts',
+    ],
+    rules: {
       'import/no-extraneous-dependencies': 'off',
     },
   },

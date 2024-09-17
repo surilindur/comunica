@@ -4,8 +4,6 @@
 import { BindingsFactory } from '@comunica/bindings-factory';
 import type * as RDF from '@rdfjs/types';
 import type { Event } from 'benchmark';
-
-// eslint-disable-next-line import/no-extraneous-dependencies
 import { Suite } from 'benchmark';
 
 // Use require instead of import for default exports, to be compatible with variants of esModuleInterop in tsconfig.

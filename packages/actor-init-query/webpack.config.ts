@@ -41,7 +41,7 @@ function config(packagePath: string): Configuration & DevServerConfiguration {
       new ProgressPlugin(),
       // TODO: when the dependencies no longer require these, remove them
       new NodePolyfillPlugin({
-        additionalAliases: ['process', 'Buffer'],
+        additionalAliases: [ 'process', 'Buffer' ],
       }),
     ],
     performance: {
@@ -50,8 +50,8 @@ function config(packagePath: string): Configuration & DevServerConfiguration {
       maxEntrypointSize: 1750000,
     },
     resolve: {
-      extensions: ['.ts', '.js'],
-      aliasFields: ['browser'],
+      extensions: [ '.ts', '.js' ],
+      aliasFields: [ 'browser' ],
     },
   };
 }

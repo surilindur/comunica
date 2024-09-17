@@ -1,4 +1,5 @@
-import { PlaywrightTestConfig, defineConfig } from '@playwright/test';
+import { defineConfig } from '@playwright/test';
+import type { PlaywrightTestConfig } from '@playwright/test';
 import { devServerUrl } from './webpack.config';
 
 const config: PlaywrightTestConfig = defineConfig({
