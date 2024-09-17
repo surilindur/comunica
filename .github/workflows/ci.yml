@@ -32,7 +32,7 @@ jobs:
           path: .yarn
           key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
       - run: yarn install --immutable
-      - run: yarn buikd
+      - run: yarn run build
       - run: yarn workspaces foreach --all --include 'engines/*' run build
       - run: yarn playwright install --with-deps ${{ matrix.browser }}
       - run: yarn playwright test --config engines/query-sparql/playwright.config.ts --browser ${{ matrix.browser }}
