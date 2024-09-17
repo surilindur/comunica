@@ -1,3 +1,3 @@
 export * from './ActorInitQueryBase';
-export * from './ActorInitQuery';
+export * from './ActorInitQuery-browser';
 export { QueryEngineBase } from './QueryEngineBase';

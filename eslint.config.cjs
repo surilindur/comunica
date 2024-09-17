@@ -1,6 +1,6 @@
 const config = require('@rubensworks/eslint-config');
 
-module.exports = config([
+export default config([
   {
     files: [ '**/*.ts' ],
     languageOptions: {

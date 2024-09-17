@@ -33,7 +33,7 @@
   ],
   "scripts": {
     "build": "yarn run build:ts && yarn run build:components",
-    "build:ts": "node \"../../node_modules/typescript/bin/tsc\"",
+    "build:ts": "tsc",
     "build:components": "componentsjs-generator"
   },
   "dependencies": {
@@ -44,7 +44,6 @@
     "relative-to-absolute-iri": "^1.0.7"
   },
   "browser": {
-    "./lib/ActorDereferenceHttp": "./lib/ActorDereferenceHttp-browser",
     "./lib/ActorDereferenceHttp.js": "./lib/ActorDereferenceHttp-browser.js"
   }
 }

@@ -35,7 +35,7 @@
   ],
   "scripts": {
     "build": "yarn run build:ts",
-    "build:ts": "node \"../../node_modules/typescript/bin/tsc\""
+    "build:ts": "tsc"
   },
   "dependencies": {
     "@comunica/bindings-factory": "^3.2.1",

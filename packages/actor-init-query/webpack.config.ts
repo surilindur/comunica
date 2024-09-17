@@ -4,54 +4,54 @@ import { ProgressPlugin } from 'webpack';
 import type { Configuration } from 'webpack';
 import type { Configuration as DevServerConfiguration } from 'webpack-dev-server';
 
-const configuration: Configuration & DevServerConfiguration = {
-  devServer: {
-    port: 4000,
-    host: '127.0.0.1',
-    static: __dirname,
-  },
-  entry: {
-    index: resolve(__dirname, 'lib/index-browser.js'),
-  },
-  output: {
-    filename: 'comunica-browser.js',
-    path: __dirname,
-    libraryTarget: 'var',
-    library: 'Comunica',
-  },
-  mode: 'production',
-  devtool: 'source-map',
-  module: {
-    rules: [
-      // {
-      // test: /\.js$/u,
-      // loader: 'babel-loader',
-      // exclude: /node_modules/u,
-      // },
-      {
-        test: /\.ts$/u,
-        use: 'ts-loader',
-        exclude: /node_modules/u,
-      },
-    ],
-  },
-  plugins: [
-    new ProgressPlugin(),
-    // TODO: when the dependencies no longer require these, remove them
-    new NodePolyfillPlugin({
-      onlyAliases: [ 'process', 'Buffer' ],
-    }),
-  ],
-  performance: {
-    hints: 'error',
-    maxAssetSize: 1750000,
-    maxEntrypointSize: 1750000,
-  },
-  resolve: {
-    extensions: [ '.ts', '.js' ],
-    aliasFields: [ 'browser' ],
-  },
-};
+const devServerHost = process.env.WEBPACK_HOST ?? '127.0.0.1';
+const devServerPort = process.env.WEBPACK_PORT ?? 4000;
 
-export { configuration };
-export default configuration;
+function config(packagePath: string): Configuration & DevServerConfiguration {
+  return {
+    devServer: {
+      port: devServerPort,
+      host: devServerHost,
+      static: packagePath,
+    },
+    entry: {
+      index: resolve(packagePath, 'lib/index-browser.js'),
+    },
+    output: {
+      filename: 'comunica-browser.js',
+      path: packagePath,
+      libraryTarget: 'var',
+      library: 'Comunica',
+    },
+    mode: 'development',
+    devtool: 'source-map',
+    module: {
+      rules: [
+        {
+          test: /\.ts$/u,
+          use: 'ts-loader',
+          exclude: /node_modules/u,
+        },
+      ],
+    },
+    plugins: [
+      new ProgressPlugin(),
+      // TODO: when the dependencies no longer require these, remove them
+      new NodePolyfillPlugin({
+        additionalAliases: ['process', 'Buffer'],
+      }),
+    ],
+    performance: {
+      hints: 'error',
+      maxAssetSize: 1750000,
+      maxEntrypointSize: 1750000,
+    },
+    resolve: {
+      extensions: ['.ts', '.js'],
+      aliasFields: ['browser'],
+    },
+  };
+}
+
+export { config, devServerHost, devServerPort };
+export default config(__dirname);

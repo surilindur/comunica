@@ -31,7 +31,7 @@
   ],
   "scripts": {
     "build": "yarn run build:ts && yarn run build:components",
-    "build:ts": "node \"../../node_modules/typescript/bin/tsc\"",
+    "build:ts": "tsc",
     "build:components": "componentsjs-generator"
   },
   "dependencies": {
@@ -41,7 +41,6 @@
     "@comunica/mediatortype-time": "^3.2.1"
   },
   "browser": {
-    "./lib/FetchInitPreprocessor": "./lib/FetchInitPreprocessor-browser",
-    "./lib/FetchInitPreprocessor.js": "./lib/FetchInitPreprocessor-browser.js"
+    "./lib/FetchInitPreprocessor": "./lib/FetchInitPreprocessor-browser"
   }
 }

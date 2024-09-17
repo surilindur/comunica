@@ -8,7 +8,6 @@
     ],
     "module": "commonjs",
     "resolveJsonModule": true,
-
     "strict": true,
     "strictFunctionTypes": true,
     "strictPropertyInitialization": false,
@@ -18,7 +17,8 @@
     "inlineSources": true,
     "preserveConstEnums": true,
     "removeComments": false,
-    "sourceMap": true
+    "sourceMap": true,
+    "skipLibCheck": true
   },
   "include": [
     "engines/*/bin/**/*",

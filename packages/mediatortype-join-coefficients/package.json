@@ -30,7 +30,7 @@
     "lib/**/*.js.map"
   ],
   "scripts": {
-    "build": "node \"../../node_modules/typescript/bin/tsc\""
+    "build": "tsc"
   },
   "dependencies": {
     "@comunica/core": "^3.2.1",

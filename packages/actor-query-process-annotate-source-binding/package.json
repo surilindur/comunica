@@ -33,7 +33,7 @@
   ],
   "scripts": {
     "build": "npm run build:ts && npm run build:components",
-    "build:ts": "node \"../../node_modules/typescript/bin/tsc\"",
+    "build:ts": "tsc",
     "build:components": "componentsjs-generator"
   },
   "dependencies": {

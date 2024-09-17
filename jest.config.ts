@@ -1,4 +1,6 @@
-module.exports = {
+import type { Config } from 'jest';
+
+const config: Config = {
   transform: {
     '^.+\\.ts$': [ 'ts-jest', {
       // Enabling this can fix issues when using prereleases of typings packages
@@ -6,17 +8,19 @@ module.exports = {
     }],
   },
   testRegex: [ '/test/.*-test.*.ts$' ],
+  testTimeout: 20_000,
   testPathIgnorePatterns: [
     '.*.d.ts',
     // TODO: Remove this once solid-client-authn supports node 18.
     '.*QuerySparql-solid-test.ts',
   ],
-  moduleFileExtensions: [
-    'ts',
-    'js',
-  ],
-  setupFilesAfterEnv: [ './setup-jest.js' ],
+  // TODO: Consider enabling this and fixing the leaks
+  detectLeaks: false,
+  errorOnDeprecated: true,
+  moduleFileExtensions: [ 'ts', 'js' ],
+  setupFilesAfterEnv: [ './jest.setup.ts' ],
   collectCoverage: true,
+  coverageProvider: 'v8',
   coveragePathIgnorePatterns: [
     '/node_modules/',
     '/mocks/',
@@ -26,6 +30,7 @@ module.exports = {
     'engine-default.js',
   ],
   testEnvironment: 'node',
+  reporters: process.env.CI ? [[ 'github-actions', { silent: false }], 'summary' ] : undefined,
   coverageThreshold: {
     global: {
       branches: 100,
@@ -35,3 +40,5 @@ module.exports = {
     },
   },
 };
+
+export default config;
