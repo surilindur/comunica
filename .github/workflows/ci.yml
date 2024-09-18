@@ -11,7 +11,7 @@ env:
 jobs:
 
   linter:
-    name: Linter
+    name: Linter and depcheck
     runs-on: ubuntu-latest
     steps:
       - name: Use Node.js ${{ env.DEFAULT_NODE_VERSION }}
@@ -33,11 +33,11 @@ jobs:
         run: yarn install --immutable
       - name: Run linter
         run: yarn run lint
-      #- name: Run depcheck
-      #  run: yarn run depcheck
+      - name: Run depcheck
+        run: yarn run depcheck
 
   browser:
-    name: Browser
+    name: Browser tests
     needs: linter
     strategy:
       matrix:
@@ -79,7 +79,7 @@ jobs:
         if: always()
 
   jest:
-    name: Jest
+    name: Unit tests
     needs: linter
     strategy:
       matrix:
@@ -110,8 +110,6 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
       - name: Install project dependencies
         run: yarn install --immutable
-      - name: Build monorepo
-        run: yarn run build
       - name: Run unit tests
         run: yarn run test:ci
       - name: Submit coverage results
