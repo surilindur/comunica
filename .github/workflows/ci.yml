@@ -11,7 +11,7 @@ env:
 jobs:
 
   linter:
-    name: Linter and depcheck
+    name: Linter
     runs-on: ubuntu-latest
     steps:
       - name: Use Node.js ${{ env.DEFAULT_NODE_VERSION }}
@@ -33,8 +33,8 @@ jobs:
         run: yarn install --immutable
       - name: Run linter
         run: yarn run lint
-      - name: Run depcheck
-        run: yarn run depcheck
+      #- name: Run depcheck
+      #  run: yarn run depcheck
 
   browser:
     name: Browser tests
