@@ -106,10 +106,7 @@ export class ActorHttpFetch extends ActorHttp {
     // Log request
     this.logInfo(action.context, `Requesting ${typeof action.input === 'string' ?
       action.input :
-      action.input.url}`, () => ({
-        headers: ActorHttp.headersToHash(headers),
-        method: action.init!.method ?? 'GET',
-      }));
+      action.input.url}`, () => ({ headers: ActorHttp.headersToHash(headers), method: action.init!.method ?? 'GET' }));
 
     // TODO: remove this workaround once this has a fix: https://github.com/inrupt/solid-client-authn-js/issues/1708
     if (action.init?.headers && 'append' in action.init.headers && action.context.has(KeysHttp.fetch)) {
@@ -169,7 +166,7 @@ This error can be disabled by modifying the 'httpBodyTimeout' and/or 'httpTimeou
       // Node-fetch does not support body.cancel, while it is mandatory according to the fetch and readablestream api.
       // If it doesn't exist, we monkey-patch it.
       if (response.body && !response.body.cancel) {
-        response.body.cancel = async (error?: Error) => {
+        response.body.cancel = async(error?: Error) => {
           (<Readable><any>response.body).destroy(error);
           if (requestTimeout !== undefined) {
             // We make sure to remove the timeout if it is still enabled

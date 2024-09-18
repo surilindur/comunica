@@ -66,6 +66,7 @@ module.exports = config([
     // Playwright-specific overrides
     files: [
       '**/playwright.config.ts',
+      '**/test/*-browser.ts',
     ],
     rules: {
       'import/extensions': 'off',
@@ -84,7 +85,7 @@ module.exports = config([
   {
     // The browser alternatives end in -browser.ts and cannot follow camelCase
     files: [
-      '**/*-browser.ts',
+      '**/lib/*-browser.ts',
     ],
     rules: {
       'unicorn/filename-case': 'off',

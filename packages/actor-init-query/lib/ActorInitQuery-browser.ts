@@ -1,3 +1,3 @@
 import { ActorInitQueryBase } from './ActorInitQueryBase';
 
-export class ActorInitQuery extends ActorInitQueryBase { }
+export class ActorInitQuery extends ActorInitQueryBase {}
