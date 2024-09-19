@@ -67,10 +67,10 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
       - name: Install project dependencies
         run: yarn install --immutable
-      - name: Build monorepo
-        run: yarn run build
+      - name: Build TypeScript files for test use
+        run: yarn run build:ts
       - name: Run unit tests
-        run: yarn run test:unit
+        run: yarn run test:unit --ci
       - name: Submit coverage results
         uses: coverallsapp/github-action@v2
         with:
@@ -101,7 +101,7 @@ jobs:
       - name: Install project dependencies
         run: yarn install --immutable
       - name: Build monorepo
-        run: yarn run build
+        run: yarn run build:ts && yarn run build:components && yarn run build:engine
       - name: Run engine tests
         run: yarn run test:engines
 
@@ -127,8 +127,6 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
       - name: Install project dependencies
         run: yarn install --immutable
-      - name: Build monorepo
-        run: yarn run build
       - name: Run depcheck
         run: yarn run depcheck
 
@@ -203,13 +201,13 @@ jobs:
       - name: Install web browser
         run: yarn playwright install --with-deps ${{ matrix.browser }}
       - name: Build monorepo
-        run: yarn run build
+        run: yarn run build:ts && yarn run build:components
       - name: Prepare query engine bundles
-        run: yarn workspaces foreach --all --include 'engines/query-sparql' run build:engine
+        run: yarn workspaces foreach --all --parallel --include engines/query-sparql run build:engine
       - name: Start SPARQL endpoint
         run: .github/jena-fuseki/endpoint.sh start "jenafuseki-${{ matrix.browser }}"
       - name: Run browser tests
-        run: yarn playwright test --config engines/*/playwright.config.ts --browser ${{ matrix.browser }}
+        run: yarn playwright test --config engines/query-sparql/playwright.config.ts --browser ${{ matrix.browser }}
       - name: Stop SPARQL endpoint
         run: .github/jena-fuseki/endpoint.sh stop "jenafuseki-${{ matrix.browser }}"
         if: always()
@@ -239,9 +237,9 @@ jobs:
       - name: Build monorepo
         run: yarn run build
       - name: Run spec tests
-        run: npx lerna run spec --concurrency 1
+        run:  yarn workspaces foreach --all --include engines/query-sparql run spec
       - name: Run integration tests
-        run: npx lerna run integration --concurrency 1
+        run: yarn workspaces foreach --all --include engines/query-sparql run integration
 
   coveralls:
     name: Coverage check
