@@ -121,30 +121,24 @@ module.exports = config([
     },
   },
   {
-    // Some test files import 'jest-rdf' which triggers this
+    // Some test files import 'jest-rdf' or '@comunica/jest' which triggers this
     // Some jest tests import '../../lib' which triggers this
     files: [
-      '**/test/*-test.ts',
-      '**/test/*-util.ts',
-      'packages/jest/test/matchers/*-test.ts',
+      '**/test/**/*-test.ts',
+      '**/test/**/*-util.ts',
     ],
     rules: {
       'import/no-unassigned-import': 'off',
     },
   },
   {
-    // Files that do not require linting
-    ignores: [
-      'setup-jest.js',
-      '**/engine-default.js',
-      '**/engine-browser.js',
-      '**/comunica-browser.js',
-      '.github/**',
-      '**/performance/*/combinations/**',
-      '**/bintest/**',
-      // TODO: Remove this once solid-client-authn supports node 18.
-      '**/QuerySparql-solid-test.ts',
+    // Expression evaluator benchmark is not meant for actual use/distribution
+    files: [
+      'packages/expression-evaluator/benchmarks/*',
     ],
+    rules: {
+      'import/no-extraneous-dependencies': 'off',
+    },
   },
   {
     files: [ '**/*.js' ],
@@ -155,5 +149,22 @@ module.exports = config([
       'import/no-extraneous-dependencies': 'off',
       'import/extensions': 'off',
     },
+  },
+  {
+    // Files that cannot follow the standard casing
+    files: [
+      '.github/FUNDING.yml',
+    ],
+    rules: {
+      'unicorn/filename-case': 'off',
+    },
+  },
+  {
+    ignores: [
+      // Performance benchmark combinations are automatically generated
+      'performance/*/combinations/*/jbr-experiment.json',
+      // TODO: after fixing the Solid tests, remove this
+      'engines/query-sparql/test/QuerySparql-solid-test.ts',
+    ],
   },
 ]);

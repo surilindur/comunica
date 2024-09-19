@@ -55,9 +55,6 @@
     "readable-stream": "^4.5.2",
     "yargs": "^17.7.2"
   },
-  "devDependencies": {
-    "@types/readable-stream": "^4.0.0"
-  },
   "browser": {
     "./lib/index.js": "./lib/index-browser.js"
   }

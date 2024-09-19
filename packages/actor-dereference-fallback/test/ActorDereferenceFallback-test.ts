@@ -2,6 +2,7 @@ import { KeysInitQuery } from '@comunica/context-entries';
 import { ActionContext, Bus } from '@comunica/core';
 import arrayifyStream from 'arrayify-stream';
 import { ActorDereferenceFallback } from '../lib/ActorDereferenceFallback';
+import '@comunica/jest';
 
 describe('ActorDereferenceFallback', () => {
   let bus: any;

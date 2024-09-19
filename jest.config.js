@@ -1,6 +1,5 @@
-import type { Config } from 'jest';
-
-const config: Config = {
+/** @type {import('jest').Config} */
+module.exports = {
   transform: {
     '^.+\\.ts$': [ 'ts-jest', {
       // Enabling this can fix issues when using prereleases of typings packages
@@ -10,8 +9,8 @@ const config: Config = {
   testMatch: [ '**/test/**/*-test.ts' ],
   testTimeout: 20_000,
   testPathIgnorePatterns: [
-    'engines/',
-    // '.*.d.ts',
+    'engines',
+    'node_modules',
     // TODO: Remove this once solid-client-authn supports node 18.
     '.*QuerySparql-solid-test.ts',
   ],
@@ -42,5 +41,3 @@ const config: Config = {
     },
   },
 };
-
-export default config;

@@ -556,7 +556,7 @@ __metadata:
   resolution: "@comunica/actor-abstract-parse@workspace:packages/actor-abstract-parse"
   dependencies:
     "@comunica/core": "npm:^3.2.1"
-    readable-stream: "npm:^4.4.2"
+    readable-stream: "npm:^4.5.2"
   languageName: unknown
   linkType: soft
 
@@ -804,7 +804,6 @@ __metadata:
     "@comunica/runner": "npm:^3.2.1"
     "@comunica/types": "npm:^3.2.1"
     "@rdfjs/types": "npm:*"
-    "@types/readable-stream": "npm:^4.0.0"
     "@types/yargs": "npm:^17.0.24"
     asynciterator: "npm:^3.9.0"
     negotiate: "npm:^1.0.1"
@@ -1570,7 +1569,7 @@ __metadata:
     "@comunica/types": "npm:^3.2.1"
     asynciterator: "npm:^3.9.0"
     rdf-string: "npm:^1.6.1"
-    readable-stream: "npm:^4.4.2"
+    readable-stream: "npm:^4.5.2"
   languageName: unknown
   linkType: soft
 
@@ -1595,7 +1594,7 @@ __metadata:
     "@rdfjs/types": "npm:*"
     asynciterator: "npm:^3.9.0"
     rdf-string: "npm:^1.6.3"
-    readable-stream: "npm:^4.4.2"
+    readable-stream: "npm:^4.5.2"
   languageName: unknown
   linkType: soft
 
@@ -1607,7 +1606,7 @@ __metadata:
     "@comunica/core": "npm:^3.2.1"
     "@comunica/types": "npm:^3.2.1"
     "@rdfjs/types": "npm:*"
-    readable-stream: "npm:^4.4.2"
+    readable-stream: "npm:^4.5.2"
   languageName: unknown
   linkType: soft
 
@@ -1622,7 +1621,7 @@ __metadata:
     "@comunica/types": "npm:^3.2.1"
     "@rdfjs/types": "npm:*"
     asynciterator: "npm:^3.9.0"
-    readable-stream: "npm:^4.4.2"
+    readable-stream: "npm:^4.5.2"
   languageName: unknown
   linkType: soft
 
@@ -1635,7 +1634,7 @@ __metadata:
     "@comunica/types": "npm:^3.2.1"
     "@rdfjs/types": "npm:*"
     rdf-string-ttl: "npm:^1.3.2"
-    readable-stream: "npm:^4.4.2"
+    readable-stream: "npm:^4.5.2"
   languageName: unknown
   linkType: soft
 
@@ -1648,7 +1647,7 @@ __metadata:
     "@comunica/types": "npm:^3.2.1"
     "@rdfjs/types": "npm:*"
     asynciterator: "npm:^3.9.0"
-    readable-stream: "npm:^4.4.2"
+    readable-stream: "npm:^4.5.2"
   languageName: unknown
   linkType: soft
 
@@ -1663,7 +1662,7 @@ __metadata:
     "@comunica/core": "npm:^3.2.1"
     "@comunica/types": "npm:^3.2.1"
     asynciterator: "npm:^3.9.0"
-    readable-stream: "npm:^4.4.2"
+    readable-stream: "npm:^4.5.2"
   languageName: unknown
   linkType: soft
 
@@ -1678,7 +1677,7 @@ __metadata:
     "@rdfjs/types": "npm:*"
     rdf-string: "npm:^1.6.3"
     rdf-terms: "npm:^1.11.0"
-    readable-stream: "npm:^4.4.2"
+    readable-stream: "npm:^4.5.2"
   languageName: unknown
   linkType: soft
 
@@ -1690,7 +1689,7 @@ __metadata:
     "@comunica/context-entries": "npm:^3.2.1"
     "@comunica/core": "npm:^3.2.1"
     "@comunica/types": "npm:^3.2.1"
-    readable-stream: "npm:^4.4.2"
+    readable-stream: "npm:^4.5.2"
     sparqljson-to-tree: "npm:^3.0.1"
   languageName: unknown
   linkType: soft
@@ -1794,7 +1793,7 @@ __metadata:
     asynciterator: "npm:^3.9.0"
     lru-cache: "npm:^10.0.0"
     rdf-streaming-store: "npm:^1.1.4"
-    readable-stream: "npm:^4.4.2"
+    readable-stream: "npm:^4.5.2"
     sparqlalgebrajs: "npm:^4.3.7"
   languageName: unknown
   linkType: soft
@@ -1827,7 +1826,7 @@ __metadata:
     "@comunica/types": "npm:^3.2.1"
     "@rdfjs/types": "npm:*"
     rdf-store-stream: "npm:^2.0.0"
-    readable-stream: "npm:^4.2.0"
+    readable-stream: "npm:^4.5.2"
   languageName: unknown
   linkType: soft
 
@@ -2120,7 +2119,7 @@ __metadata:
   dependencies:
     "@comunica/bus-rdf-metadata": "npm:^3.2.1"
     "@comunica/core": "npm:^3.2.1"
-    readable-stream: "npm:^4.4.2"
+    readable-stream: "npm:^4.5.2"
   languageName: unknown
   linkType: soft
 
@@ -2207,7 +2206,7 @@ __metadata:
     "@comunica/bus-rdf-metadata": "npm:^3.2.1"
     "@comunica/core": "npm:^3.2.1"
     "@rdfjs/types": "npm:*"
-    readable-stream: "npm:^4.4.2"
+    readable-stream: "npm:^4.5.2"
   languageName: unknown
   linkType: soft
 
@@ -2283,7 +2282,7 @@ __metadata:
     "@comunica/core": "npm:^3.2.1"
     "@comunica/types": "npm:^3.2.1"
     "@rdfjs/types": "npm:*"
-    readable-stream: "npm:^4.4.2"
+    readable-stream: "npm:^4.5.2"
     relative-to-absolute-iri: "npm:^1.0.7"
   languageName: unknown
   linkType: soft
@@ -2313,7 +2312,7 @@ __metadata:
     "@comunica/types": "npm:^3.2.1"
     "@rdfjs/types": "npm:*"
     htmlparser2: "npm:^9.0.0"
-    readable-stream: "npm:^4.4.2"
+    readable-stream: "npm:^4.5.2"
   languageName: unknown
   linkType: soft
 
@@ -2415,7 +2414,7 @@ __metadata:
     "@jeswr/stream-to-string": "npm:^2.0.0"
     "@rdfjs/types": "npm:*"
     asynciterator: "npm:^3.9.0"
-    readable-stream: "npm:^4.4.2"
+    readable-stream: "npm:^4.5.2"
     shaclc-parse: "npm:^1.4.0"
   languageName: unknown
   linkType: soft
@@ -2486,7 +2485,7 @@ __metadata:
   dependencies:
     "@comunica/bus-rdf-serialize": "npm:^3.2.1"
     arrayify-stream: "npm:^2.0.1"
-    readable-stream: "npm:^4.4.2"
+    readable-stream: "npm:^4.5.2"
     shaclc-write: "npm:^1.4.2"
   languageName: unknown
   linkType: soft
@@ -2503,7 +2502,7 @@ __metadata:
     "@rdfjs/types": "npm:*"
     asynciterator: "npm:^3.9.0"
     rdf-string-ttl: "npm:^1.3.2"
-    readable-stream: "npm:^4.4.2"
+    readable-stream: "npm:^4.5.2"
   languageName: unknown
   linkType: soft
 
@@ -2613,7 +2612,7 @@ __metadata:
     "@comunica/context-entries": "npm:^3.2.1"
     "@comunica/core": "npm:^3.2.1"
     "@comunica/types": "npm:^3.2.1"
-    readable-stream: "npm:^4.4.2"
+    readable-stream: "npm:^4.5.2"
   languageName: unknown
   linkType: soft
 
@@ -2684,7 +2683,7 @@ __metadata:
   resolution: "@comunica/bus-init@workspace:packages/bus-init"
   dependencies:
     "@comunica/core": "npm:^3.2.1"
-    readable-stream: "npm:^4.4.2"
+    readable-stream: "npm:^4.5.2"
   languageName: unknown
   linkType: soft
 
@@ -3009,10 +3008,8 @@ __metadata:
   dependencies:
     "@comunica/types": "npm:^3.1.0"
     "@rdfjs/types": "npm:*"
-    "@types/benchmark": "npm:^2.0.0"
     "@types/spark-md5": "npm:^3.0.2"
     "@types/uuid": "npm:^9.0.0"
-    benchmark: "npm:^2.0.0"
     bignumber.js: "npm:^9.0.1"
     hash.js: "npm:^1.1.7"
     lru-cache: "npm:^10.0.0"
@@ -5700,9 +5697,9 @@ __metadata:
   linkType: hard
 
 "@types/estree@npm:*, @types/estree@npm:^1.0.5":
-  version: 1.0.5
-  resolution: "@types/estree@npm:1.0.5"
-  checksum: 10/7de6d928dd4010b0e20c6919e1a6c27b61f8d4567befa89252055fad503d587ecb9a1e3eab1b1901f923964d7019796db810b7fd6430acb26c32866d126fd408
+  version: 1.0.6
+  resolution: "@types/estree@npm:1.0.6"
+  checksum: 10/9d35d475095199c23e05b431bcdd1f6fec7380612aed068b14b2a08aa70494de8a9026765a5a91b1073f636fb0368f6d8973f518a31391d519e20c59388ed88d
   languageName: node
   linkType: hard
 
@@ -7975,9 +7972,9 @@ __metadata:
   linkType: hard
 
 "caniuse-lite@npm:^1.0.30001646":
-  version: 1.0.30001660
-  resolution: "caniuse-lite@npm:1.0.30001660"
-  checksum: 10/5d83f0b7e2075b7e31f114f739155dc6c21b0afe8cb61180f625a4903b0ccd3d7591a5f81c930f14efddfa57040203ba0890850b8a3738f6c7f17c7dd83b9de8
+  version: 1.0.30001662
+  resolution: "caniuse-lite@npm:1.0.30001662"
+  checksum: 10/275dee3c2365d58c65609e707dfd7454e72195fdae7d3a8fea05f1ddb49581f64dfc65965964ee2cff99cc0af44d08c572437b1effd43e9ddc174d7a1d7f95a3
   languageName: node
   linkType: hard
 
@@ -8466,8 +8463,8 @@ __metadata:
   linkType: hard
 
 "componentsjs-generator@npm:^4.0.0":
-  version: 4.0.1
-  resolution: "componentsjs-generator@npm:4.0.1"
+  version: 4.1.0
+  resolution: "componentsjs-generator@npm:4.1.0"
   dependencies:
     "@types/lru-cache": "npm:^5.1.0"
     "@types/semver": "npm:^7.3.4"
@@ -8481,13 +8478,13 @@ __metadata:
     semver: "npm:^7.3.2"
   bin:
     componentsjs-generator: bin/componentsjs-generator.js
-  checksum: 10/6f3af45ea69b646bbae9b0d2b6cf2a7706f25e1b8e094c0588233f74f1b1d3a1289c9e0c297809b7df4d335845c9503e1d909dfcfdaa953ef763fec75204134f
+  checksum: 10/0c1ac485b9daf53bfc47b8774b3995d45ff44e49603b4030bb0a82687dafb1e7f60c736093e09e3d6f2b2534b6041bc2c9e61a5747eec063f267a1c57f2cf32b
   languageName: node
   linkType: hard
 
 "componentsjs@npm:^6.0.0, componentsjs@npm:^6.0.1":
-  version: 6.0.1
-  resolution: "componentsjs@npm:6.0.1"
+  version: 6.1.0
+  resolution: "componentsjs@npm:6.1.0"
   dependencies:
     "@rdfjs/types": "npm:*"
     "@types/minimist": "npm:^1.2.0"
@@ -8505,7 +8502,7 @@ __metadata:
     winston: "npm:^3.3.3"
   bin:
     componentsjs-compile-config: bin/compile-config.js
-  checksum: 10/8272ebda1b41842c169e46c5767a18068fb7c2cb20c35db7463b9e4e5f6cce8aef65dcf35eda25b45d61af73517d95444a87e83d92106350e7846ff99010249c
+  checksum: 10/bbb7cbbdee5901af04f809f6c7eca92ecd1476e7db0b7c9db2b62ac45d78f4cd1334d68d7b291e4059f41b8796feaf73680833d83d676ac2cfe615a178c76595
   languageName: node
   linkType: hard
 
@@ -9511,9 +9508,9 @@ __metadata:
   linkType: hard
 
 "electron-to-chromium@npm:^1.5.4":
-  version: 1.5.24
-  resolution: "electron-to-chromium@npm:1.5.24"
-  checksum: 10/c7c64e4d48667d24515eee76989e62223f618f01cfde4a76f4624cd67f1ccf97f07e2d630027f6986f59b2ff30f35870e3c0c63f2deec5d962364159c21c4513
+  version: 1.5.25
+  resolution: "electron-to-chromium@npm:1.5.25"
+  checksum: 10/831d1fb98b5f9bf07f90902310d79e235c672b4ceb157bdf0b74d0f3b947ef35b5ad6f623282495a12470cbaee8e2143e8b14cc74f681ee5d388e6dac60a3c36
   languageName: node
   linkType: hard
 
@@ -14411,14 +14408,14 @@ __metadata:
   linkType: hard
 
 "memfs@npm:^4.6.0":
-  version: 4.11.1
-  resolution: "memfs@npm:4.11.1"
+  version: 4.12.0
+  resolution: "memfs@npm:4.12.0"
   dependencies:
     "@jsonjoy.com/json-pack": "npm:^1.0.3"
     "@jsonjoy.com/util": "npm:^1.3.0"
     tree-dump: "npm:^1.0.1"
     tslib: "npm:^2.0.0"
-  checksum: 10/460b11266efb66291da5f117060123cc4ca024c35c6aae6c406be208885eb7b9cf09dd76cec70fcfe93e99128e0cf5abe161a9832a3979403c4bae131b30c12d
+  checksum: 10/02718be80ebc03ca47eebba59b60865b0c2579e3fbebd71e4e45e171f9dbf6ea77e836257926908618e82881ef01e3326a89112b408e8fb379ca30aec4eb79e6
   languageName: node
   linkType: hard
 
@@ -14949,13 +14946,13 @@ __metadata:
   linkType: hard
 
 "n3@npm:^1.0.0, n3@npm:^1.16.3, n3@npm:^1.17.0, n3@npm:^1.6.3":
-  version: 1.21.1
-  resolution: "n3@npm:1.21.1"
+  version: 1.22.0
+  resolution: "n3@npm:1.22.0"
   dependencies:
     buffer: "npm:^6.0.3"
     queue-microtask: "npm:^1.1.2"
     readable-stream: "npm:^4.0.0"
-  checksum: 10/5575e2c2ad41cb7f697092eef29ad2bed45aecf1d107dc64db4b87b2259cdcaca04cfa109e47b94ef382bae9f7249e3c31c82fac125bf990016080ac5f83e745
+  checksum: 10/223b2cb58366732d7245c9560f1d95a62107ade45b6ca78f9c97b1ff06864ceaaeea2b216f1b00c90b6b09b7d1763e0b69af8f71315c5d6eb3a20256bae1786a
   languageName: node
   linkType: hard
 
@@ -16924,7 +16921,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"readable-stream@npm:^4.0.0, readable-stream@npm:^4.1.0, readable-stream@npm:^4.2.0, readable-stream@npm:^4.3.0, readable-stream@npm:^4.4.2, readable-stream@npm:^4.5.1, readable-stream@npm:^4.5.2":
+"readable-stream@npm:^4.0.0, readable-stream@npm:^4.1.0, readable-stream@npm:^4.3.0, readable-stream@npm:^4.4.2, readable-stream@npm:^4.5.1, readable-stream@npm:^4.5.2":
   version: 4.5.2
   resolution: "readable-stream@npm:4.5.2"
   dependencies:
@@ -17314,8 +17311,11 @@ __metadata:
   dependencies:
     "@playwright/test": "npm:^1.0.0"
     "@rubensworks/eslint-config": "npm:^3.0.0"
+    "@types/benchmark": "npm:^2.0.0"
     "@types/jest": "npm:^29.0.0"
     "@types/node": "npm:^22.0.0"
+    "@types/readable-stream": "npm:^4.0.0"
+    benchmark: "npm:^2.0.0"
     componentsjs-generator: "npm:^4.0.0"
     depcheck: "npm:^1.0.0"
     eslint: "npm:^8.0.0"
@@ -18651,8 +18651,8 @@ __metadata:
   linkType: hard
 
 "terser@npm:^5.26.0":
-  version: 5.32.0
-  resolution: "terser@npm:5.32.0"
+  version: 5.33.0
+  resolution: "terser@npm:5.33.0"
   dependencies:
     "@jridgewell/source-map": "npm:^0.3.3"
     acorn: "npm:^8.8.2"
@@ -18660,7 +18660,7 @@ __metadata:
     source-map-support: "npm:~0.5.20"
   bin:
     terser: bin/terser
-  checksum: 10/b398e37509e64665da233502911f3b32046656a569b1814e0c9944141f0484b3e4d13985faf5c8610dff2d27c2636dd30bab55cab3d8e14080ae273131fb5754
+  checksum: 10/01423825474969c81c3f063e5c7ce12f82bbd9448b565220e7418174b3b5cac47d563bf6983fcd5c7e1bac20df6d8f9e94f7cf15383714e1576fcb1cf8a3a71b
   languageName: node
   linkType: hard
 

@@ -49,10 +49,6 @@
     "sparqlalgebrajs": "^4.3.7",
     "uuid": "^9.0.0"
   },
-  "devDependencies": {
-    "@types/benchmark": "^2.0.0",
-    "benchmark": "^2.0.0"
-  },
   "browser": {
     "./benchmarks": false
   }
