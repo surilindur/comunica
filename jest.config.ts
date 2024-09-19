@@ -7,18 +7,20 @@ const config: Config = {
       // isolatedModules: true
     }],
   },
-  testRegex: [ '/test/.*-test.*.ts$' ],
+  testMatch: [ '**/test/**/*-test.ts' ],
   testTimeout: 20_000,
   testPathIgnorePatterns: [
-    '.*.d.ts',
+    'engines/',
+    // '.*.d.ts',
     // TODO: Remove this once solid-client-authn supports node 18.
     '.*QuerySparql-solid-test.ts',
   ],
-  // TODO: Consider enabling this and fixing the leaks
+  // Clearing the mocks between tests should help identify accidentally interdependent tests.
+  clearMocks: true,
+  // TODO: Enable this and fix the leaks
   detectLeaks: false,
   errorOnDeprecated: true,
   moduleFileExtensions: [ 'ts', 'js' ],
-  setupFilesAfterEnv: [ './jest.setup.ts' ],
   collectCoverage: true,
   coverageProvider: 'v8',
   coveragePathIgnorePatterns: [
