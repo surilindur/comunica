@@ -90,6 +90,24 @@ module.exports = config([
     },
   },
   {
+    // The base HTTP actor uses require-style imports
+    files: [
+      'packages/bus-http/lib/ActorHttp.ts',
+    ],
+    rules: {
+      'ts/no-require-imports': [ 'error', { allow: [
+        'web-streams-ponyfill',
+        'is-stream',
+        'readable-stream-node-to-web',
+      ]}],
+      'ts/no-var-requires': [ 'error', { allow: [
+        'web-streams-ponyfill',
+        'is-stream',
+        'readable-stream-node-to-web',
+      ]}],
+    },
+  },
+  {
     // The config packages use an empty index.ts
     files: [
       'engines/config-*/lib/index.ts',

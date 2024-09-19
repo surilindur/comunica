@@ -28,9 +28,7 @@ jobs:
       - name: Load Yarn cache
         uses: actions/cache@v4
         with:
-          path: |
-            .yarn
-            **/node_modules
+          path: .yarn
           key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
       - name: Install project dependencies
         run: yarn install --immutable
@@ -65,9 +63,7 @@ jobs:
       - name: Load Yarn cache
         uses: actions/cache@v4
         with:
-          path: |
-            .yarn
-            **/node_modules
+          path: .yarn
           key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
       - name: Install project dependencies
         run: yarn install --immutable
@@ -100,9 +96,7 @@ jobs:
       - name: Load Yarn cache
         uses: actions/cache@v4
         with:
-          path: |
-            .yarn
-            **/node_modules
+          path: .yarn
           key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
       - name: Install project dependencies
         run: yarn install --immutable
@@ -129,9 +123,7 @@ jobs:
       - name: Load Yarn cache
         uses: actions/cache@v4
         with:
-          path: |
-            .yarn
-            **/node_modules
+          path: .yarn
           key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
       - name: Install project dependencies
         run: yarn install --immutable
@@ -162,9 +154,7 @@ jobs:
       - name: Load Yarn cache
         uses: actions/cache@v4
         with:
-          path: |
-            .yarn
-            **/node_modules
+          path: .yarn
           key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
       - name: Install project dependencies
         run: yarn install --immutable
@@ -204,9 +194,7 @@ jobs:
       - name: Load Yarn cache
         uses: actions/cache@v4
         with:
-          path: |
-            .yarn
-            **/node_modules
+          path: .yarn
           key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
       - name: Install project dependencies
         run: yarn install --immutable
@@ -242,9 +230,7 @@ jobs:
       - name: Load Yarn cache
         uses: actions/cache@v4
         with:
-          path: |
-            .yarn
-            **/node_modules
+          path: .yarn
           key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
       - name: Install project dependencies
         run: yarn install --immutable
