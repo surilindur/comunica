@@ -9,7 +9,6 @@ module.exports = {
   testMatch: [ '**/test/**/*-test.ts' ],
   testTimeout: 20_000,
   testPathIgnorePatterns: [
-    'engines',
     'node_modules',
     // TODO: Remove this once solid-client-authn supports node 18.
     '.*QuerySparql-solid-test.ts',

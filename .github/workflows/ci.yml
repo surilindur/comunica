@@ -10,8 +10,8 @@ env:
 
 jobs:
 
-  linter:
-    name: Linter
+  lint:
+    name: Lint
     runs-on: ubuntu-latest
     steps:
       - name: Use Node.js ${{ env.DEFAULT_NODE_VERSION }}
@@ -36,7 +36,7 @@ jobs:
 
   unittest:
     name: Unit tests
-    needs: linter
+    needs: lint
     strategy:
       matrix:
         os:
@@ -69,7 +69,7 @@ jobs:
       - name: Build monorepo
         run: yarn run build
       - name: Run unit tests
-        run: yarn run test:ci
+        run: yarn run test:unit
       - name: Submit coverage results
         uses: coverallsapp/github-action@v2
         with:
@@ -77,20 +77,36 @@ jobs:
           flag-name: run-${{ matrix.node-version }}
           parallel: true
 
-  coveralls:
-    name: Coverage check
+  enginetest:
+    name: Engine tests
     needs: unittest
     runs-on: ubuntu-latest
     steps:
-      - name: Consolidate test coverage from different jobs
-        uses: coverallsapp/github-action@v2
+      - name: Use Node.js ${{ env.DEFAULT_NODE_VERSION }}
+        uses: actions/setup-node@v4
         with:
-          github-token: ${{ secrets.github_token }}
-          parallel-finished: true
+          node-version: ${{ env.DEFAULT_NODE_VERSION }}
+      - name: Enable Corepack
+        run: corepack enable
+      - name: Ensure line endings are consistent
+        run: git config --global core.autocrlf input
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Load Yarn cache
+        uses: actions/cache@v4
+        with:
+          path: .yarn
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+      - name: Install project dependencies
+        run: yarn install --immutable
+      - name: Build monorepo
+        run: yarn run build
+      - name: Run engine tests
+        run: yarn run test:engines
 
   depcheck:
     name: Dependency check
-    needs: linter
+    needs: lint
     runs-on: ubuntu-latest
     steps:
       - name: Use Node.js ${{ env.DEFAULT_NODE_VERSION }}
@@ -117,7 +133,7 @@ jobs:
 
   docs:
     name: Documentation
-    needs: linter
+    needs: lint
     runs-on: ubuntu-latest
     steps:
       - name: Use Node.js ${{ env.DEFAULT_NODE_VERSION }}
@@ -177,7 +193,7 @@ jobs:
       - name: Start SPARQL endpoint
         run: .github/jena-fuseki/endpoint.sh start "jenafuseki-${{ matrix.browser }}"
       - name: Run browser tests
-        run: yarn playwright test --config engines/query-sparql/playwright.config.ts --browser ${{ matrix.browser }}
+        run: yarn playwright test --config engines/*/playwright.config.ts --browser ${{ matrix.browser }}
       - name: Stop SPARQL endpoint
         run: .github/jena-fuseki/endpoint.sh stop "jenafuseki-${{ matrix.browser }}"
         if: always()
@@ -210,3 +226,14 @@ jobs:
         run: npx lerna run spec --concurrency 1
       - name: Run integration tests
         run: npx lerna run integration --concurrency 1
+
+  coveralls:
+    name: Coverage check
+    needs: unittest
+    runs-on: ubuntu-latest
+    steps:
+      - name: Consolidate test coverage from different jobs
+        uses: coverallsapp/github-action@v2
+        with:
+          github-token: ${{ secrets.github_token }}
+          parallel-finished: true
