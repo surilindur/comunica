@@ -67,8 +67,8 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
       - name: Install project dependencies
         run: yarn install --immutable
-      - name: Build TypeScript files for test use
-        run: yarn run build:ts
+      - name: Build monorepo
+        run: yarn run build:ts && yarn run build:components
       - name: Run unit tests
         run: yarn run test:unit --ci
       - name: Submit coverage results
