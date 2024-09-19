@@ -135,6 +135,12 @@ jobs:
     name: Documentation
     needs: lint
     runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Use Node.js ${{ env.DEFAULT_NODE_VERSION }}
         uses: actions/setup-node@v4
@@ -155,6 +161,15 @@ jobs:
         run: yarn install --immutable
       - name: Build documentation
         run: yarn run doc
+      - name: Prepare artifact
+        uses: actions/upload-pages-artifact@v3
+        #if: success() && github.ref == 'refs/heads/main'
+        with:
+          name: documentation
+          path: documentation
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2
 
   browsertest:
     name: Browser tests
