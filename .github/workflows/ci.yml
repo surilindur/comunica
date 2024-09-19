@@ -237,7 +237,7 @@ jobs:
       - name: Build monorepo
         run: yarn run build
       - name: Run spec tests
-        run:  yarn workspaces foreach --all --include engines/query-sparql run spec
+        run: yarn workspaces foreach --all --include engines/query-sparql run spec
       - name: Run integration tests
         run: yarn workspaces foreach --all --include engines/query-sparql run integration
 

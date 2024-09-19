@@ -20,17 +20,6 @@ module.exports = config([
       'ts/no-unsafe-return': 'off',
       'ts/no-unsafe-argument': 'off',
       'ts/no-unsafe-assignment': 'off',
-
-      'ts/no-require-imports': [ 'error', { allow: [
-        'web-streams-ponyfill',
-        'is-stream',
-        'readable-stream-node-to-web',
-      ]}],
-      'ts/no-var-requires': [ 'error', { allow: [
-        'web-streams-ponyfill',
-        'is-stream',
-        'readable-stream-node-to-web',
-      ]}],
     },
   },
   {
@@ -164,7 +153,7 @@ module.exports = config([
       // Performance benchmark combinations are automatically generated
       'performance/*/combinations/*/jbr-experiment.json',
       // TODO: after fixing the Solid tests, remove this
-      'engines/query-sparql/test/QuerySparql-solid-test.ts',
+      'engines/query-sparql/test/QueryEngine-solid-test.ts',
     ],
   },
 ]);

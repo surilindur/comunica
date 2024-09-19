@@ -1,12 +1,12 @@
 {
   "extends": "./tsconfig.json",
   "include": [
-    "./engines/**/*.ts",
-    "./packages/**/*.ts",
-    "./performance/**/*.ts",
-    "./*.ts"
+    "engines/**/*.ts",
+    "packages/**/*.ts",
+    "performance/**/*.ts"
   ],
   "exclude": [
+    "**/*.d.ts",
     "**/node_modules"
   ]
 }
