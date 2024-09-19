@@ -166,7 +166,6 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         if: success() && github.ref == 'refs/heads/${{ env.DOCUMENTATION_BRANCH }}'
         with:
-          name: documentation
           path: documentation
       - name: Deploy to GitHub Pages
         id: deployment
