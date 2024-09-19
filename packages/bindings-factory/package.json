@@ -36,7 +36,7 @@
     "@comunica/core": "^3.2.1",
     "@comunica/types": "^3.2.1",
     "@rdfjs/types": "*",
-    "immutable": "^4.1.0",
+    "immutable": "^4.3.7",
     "rdf-string": "^1.6.1"
   }
 }

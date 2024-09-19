@@ -31,6 +31,8 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
       - name: Install project dependencies
         run: yarn install --immutable
+      - name: Build monorepo
+        run: yarn run build
       - name: Run linter
         run: yarn run lint
       - name: Run depcheck
