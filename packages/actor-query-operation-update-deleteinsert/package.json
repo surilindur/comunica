@@ -27,11 +27,6 @@
     "lib/**/*.js",
     "lib/**/*.js.map"
   ],
-  "scripts": {
-    "build": "yarn run build:ts && yarn run build:components",
-    "build:ts": "tsc",
-    "build:components": "componentsjs-generator"
-  },
   "dependencies": {
     "@comunica/actor-query-operation-construct": "^3.2.2",
     "@comunica/bindings-factory": "^3.2.1",

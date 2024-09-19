@@ -29,9 +29,6 @@
     "lib/**/*.js",
     "lib/**/*.js.map"
   ],
-  "scripts": {
-    "build": "tsc"
-  },
   "dependencies": {
     "@comunica/core": "^3.2.1",
     "@rdfjs/types": "*"

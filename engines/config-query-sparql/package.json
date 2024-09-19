@@ -28,15 +28,6 @@
     "access": "public"
   },
   "files": [
-    "components",
-    "config",
-    "lib/**/*.d.ts",
-    "lib/**/*.js",
-    "lib/**/*.js.map"
-  ],
-  "scripts": {
-    "build": "yarn run build:ts && yarn run build:components",
-    "build:ts": "tsc",
-    "build:components": "componentsjs-generator"
-  }
+    "config"
+  ]
 }

@@ -19,7 +19,7 @@ const factory = new Factory();
 
 globalThis.fetch = cachedFetch;
 
-describe('System test: QuerySparql', () => {
+describe('QueryEngine', () => {
   let engine: QueryEngine;
   beforeAll(() => {
     engine = new QueryEngine();

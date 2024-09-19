@@ -33,10 +33,6 @@
     "lib/**/*.js",
     "lib/**/*.js.map"
   ],
-  "scripts": {
-    "build": "yarn run build:ts",
-    "build:ts": "tsc"
-  },
   "dependencies": {
     "@comunica/bindings-factory": "^3.2.1",
     "@comunica/core": "^3.2.1",

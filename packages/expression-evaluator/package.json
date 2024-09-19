@@ -30,10 +30,6 @@
     "lib/**/*.js",
     "lib/**/*.js.map"
   ],
-  "scripts": {
-    "build": "node tsc",
-    "bench": "yarn run build && node benchmarks/*.js"
-  },
   "dependencies": {
     "@comunica/types": "^3.1.0",
     "@rdfjs/types": "*",

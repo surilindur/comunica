@@ -35,11 +35,6 @@
     "lib/**/*.js",
     "lib/**/*.js.map"
   ],
-  "scripts": {
-    "build": "yarn run build:ts && yarn run build:components",
-    "build:ts": "tsc",
-    "build:components": "componentsjs-generator"
-  },
   "dependencies": {
     "@comunica/bus-init": "^3.2.1",
     "@comunica/core": "^3.2.1",
