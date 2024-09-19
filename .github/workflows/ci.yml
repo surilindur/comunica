@@ -114,7 +114,7 @@ jobs:
         run: yarn run build
       - name: Run depcheck
         run: yarn run depcheck
-        
+
   docs:
     name: Documentation
     needs: linter
