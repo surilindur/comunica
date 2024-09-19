@@ -31,12 +31,8 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
       - name: Install project dependencies
         run: yarn install --immutable
-      - name: Build monorepo
-        run: yarn run build
       - name: Run linter
         run: yarn run lint
-      - name: Run depcheck
-        run: yarn run depcheck
 
   unittest:
     name: Unit tests
@@ -91,6 +87,58 @@ jobs:
         with:
           github-token: ${{ secrets.github_token }}
           parallel-finished: true
+
+  depcheck:
+    name: Dependency check
+    needs: linter
+    runs-on: ubuntu-latest
+    steps:
+      - name: Use Node.js ${{ env.DEFAULT_NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.DEFAULT_NODE_VERSION }}
+      - name: Enable Corepack
+        run: corepack enable
+      - name: Ensure line endings are consistent
+        run: git config --global core.autocrlf input
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Load Yarn cache
+        uses: actions/cache@v4
+        with:
+          path: .yarn
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+      - name: Install project dependencies
+        run: yarn install --immutable
+      - name: Build monorepo
+        run: yarn run build
+      - name: Run depcheck
+        run: yarn run depcheck
+        
+  docs:
+    name: Documentation
+    needs: linter
+    runs-on: ubuntu-latest
+    steps:
+      - name: Use Node.js ${{ env.DEFAULT_NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.DEFAULT_NODE_VERSION }}
+      - name: Enable Corepack
+        run: corepack enable
+      - name: Ensure line endings are consistent
+        run: git config --global core.autocrlf input
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Load Yarn cache
+        uses: actions/cache@v4
+        with:
+          path: .yarn
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+      - name: Install project dependencies
+        run: yarn install --immutable
+      - name: Build documentation
+        run: yarn run doc
 
   browsertest:
     name: Browser tests
