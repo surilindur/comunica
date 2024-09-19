@@ -127,6 +127,8 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
       - name: Install project dependencies
         run: yarn install --immutable
+      - name: Build TypeScript files so depcheck will work as intended
+        run: yarn run build:ts
       - name: Run depcheck
         run: yarn run depcheck
 
