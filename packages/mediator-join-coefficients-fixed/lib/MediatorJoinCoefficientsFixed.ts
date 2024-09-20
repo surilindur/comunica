@@ -58,7 +58,7 @@ IActorRdfJoinTestSideData
             result.value.requestTime * this.ioWeight;
         }
       });
-    const maxCost = Math.max(...(<number[]> costs.filter(cost => cost !== undefined)));
+    const maxCost = Math.max(...costs.filter(cost => cost !== undefined));
 
     // If we have a limit indicator in the context,
     // increase cost of entries that have a number of iterations that is higher than the limit AND block items.
