@@ -9,8 +9,6 @@ import { LoggerPretty } from '@comunica/logger-pretty';
 import type { IActionContext, ICliArgsHandler } from '@comunica/types';
 import type { Argv } from 'yargs';
 
-const process: NodeJS.Process = require('process/');
-
 /**
  * Basic CLI arguments handler that handles common options.
  */

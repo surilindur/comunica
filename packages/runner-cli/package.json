@@ -42,7 +42,6 @@
   "dependencies": {
     "@comunica/core": "^3.2.1",
     "@comunica/runner": "^3.2.1",
-    "@comunica/types": "^3.2.1",
-    "process": "^0.11.10"
+    "@comunica/types": "^3.2.1"
   }
 }

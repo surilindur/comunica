@@ -10,8 +10,6 @@ import type {
 } from 'componentsjs';
 import type { Runner } from './Runner';
 
-const process: NodeJS.Process = require('process/');
-
 /**
  * Helper functions to setup instances from a given comunica config file.
  * This config file must be understandable by the Components.js framework.

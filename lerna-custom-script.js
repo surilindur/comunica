@@ -65,18 +65,6 @@ async function depInfo({ location }, log) {
 
   dependencies = filterTypeUsedTypeDependencies({ dependencies, using });
 
-  if (Object.values(using).flat().some(file =>
-    readFileSync(file, 'utf8').toString().includes('require(\'process/\')') ||
-    readFileSync(file, 'utf8').toString().includes('require("process/")'))) {
-    if (dependencies.includes('process')) {
-      // If we know it exists and is in the dependency array, remove it so that no errors are thrown
-      dependencies = dependencies.filter(dep => dep !== 'process');
-    } else {
-      // If it is *not* declared in the dependencies then mark it as missing
-      missing.process = missing.process || [];
-    }
-  }
-
   return {
     unusedDeps: [ ...dependencies, ...devDependencies ].filter(elem => !Object.keys(using).includes(elem)),
     missingDeps: Object.keys(missing),
