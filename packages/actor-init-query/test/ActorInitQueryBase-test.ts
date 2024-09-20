@@ -2,6 +2,7 @@ import { Transform } from 'node:stream';
 import { ActorInit } from '@comunica/bus-init';
 import { ActionContext, Bus } from '@comunica/core';
 import type { IActionContext } from '@comunica/types';
+import '@comunica/jest';
 import type { IActorInitQueryBaseArgs } from '../lib/ActorInitQueryBase';
 import { ActorInitQueryBase } from '../lib/ActorInitQueryBase';
 
