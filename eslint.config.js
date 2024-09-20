@@ -23,12 +23,10 @@ module.exports = config([
       'ts/no-unsafe-assignment': 'off',
 
       'ts/no-require-imports': [ 'error', { allow: [
-        'web-streams-ponyfill',
         'is-stream',
         'readable-stream-node-to-web',
       ]}],
       'ts/no-var-requires': [ 'error', { allow: [
-        'web-streams-ponyfill',
         'is-stream',
         'readable-stream-node-to-web',
       ]}],

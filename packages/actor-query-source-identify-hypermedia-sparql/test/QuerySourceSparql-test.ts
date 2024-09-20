@@ -25,11 +25,6 @@ const v4 = DF.variable('v4');
 const pAllQuad = AF.createPattern(v1, v2, v3, v4);
 const pAllTriple = AF.createPattern(v1, v2, v3);
 
-// TODO: Remove when targeting NodeJS 18+
-if (!globalThis.ReadableStream) {
-  globalThis.ReadableStream = require('web-streams-ponyfill').ReadableStream;
-}
-
 describe('QuerySourceSparql', () => {
   let logger: any;
   let ctx: IActionContext;
