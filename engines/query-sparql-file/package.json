@@ -202,8 +202,7 @@
     "@comunica/mediator-race": "^3.2.1",
     "@comunica/runner": "^3.2.1",
     "@comunica/runner-cli": "^3.2.1",
-    "@comunica/types": "^3.2.1",
-    "process": "^0.11.10"
+    "@comunica/types": "^3.2.1"
   },
   "browser": {
     "./engine-default.js": "./engine-browser.js",

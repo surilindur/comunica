@@ -6,8 +6,6 @@ import { passTest } from '@comunica/core';
 import type { IMediatorTypeTime } from '@comunica/mediatortype-time';
 import Requester from './Requester';
 
-const process: NodeJS.Process = require('process/');
-
 /**
  * A comunica Follow Redirects Http Actor.
  */

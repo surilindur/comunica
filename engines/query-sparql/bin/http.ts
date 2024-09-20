@@ -1,8 +1,6 @@
 #!/usr/bin/env node
 import { HttpServiceSparqlEndpoint } from '@comunica/actor-init-query';
 
-const process: NodeJS.Process = require('process/');
-
 // eslint-disable-next-line node/no-path-concat
 const defaultConfigPath = `${__dirname}/../config/config-default.json`;
 
