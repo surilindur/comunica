@@ -1,7 +1,6 @@
-import * as fs from 'node:fs';
-import * as path from 'node:path';
-
-const md5 = require('md5');
+import { createHash } from 'node:crypto';
+import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { join } from 'node:path';
 
 const fetchFn = globalThis.fetch;
 
@@ -21,16 +20,17 @@ export async function fetch(...args: Parameters<typeof fetchFn>): ReturnType<typ
     args[0].toString(),
     Object.entries(options).sort(([ a ], [ b ]) => a.localeCompare(b)),
   ]);
-  const pth = path.join(__dirname, 'networkCache', md5(json));
-  if (!fs.existsSync(pth)) {
+  const jsonHash = createHash('md5').update(json).digest('hex');
+  const pth = join(__dirname, 'networkCache', jsonHash);
+  if (!existsSync(pth)) {
     const res = await fetchFn(...args);
-    fs.writeFileSync(pth, JSON.stringify({
+    writeFileSync(pth, JSON.stringify({
       ...res,
       content: await res.text(),
       // @ts-expect-error
       headers: [ ...res.headers.entries() ],
     }));
   }
-  const { content, ...init } = JSON.parse(fs.readFileSync(pth).toString());
+  const { content, ...init } = JSON.parse(readFileSync(pth).toString());
   return new Response(content, init);
 };
