@@ -2,11 +2,6 @@ import type { IAction, IActorArgs, IActorOutput, IActorTest, Mediate } from '@co
 import { Actor } from '@comunica/core';
 import { readableFromWeb } from 'readable-from-web';
 
-/* istanbul ignore next */
-if (!globalThis.ReadableStream) {
-  globalThis.ReadableStream = require('web-streams-ponyfill').ReadableStream;
-}
-
 const isStream = require('is-stream');
 const toWebReadableStream = require('readable-stream-node-to-web');
 
