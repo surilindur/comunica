@@ -26,7 +26,7 @@ module.exports = {
         '<rootDir>/packages/',
         'engine-default.js',
         'node_modules',
-        'util.js',
+        'util.ts',
       ],
     },
     {
