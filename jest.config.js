@@ -1,7 +1,7 @@
 /** @type {import('jest').Config} */
 module.exports = {
   collectCoverage: true,
-  coverageProvider: 'v8',
+  coverageProvider: 'babel',
   // TODO: bump these to 100 after the additional tests have been added
   coverageThreshold: {
     global: {
