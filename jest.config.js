@@ -1,31 +1,7 @@
+/** @type {import('jest').Config} */
 module.exports = {
-  transform: {
-    '^.+\\.ts$': [ 'ts-jest', {
-      // Enabling this can fix issues when using prereleases of typings packages
-      // isolatedModules: true
-    }],
-  },
-  testRegex: [ '/test/.*-test.*.ts$' ],
-  testPathIgnorePatterns: [
-    '.*.d.ts',
-    // TODO: Remove this once solid-client-authn supports node 18.
-    '.*QuerySparql-solid-test.ts',
-  ],
-  moduleFileExtensions: [
-    'ts',
-    'js',
-  ],
-  setupFilesAfterEnv: [ './setup-jest.js' ],
   collectCoverage: true,
-  coveragePathIgnorePatterns: [
-    '/node_modules/',
-    '/mocks/',
-    'index.js',
-    '/engines/query-sparql/test/util.ts',
-    '/test/util/',
-    'engine-default.js',
-  ],
-  testEnvironment: 'node',
+  coverageProvider: 'v8',
   coverageThreshold: {
     global: {
       branches: 100,
@@ -34,4 +10,38 @@ module.exports = {
       statements: 100,
     },
   },
+  projects: [
+    {
+      displayName: 'engines',
+      preset: 'ts-jest/presets/default',
+      testEnvironment: 'node',
+      testMatch: [
+        '<rootDir>/engines/*/test/**/*-test.ts',
+      ],
+      testPathIgnorePatterns: [
+        'QuerySparql-solid-test.ts',
+      ],
+      coveragePathIgnorePatterns: [
+        '<rootDir>/packages/',
+        'engine-default.js',
+        'node_modules',
+        'util.js',
+      ],
+    },
+    {
+      displayName: 'packages',
+      preset: 'ts-jest/presets/default',
+      testEnvironment: 'node',
+      testMatch: [
+        '<rootDir>/packages/*/test/**/*-test.ts',
+      ],
+      coveragePathIgnorePatterns: [
+        '<rootDir>/engines/',
+        'node_modules',
+      ],
+    },
+  ],
+  // The default test timeout is not enough for engine tests,
+  // however it is enough for package tests
+  testTimeout: 20_000,
 };
