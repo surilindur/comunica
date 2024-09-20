@@ -1712,7 +1712,6 @@ __metadata:
     "@types/http-link-header": "npm:^1.0.7"
     follow-redirects: "npm:^1.15.2"
     http-link-header: "npm:^1.1.3"
-    process: "npm:^0.11.10"
   languageName: unknown
   linkType: soft
 
@@ -1769,13 +1768,9 @@ __metadata:
     "@types/yargs": "npm:^17.0.24"
     asynciterator: "npm:^3.9.0"
     negotiate: "npm:^1.0.1"
-    process: "npm:^0.11.10"
     rdf-quad: "npm:^1.5.0"
     readable-stream: "npm:^4.5.2"
     yargs: "npm:^17.7.2"
-  dependenciesMeta:
-    process:
-      optional: true
   languageName: unknown
   linkType: soft
 
@@ -3609,7 +3604,6 @@ __metadata:
     is-stream: "npm:^2.0.1"
     readable-from-web: "npm:^1.0.0"
     readable-stream-node-to-web: "npm:^1.0.1"
-    web-streams-ponyfill: "npm:^1.4.2"
   languageName: unknown
   linkType: soft
 
@@ -3988,7 +3982,6 @@ __metadata:
     "@comunica/types": "npm:^3.2.1"
     "@types/bunyan": "npm:^1.8.8"
     bunyan: "npm:^1.8.15"
-    process: "npm:^0.11.10"
   languageName: unknown
   linkType: soft
 
@@ -3998,7 +3991,6 @@ __metadata:
   dependencies:
     "@comunica/types": "npm:^3.2.1"
     object-inspect: "npm:^1.12.2"
-    process: "npm:^0.11.10"
   languageName: unknown
   linkType: soft
 
@@ -4167,7 +4159,6 @@ __metadata:
     "@types/minimist": "npm:^1.2.2"
     componentsjs: "npm:^6.1.0"
     minimist: "npm:^1.2.7"
-    process: "npm:^0.11.10"
   bin:
     comunica-package: ./bin/package.js
   languageName: unknown
@@ -4322,7 +4313,6 @@ __metadata:
     "@comunica/runner": "npm:^3.2.1"
     "@comunica/runner-cli": "npm:^3.2.1"
     "@comunica/types": "npm:^3.2.1"
-    process: "npm:^0.11.10"
   bin:
     comunica-dynamic-sparql-file: ./bin/query-dynamic.js
     comunica-sparql-file: ./bin/query.js
@@ -4691,7 +4681,6 @@ __metadata:
     "@comunica/runner": "npm:^3.2.1"
     "@comunica/runner-cli": "npm:^3.2.1"
     "@comunica/types": "npm:^3.2.1"
-    process: "npm:^0.11.10"
   bin:
     comunica-dynamic-sparql: bin/query-dynamic.js
     comunica-sparql: bin/query.js
@@ -4706,7 +4695,6 @@ __metadata:
     "@comunica/core": "npm:^3.2.1"
     "@comunica/runner": "npm:^3.2.1"
     "@comunica/types": "npm:^3.2.1"
-    process: "npm:^0.11.10"
   bin:
     comunica-run: ./bin/run.js
   languageName: unknown
@@ -4719,7 +4707,6 @@ __metadata:
     "@comunica/bus-init": "npm:^3.2.1"
     "@comunica/core": "npm:^3.2.1"
     componentsjs: "npm:^6.1.0"
-    process: "npm:^0.11.10"
   bin:
     comunica-compile-config: ./bin/compile-config
   languageName: unknown
@@ -11028,13 +11015,13 @@ __metadata:
   linkType: hard
 
 "eslint-plugin-antfu@npm:^2.1.2":
-  version: 2.6.0
-  resolution: "eslint-plugin-antfu@npm:2.6.0"
+  version: 2.7.0
+  resolution: "eslint-plugin-antfu@npm:2.7.0"
   dependencies:
     "@antfu/utils": "npm:^0.7.10"
   peerDependencies:
     eslint: "*"
-  checksum: 10/89b6bb24ff13341663e87a1a94ccf7d4277413f1c8b8cc4e2a6879b9362a2c139e98b92fc35356691ab6e1c2da81a979624d514047648e4b6de43895b6a53452
+  checksum: 10/2adb4bb1f3ebcab77024164a40895c3ae61ab5554dbf8d561e597f406b8c9d1d5654c6c1df692334a11c84a64004cf165783219244b565bf1e7f9ca53d2496ef
   languageName: node
   linkType: hard
 
