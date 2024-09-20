@@ -196,9 +196,9 @@ jobs:
       - name: Build monorepo
         run: yarn run build:ts && yarn run build:components && yarn run build:engines
       - name: Run spec tests
-        run: yarn workspaces foreach --all --include engines/query-sparql run spec
+        run: yarn lerna run spec
       - name: Run integration tests
-        run: yarn workspaces foreach --all --include engines/query-sparql run integration
+        run: yarn lerna run integration --concurrency 1
 
   coveralls:
     name: Coverage check
