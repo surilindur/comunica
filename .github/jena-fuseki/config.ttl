@@ -1,0 +1,13 @@
+@prefix fuseki: <http://jena.apache.org/fuseki#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix tdb1: <http://jena.hpl.hp.com/2008/tdb#> .
+@prefix tdb2: <http://jena.apache.org/2016/tdb#> .
+@prefix ja: <http://jena.hpl.hp.com/2005/11/Assembler#> .
+
+[] rdf:type fuseki:Server ;
+    # Timeout: 1s to first results, 10s for the rest of the query
+    ja:context [ ja:cxtName "arq:queryTimeout" ;  ja:cxtValue "1000,10000" ] .
+
+    # Services from assembler.ttl
+    #fuseki:services (<#service>) .
