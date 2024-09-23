@@ -67,8 +67,10 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
       - name: Install project dependencies
         run: yarn install --immutable
-      - name: Build monorepo
-        run: yarn run build:ts && yarn run build:components
+      - name: Compile TypeScript to JavaScript
+        run: yarn run build:ts
+      - name: Generate Components.js components
+        run: yarn run build:components
       - name: Run unit tests
         run: yarn jest --selectProjects packages --ci
       - name: Submit coverage results
@@ -100,8 +102,12 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
       - name: Install project dependencies
         run: yarn install --immutable
-      - name: Build monorepo
-        run: yarn run build:ts && yarn run build:components && yarn run build:engines
+      - name: Compile TypeScript to JavaScript
+        run: yarn run build:ts
+      - name: Generate Components.js components
+        run: yarn run build:components
+      - name: Generate engine bundles
+        run: yarn run build:engines
       - name: Run engine tests
         run: yarn jest --selectProjects engines --ci
 
@@ -134,8 +140,12 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
       - name: Install project dependencies
         run: yarn install --immutable
-      - name: Build monorepo
-        run: yarn run build:ts && yarn run build:components && yarn run build:engines
+      - name: Compile TypeScript to JavaScript
+        run: yarn run build:ts
+      - name: Generate Components.js components
+        run: yarn run build:components
+      - name: Generate engine bundles
+        run: yarn run build:engines
       - name: Run spec tests
         run: yarn lerna run spec
       - name: Run spec integration tests
@@ -163,7 +173,7 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
       - name: Install project dependencies
         run: yarn install --immutable
-      - name: Build TypeScript files so depcheck will work as intended
+      - name: Compile TypeScript to JavaScript so depcheck will work as intended
         run: yarn run build:ts
       - name: Run depcheck
         run: yarn run depcheck
