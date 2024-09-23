@@ -17,7 +17,7 @@
     "lint-fix": "eslint . --fix",
     "build": "yarn run build:ts && yarn run build:components && yarn run build:engines",
     "build:ts": "tsc",
-    "build:components": "componentsjs-generator engines/* packages/*",
+    "build:components": "componentsjs-generator 'engines/*' 'packages/*'",
     "build:engines": "lerna run prepare",
     "build:engines-browser": "lerna run browser",
     "build-watch": "nodemon -e ts --ignore '*.d.ts' --exec yarn run build",
