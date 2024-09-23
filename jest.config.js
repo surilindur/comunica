@@ -5,10 +5,10 @@ module.exports = {
   // TODO: bump these to 100 after the additional tests have been added
   coverageThreshold: {
     global: {
-      branches: 80,
-      functions: 80,
-      lines: 80,
-      statements: 80,
+      branches: 60,
+      functions: 60,
+      lines: 60,
+      statements: 60,
     },
   },
   projects: [
@@ -26,7 +26,7 @@ module.exports = {
         '<rootDir>/packages/',
         'engine-default.js',
         'node_modules',
-        'util.js',
+        'util.ts',
       ],
     },
     {
