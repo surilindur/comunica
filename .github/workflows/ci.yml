@@ -72,7 +72,7 @@ jobs:
       - name: Generate Components.js components
         run: yarn run build:components
       - name: Run unit tests
-        run: yarn jest --selectProjects packages --ci
+        run: yarn jest --selectProjects packages --ci --runInBand
       - name: Submit coverage results
         uses: coverallsapp/github-action@v2
         with:
@@ -109,7 +109,7 @@ jobs:
       - name: Generate engine bundles
         run: yarn run build:engines
       - name: Run engine tests
-        run: yarn jest --selectProjects engines --ci
+        run: yarn jest --selectProjects engines --ci --runInBand
 
   spectest:
     name: Specification tests
