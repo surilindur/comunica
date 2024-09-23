@@ -28,7 +28,9 @@ jobs:
       - name: Load Yarn cache
         uses: actions/cache@v4
         with:
-          path: .yarn
+          path: |
+            .yarn
+            **/node_modules
           key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
       - name: Install project dependencies
         run: yarn install --immutable
@@ -45,8 +47,8 @@ jobs:
           - macos-latest
           - windows-latest
         node-version:
-          - 18.x
-          - 20.x
+          # - 18.x
+          # - 20.x
           - 22.x
     runs-on: ${{ matrix.os }}
     steps:
@@ -63,7 +65,9 @@ jobs:
       - name: Load Yarn cache
         uses: actions/cache@v4
         with:
-          path: .yarn
+          path: |
+            .yarn
+            **/node_modules
           key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
       - name: Install project dependencies
         run: yarn install --immutable
@@ -98,7 +102,9 @@ jobs:
       - name: Load Yarn cache
         uses: actions/cache@v4
         with:
-          path: .yarn
+          path: |
+            .yarn
+            **/node_modules
           key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
       - name: Install project dependencies
         run: yarn install --immutable
@@ -129,7 +135,9 @@ jobs:
       - name: Load Yarn cache
         uses: actions/cache@v4
         with:
-          path: .yarn
+          path: |
+            .yarn
+            **/node_modules
           key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
       - name: Load RDF test suite cache
         uses: actions/cache@v4
@@ -169,7 +177,9 @@ jobs:
       - name: Load Yarn cache
         uses: actions/cache@v4
         with:
-          path: .yarn
+          path: |
+            .yarn
+            **/node_modules
           key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
       - name: Install project dependencies
         run: yarn install --immutable
@@ -202,7 +212,9 @@ jobs:
       - name: Load Yarn cache
         uses: actions/cache@v4
         with:
-          path: .yarn
+          path: |
+            .yarn
+            **/node_modules
           key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
       - name: Install project dependencies
         run: yarn install --immutable
