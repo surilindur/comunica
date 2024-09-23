@@ -42,11 +42,11 @@ jobs:
       matrix:
         os:
           - ubuntu-latest
-          # - macos-latest
-          # - windows-latest
+          - macos-latest
+          - windows-latest
         node-version:
-          # - 18.x
-          # - 20.x
+          - 18.x
+          - 20.x
           - 22.x
     runs-on: ${{ matrix.os }}
     steps:
@@ -104,6 +104,42 @@ jobs:
         run: yarn run build:ts && yarn run build:components && yarn run build:engines
       - name: Run engine tests
         run: yarn jest --selectProjects engines --ci
+
+  spectest:
+    name: Specification tests
+    needs: unittest
+    runs-on: ubuntu-latest
+    steps:
+      - name: Use Node.js ${{ env.DEFAULT_NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.DEFAULT_NODE_VERSION }}
+      - name: Enable Corepack
+        run: corepack enable
+      - name: Ensure line endings are consistent
+        run: git config --global core.autocrlf input
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Load Yarn cache
+        uses: actions/cache@v4
+        with:
+          path: .yarn
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+      - name: Load RDF test suite cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            .rdf-test-suite-cache
+            .rdf-test-suite-ldf-cache
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+      - name: Install project dependencies
+        run: yarn install --immutable
+      - name: Build monorepo
+        run: yarn run build:ts && yarn run build:components && yarn run build:engines
+      - name: Run spec tests
+        run: yarn lerna run spec
+      - name: Run spec integration tests
+        run: yarn lerna run integration --concurrency 1
 
   depcheck:
     name: Depcheck
@@ -171,37 +207,8 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
-  spectest:
-    name: Specification tests
-    needs: unittest
-    runs-on: ubuntu-latest
-    steps:
-      - name: Use Node.js ${{ env.DEFAULT_NODE_VERSION }}
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.DEFAULT_NODE_VERSION }}
-      - name: Enable Corepack
-        run: corepack enable
-      - name: Ensure line endings are consistent
-        run: git config --global core.autocrlf input
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: Load Yarn cache
-        uses: actions/cache@v4
-        with:
-          path: .yarn
-          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
-      - name: Install project dependencies
-        run: yarn install --immutable
-      - name: Build monorepo
-        run: yarn run build:ts && yarn run build:components && yarn run build:engines
-      - name: Run spec tests
-        run: yarn lerna run spec
-      - name: Run integration tests
-        run: yarn lerna run integration --concurrency 1
-
   coveralls:
-    name: Coverage check
+    name: Coveralls
     needs: unittest
     runs-on: ubuntu-latest
     steps:
