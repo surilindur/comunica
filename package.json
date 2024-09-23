@@ -15,7 +15,7 @@
     "test:browser": "karma start karma.config.js --single-run",
     "lint": "eslint . --cache",
     "lint-fix": "eslint . --fix",
-    "build": "yarn run build:ts && yarn run build:components",
+    "build": "yarn run build:ts && yarn run build:components && yarn run build:engines",
     "build:ts": "tsc",
     "build:components": "componentsjs-generator engines/* packages/*",
     "build:engines": "lerna run prepare",
