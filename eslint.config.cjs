@@ -21,21 +21,34 @@ module.exports = config([
       'ts/no-unsafe-return': 'off',
       'ts/no-unsafe-argument': 'off',
       'ts/no-unsafe-assignment': 'off',
-
-      'ts/no-require-imports': [ 'error', { allow: [
-        'is-stream',
-        'readable-stream-node-to-web',
-      ]}],
-      'ts/no-var-requires': [ 'error', { allow: [
-        'is-stream',
-        'readable-stream-node-to-web',
-      ]}],
+    },
+  },
+  {
+    // Karma configuration
+    files: [
+      'karma.conf.ts',
+      'karma.setup.cjs',
+    ],
+    rules: {
+      'import/extensions': 'off',
+      'import/no-extraneous-dependencies': 'off',
+    },
+  },
+  {
+    files: [
+      // Lerna custom scripts
+      'lerna.scripts.cjs',
+      // Some mocks for tests
+      'packages/*/__mocks__/*.js',
+    ],
+    rules: {
+      'import/no-nodejs-modules': 'off',
     },
   },
   {
     // Specific rules for NodeJS-specific files
     files: [
-      '**/test/**/*.ts',
+      '**/test/**/*-test.ts',
       'packages/actor-dereference-file/**/*.ts',
       'packages/actor-http-native/**/*.ts',
       'packages/logger-bunyan/**/*.ts',
@@ -43,9 +56,18 @@ module.exports = config([
     ],
     rules: {
       'import/no-nodejs-modules': 'off',
-      'unused-imports/no-unused-vars': 'off',
+      // 'unused-imports/no-unused-vars': 'off',
       'ts/no-require-imports': 'off',
       'ts/no-var-requires': 'off',
+    },
+  },
+  {
+    // The spec engines use .js extension
+    files: [
+      'engines/*/spec/*.js',
+    ],
+    rules: {
+      'import/extensions': 'off',
     },
   },
   {
@@ -90,27 +112,37 @@ module.exports = config([
     },
   },
   {
-    // Files that do not require linting
+    // Webpack configurations
+    files: [
+      '**/webpack.config.ts',
+    ],
+    rules: {
+      'import/extensions': 'off',
+      'import/no-nodejs-modules': 'off',
+      'ts/no-var-requires': 'off',
+      'ts/no-require-imports': 'off',
+    },
+  },
+  {
+    files: [
+      // Webpack browser alternatives
+      '**/*-browser.ts',
+      // The funding YAML which needs to be specifically named
+      '.github/FUNDING.yml',
+    ],
+    rules: {
+      'unicorn/filename-case': 'off',
+    },
+  },
+  {
     ignores: [
-      'setup-jest.js',
+      // The engine files are auto-generated
       '**/engine-default.js',
       '**/engine-browser.js',
-      '**/comunica-browser.js',
-      '.github/**',
+      // The performance combinations are auto-generated
       '**/performance/*/combinations/**',
-      '**/bintest/**',
       // TODO: Remove this once solid-client-authn supports node 18.
       '**/QuerySparql-solid-test.ts',
     ],
-  },
-  {
-    files: [ '**/*.js' ],
-    rules: {
-      'ts/no-require-imports': 'off',
-      'ts/no-var-requires': 'off',
-      'import/no-nodejs-modules': 'off',
-      'import/no-extraneous-dependencies': 'off',
-      'import/extensions': 'off',
-    },
   },
 ]);
