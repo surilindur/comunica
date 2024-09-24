@@ -13,13 +13,13 @@ import 'jest-rdf';
 import '@comunica/jest';
 import { Store } from 'n3';
 import { DataFactory } from 'rdf-data-factory';
-import { Factory } from 'sparqlalgebrajs';
+import { Factory as AlgebraFactory } from 'sparqlalgebrajs';
 import { QueryEngine } from '../lib/QueryEngine';
 import { fetch as cachedFetch } from './util';
 
 const DF = new DataFactory();
 const BF = new BindingsFactory(DF);
-const factory = new Factory();
+const AF = new AlgebraFactory();
 
 globalThis.fetch = cachedFetch;
 
@@ -1271,7 +1271,7 @@ SELECT ?obsId {
           data: {
             input: {
               patterns: [
-                factory.createPattern(
+                AF.createPattern(
                   DF.variable('s'),
                   DF.variable('p'),
                   DF.variable('o'),
@@ -1300,7 +1300,7 @@ SELECT ?obsId {
           type: 'logical',
           data: {
             input: Object.assign(
-              factory.createPattern(
+              AF.createPattern(
                 DF.variable('s'),
                 DF.variable('p'),
                 DF.variable('o'),

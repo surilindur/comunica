@@ -45,6 +45,6 @@
     "@comunica/mediatortype-time": "^3.2.1"
   },
   "browser": {
-    "./lib/FetchInitPreprocessor.js": "./lib/FetchInitPreprocessor-browser.js"
+    "./lib/FetchInitPreprocessor": "./lib/FetchInitPreprocessor-browser"
   }
 }

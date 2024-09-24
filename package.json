@@ -39,8 +39,7 @@
     "integration": "npx lerna run integration --concurrency 1"
   },
   "devDependencies": {
-    "@babel/core": "^7.20.2",
-    "@babel/preset-env": "^7.20.2",
+    "@playwright/test": "^1.0.0",
     "@pollyjs/adapter-node-http": "^6.0.5",
     "@pollyjs/core": "^6.0.5",
     "@pollyjs/persister-fs": "^6.0.5",
@@ -54,7 +53,6 @@
     "@types/setup-polly-jest": "^0.5.2",
     "arrayify-stream": "^2.0.1",
     "asynciterator": "^3.9.0",
-    "babel-loader": "^9.1.0",
     "benchmark": "^2.1.4",
     "componentsjs-generator": "^4.1.0",
     "depcheck": "^1.4.3",
@@ -86,10 +84,12 @@
     "streamify-array": "^1.0.1",
     "ts-jest": "^29.0.5",
     "ts-loader": "^9.4.1",
+    "ts-node": "^10.0.0",
     "typedoc": "^0.26.0",
     "typescript": "^5.3.3",
-    "webpack": "^5.75.0",
-    "webpack-cli": "^5.0.0"
+    "webpack": "^5.0.0",
+    "webpack-cli": "^5.0.0",
+    "webpack-dev-server": "^5.0.0"
   },
   "resolutions": {
     "@rdfjs/types": "1.1.0"

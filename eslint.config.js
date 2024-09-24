@@ -49,6 +49,28 @@ module.exports = config([
     },
   },
   {
+    // Webpack configurations
+    files: [
+      '**/webpack.config.ts',
+    ],
+    rules: {
+      'import/extensions': 'off',
+      'import/no-nodejs-modules': 'off',
+      'ts/no-var-requires': 'off',
+      'ts/no-require-imports': 'off',
+    },
+  },
+  {
+    // Playwright configurations
+    files: [
+      '**/playwright.config.ts',
+      '**/test/*-browser.ts',
+    ],
+    rules: {
+      'import/extensions': 'off',
+    },
+  },
+  {
     // Only the packager makes use of dynamic require
     files: [
       'packages/packager/bin/package.ts',

@@ -1,0 +1,16 @@
+{
+  "@context": "https://linkedsoftwaredependencies.org/bundles/npm/@ldf/server/^3.0.0/components/context.jsonld",
+  "@id": "urn:ldf-server:my",
+  "import": "preset-qpf:config-defaults.json",
+  "title": "Comunica GitHub CI Linked Data Fragments server",
+  "datasources": [
+    {
+      "@id": "urn:ldf-server:dataSource",
+      "@type": "NQuadsDatasource",
+      "datasourceTitle": "Comunica GitHub CI Data Source",
+      "description": "Simple nonsense example data for automated testing",
+      "datasourcePath": "qpf",
+      "file": "/opt/ldf-server/data.nq"
+    }
+  ]
+}

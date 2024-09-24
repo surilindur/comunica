@@ -7,7 +7,9 @@
 
 <#dataset> rdf:type ja:RDFDataset ;
     ja:defaultGraph [
-        rdf:type ja:MemoryModel
+        rdfs:label "data.ttl" ;
+        rdf:type ja:MemoryModel ;
+        ja:content [ ja:externalContent <file:///fuseki-base/data.nq> ]
     ] .
 
 <#service> rdf:type fuseki:Service ;
