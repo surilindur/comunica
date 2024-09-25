@@ -1,4 +1,6 @@
-module.exports = {
+import type { Config } from 'jest';
+
+const config: Config = {
   transform: {
     '^.+\\.ts$': [ 'ts-jest', {
       // Enabling this can fix issues when using prereleases of typings packages
@@ -15,7 +17,6 @@ module.exports = {
     'ts',
     'js',
   ],
-  setupFilesAfterEnv: [ './setup-jest.js' ],
   collectCoverage: true,
   coveragePathIgnorePatterns: [
     '/node_modules/',
@@ -26,6 +27,8 @@ module.exports = {
     'engine-default.js',
   ],
   testEnvironment: 'node',
+  // The default timeout is too short for the engine tests
+  testTimeout: 20_000,
   coverageThreshold: {
     global: {
       branches: 100,
@@ -35,3 +38,5 @@ module.exports = {
     },
   },
 };
+
+export default config;
