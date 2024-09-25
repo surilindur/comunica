@@ -3645,7 +3645,6 @@ __metadata:
     is-stream: "npm:^2.0.1"
     readable-from-web: "npm:^1.0.0"
     readable-stream-node-to-web: "npm:^1.0.1"
-    web-streams-ponyfill: "npm:^1.4.2"
   languageName: unknown
   linkType: soft
 
