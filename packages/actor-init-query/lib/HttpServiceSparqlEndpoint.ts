@@ -23,7 +23,6 @@ import { CliArgsHandlerHttp } from './cli/CliArgsHandlerHttp';
 
 // Use require instead of import for default exports, to be compatible with variants of esModuleInterop in tsconfig.
 const clusterUntyped = require('node:cluster');
-const process: NodeJS.Process = require('process/');
 const quad = require('rdf-quad');
 
 // Force type on Cluster, because there are issues with the Node.js typings since v18

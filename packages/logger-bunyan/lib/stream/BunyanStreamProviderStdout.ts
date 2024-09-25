@@ -2,8 +2,6 @@ import type { Stream } from 'bunyan';
 import type { IBunyanStreamProviderArgs } from './BunyanStreamProvider';
 import { BunyanStreamProvider } from './BunyanStreamProvider';
 
-const process: NodeJS.Process = require('process/');
-
 /**
  * A stdout bunyan stream provider.
  */

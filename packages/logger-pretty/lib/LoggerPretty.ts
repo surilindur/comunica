@@ -4,8 +4,6 @@ import { Logger } from '@comunica/types';
 // eslint-disable-next-line ts/no-require-imports
 import objectInspect = require('object-inspect');
 
-const process: NodeJS.Process = require('process/');
-
 /**
  * A logger that pretty-prints everything.
  */

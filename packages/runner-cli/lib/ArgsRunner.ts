@@ -6,8 +6,6 @@ import { run } from '@comunica/runner';
 import type { IActionContext } from '@comunica/types';
 import type { Readable } from 'readable-stream';
 
-const process: NodeJS.Process = require('process/');
-
 export function runArgs(
   configResourceUrl: string,
   argv: string[],

@@ -24,16 +24,12 @@ module.exports = config([
 
       'ts/no-require-imports': [ 'error', {
         allow: [
-          'process/',
-          'web-streams-ponyfill',
           'is-stream',
           'readable-stream-node-to-web',
         ],
       }],
       'ts/no-var-requires': [ 'error', {
         allow: [
-          'process/',
-          'web-streams-ponyfill',
           'is-stream',
           'readable-stream-node-to-web',
         ],
