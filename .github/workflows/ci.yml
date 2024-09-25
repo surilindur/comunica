@@ -5,17 +5,52 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  DEFAULT_NODE_VERSION: 22.x
+  DOCUMENTATION_BRANCH: feat/simplify-extension-ignores
+
 jobs:
 
-  test:
-    runs-on: ${{ matrix.os }}
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Use Node.js ${{ env.DEFAULT_NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.DEFAULT_NODE_VERSION }}
+      - name: Enable Corepack
+        run: corepack enable
+      - name: Ensure line endings are consistent
+        run: git config --global core.autocrlf input
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Load Yarn cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            .yarn
+            **/node_modules
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+      - name: Install project dependencies
+        run: yarn install --immutable
+      - name: Run linter
+        run: yarn run lint
+
+  unittest:
+    name: Unit tests
+    needs: lint
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
         node-version:
           - 18.x
           - 20.x
           - 22.x
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
@@ -27,48 +62,181 @@ jobs:
         run: git config --global core.autocrlf input
       - name: Check out repository
         uses: actions/checkout@v4
-      - name: Load cache
+      - name: Load Yarn cache
         uses: actions/cache@v4
         with:
           path: |
+            .yarn
             **/node_modules
-            .rdf-test-suite-cache
-            .rdf-test-suite-ldf-cache
-          key: ${{ runner.os }}-test-modules-${{ secrets.CACHE_VERSION }}-${{ hashFiles('**/yarn.lock') }}
-      - name: Setup firefox
-        uses: browser-actions/setup-firefox@latest
-        with:
-          firefox-version: latest
-      - name: Install dependencies
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+      - name: Install project dependencies
         run: yarn install --immutable
-      - name: Build project
-        run: yarn run build
-      - name: Build project -- esModuleInterop true
-        run: yarn run build:ts --esModuleInterop true
-      - name: Run depcheck
-        run: yarn run depcheck
-      - name: Run tests
-        run: yarn run test:ci
-      - name: Run browser tests
-        if: ${{ matrix.os == 'ubuntu-latest' }}
-        uses: nick-fields/retry@v3
-        with:
-          timeout_minutes: 2
-          max_attempts: 3
-          command: yarn run test:browser
+      - name: Compile TypeScript to JavaScript
+        run: yarn run build:ts
+      - name: Generate Components.js components
+        run: yarn run build:components
+      - name: Generate engine bundles
+        run: yarn lerna run prepare
+      - name: Run unit tests
+        run: yarn jest --ci --runInBand
       - name: Submit coverage results
         uses: coverallsapp/github-action@v2
         with:
           github-token: ${{ secrets.github_token }}
           flag-name: run-${{ matrix.node-version }}
           parallel: true
+
+  spectest:
+    name: Specification tests
+    needs: unittest
+    runs-on: ubuntu-latest
+    steps:
+      - name: Use Node.js ${{ env.DEFAULT_NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.DEFAULT_NODE_VERSION }}
+      - name: Enable Corepack
+        run: corepack enable
+      - name: Ensure line endings are consistent
+        run: git config --global core.autocrlf input
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Load Yarn cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            .yarn
+            **/node_modules
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+      - name: Load RDF test suite cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            .rdf-test-suite-cache
+            .rdf-test-suite-ldf-cache
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+      - name: Install project dependencies
+        run: yarn install --immutable
+      - name: Compile TypeScript to JavaScript
+        run: yarn run build:ts
+      - name: Generate Components.js components
+        run: yarn run build:components
+      - name: Generate engine bundles
+        run: yarn lerna run prepare
       - name: Run spec tests
-        run: npx lerna run spec --concurrency 1
-      - name: Run integration tests
-        run: npx lerna run integration --concurrency 1
+        run: yarn lerna run spec
+      - name: Run spec integration tests
+        run: yarn lerna run integration --concurrency 1
+
+  browsertest:
+    name: Browser tests
+    needs: unittest
+    runs-on: ubuntu-latest
+    steps:
+      - name: Use Node.js ${{ env.DEFAULT_NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.DEFAULT_NODE_VERSION }}
+      - name: Enable Corepack
+        run: corepack enable
+      - name: Ensure line endings are consistent
+        run: git config --global core.autocrlf input
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Load Yarn cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            .yarn
+            **/node_modules
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+      - name: Install project dependencies
+        run: yarn install --immutable
+      - name: Compile TypeScript to JavaScript
+        run: yarn run build:ts
+      - name: Generate Components.js components
+        run: yarn run build:components
+      - name: Generate engine bundles
+        run: yarn lerna run prepare
+      - name: Run browser tests
+        run: yarn run test:browser
+
+  depcheck:
+    name: Depcheck
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Use Node.js ${{ env.DEFAULT_NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.DEFAULT_NODE_VERSION }}
+      - name: Enable Corepack
+        run: corepack enable
+      - name: Ensure line endings are consistent
+        run: git config --global core.autocrlf input
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Load Yarn cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            .yarn
+            **/node_modules
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+      - name: Install project dependencies
+        run: yarn install --immutable
+      - name: Compile TypeScript to JavaScript so depcheck will work as intended
+        run: yarn run build:ts
+      - name: Run depcheck
+        run: yarn run depcheck
+
+  docs:
+    name: Documentation
+    needs: lint
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Use Node.js ${{ env.DEFAULT_NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.DEFAULT_NODE_VERSION }}
+      - name: Enable Corepack
+        run: corepack enable
+      - name: Ensure line endings are consistent
+        run: git config --global core.autocrlf input
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Load Yarn cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            .yarn
+            **/node_modules
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+      - name: Install project dependencies
+        run: yarn install --immutable
+      - name: Build documentation
+        run: yarn run doc
+      - name: Prepare artifact
+        uses: actions/upload-pages-artifact@v3
+        if: success() && github.ref == 'refs/heads/${{ env.DOCUMENTATION_BRANCH }}'
+        with:
+          path: documentation
+          name: documentation
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+        with:
+          artifact_name: documentation
 
   coveralls:
-    needs: test
+    name: Coveralls
+    needs: unittest
     runs-on: ubuntu-latest
     steps:
       - name: Consolidate test coverage from different jobs
@@ -77,75 +245,25 @@ jobs:
           github-token: ${{ secrets.github_token }}
           parallel-finished: true
 
-  lint:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Use Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18.x
-      - name: Enable Corepack
-        run: corepack enable
-      - name: Check out repository
-        uses: actions/checkout@v4
-      - name: Load cache
-        uses: actions/cache@v4
-        with:
-          path: '**/node_modules'
-          key: ${{ runner.os }}-lint-modules-${{ secrets.CACHE_VERSION }}-${{ hashFiles('**/yarn.lock') }}
-      - name: Install dependencies
-        run: yarn install --immutable
-      - name: Run linter
-        run: yarn run lint
-
-  browser:
-    needs:
-      - test
-      - lint
-    runs-on: ubuntu-latest
-    steps:
-      - name: Use Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18.x
-      - name: Enable Corepack
-        run: corepack enable
-      - name: Check out repository
-        uses: actions/checkout@v4
-      - name: Load cache
-        uses: actions/cache@v4
-        with:
-          path: '**/node_modules'
-          key: ${{ runner.os }}-browser-modules-${{ secrets.CACHE_VERSION }}-${{ hashFiles('**/yarn.lock') }}
-      - name: Install dependencies
-        run: yarn install --immutable
-      - name: Build for browser
-        run: npx lerna run browser --concurrency 1
-      - name: Deploy browser build
-        if: startsWith(github.ref, 'refs/heads/master') || startsWith(github.ref, 'refs/tags/')
-        run: ./.github/deploy_browser.sh
-        env:
-          GH_TOKEN: ${{ secrets.PAT }}
-
   docker:
-    needs:
-      - test
-      - lint
+    needs: unittest
     runs-on: ubuntu-latest
     steps:
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18.x
+          node-version: ${{ env.DEFAULT_NODE_VERSION }}
       - name: Enable Corepack
         run: corepack enable
       - name: Check out repository
         uses: actions/checkout@v4
-      - name: Load cache
+      - name: Load Yarn cache
         uses: actions/cache@v4
         with:
-          path: '**/node_modules'
-          key: ${{ runner.os }}-docker-modules-${{ secrets.CACHE_VERSION }}-${{ hashFiles('**/yarn.lock') }}
+          path: |
+            .yarn
+            **/node_modules
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
       - name: Install dependencies
         run: yarn install --immutable
       - name: Install Lerna Docker
@@ -175,9 +293,7 @@ jobs:
           - bsbm-file
           - bsbm-tpf
           - web
-    needs:
-      - test
-      - lint
+    needs: unittest
     if: startsWith(github.ref, 'refs/heads/master') || startsWith(github.ref, 'refs/tags/') || startsWith(github.ref, 'refs/heads/feature') || startsWith(github.ref, 'refs/heads/next')
     steps:
       - name: Check out repository
@@ -185,9 +301,16 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22.x
+          node-version: ${{ env.DEFAULT_NODE_VERSION }}
       - name: Enable Corepack
         run: corepack enable
+      - name: Load Yarn cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            .yarn
+            **/node_modules
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
       - name: Install dependencies
         run: yarn install --immutable
       - name: Run benchmarks
@@ -200,8 +323,7 @@ jobs:
         run: cat performance/benchmark-${{ matrix.benchmark }}/combinations/combination_0/output/query-times.csv
 
   performance-consolidate:
-    needs:
-      - performance
+    needs: performance
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/heads/master') || startsWith(github.ref, 'refs/tags/') || startsWith(github.ref, 'refs/heads/feature') || startsWith(github.ref, 'refs/heads/next')
     steps:
@@ -210,7 +332,7 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18.x
+          node-version: ${{ env.DEFAULT_NODE_VERSION }}
       - uses: actions/download-artifact@v4
         with:
           name: performance-benchmark-watdiv-file
@@ -275,31 +397,3 @@ jobs:
         uses: peter-evans/commit-comment@v3
         with:
           body-path: ./commit-comment-body.txt
-
-  docs:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Use Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18.x
-      - name: Enable Corepack
-        run: corepack enable
-      - name: Check out repository
-        uses: actions/checkout@v4
-      - name: Load cache
-        uses: actions/cache@v4
-        with:
-          path: '**/node_modules'
-          key: ${{ runner.os }}-docs-modules-${{ secrets.CACHE_VERSION }}-${{ hashFiles('**/yarn.lock') }}
-      - name: Install dependencies
-        run: yarn install --immutable
-      - name: Build docs
-        run: yarn run doc
-      - name: Deploy TSDoc to GitHub Pages
-        if: startsWith(github.ref, 'refs/heads/master')
-        uses: JamesIves/github-pages-deploy-action@v4.4.0
-        with:
-          branch: gh-pages
-          folder: documentation
-          clean: true
