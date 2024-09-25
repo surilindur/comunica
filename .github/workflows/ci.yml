@@ -21,6 +21,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
+      - name: Enable Corepack
+        run: corepack enable
       - name: Ensure line endings are consistent
         run: git config --global core.autocrlf input
       - name: Check out repository
@@ -38,7 +40,7 @@ jobs:
         with:
           firefox-version: latest
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
       - name: Build project
         run: yarn run build
       - name: Build project -- esModuleInterop true
@@ -82,6 +84,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 18.x
+      - name: Enable Corepack
+        run: corepack enable
       - name: Check out repository
         uses: actions/checkout@v4
       - name: Load cache
@@ -90,7 +94,7 @@ jobs:
           path: '**/node_modules'
           key: ${{ runner.os }}-lint-modules-${{ secrets.CACHE_VERSION }}-${{ hashFiles('**/yarn.lock') }}
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
       - name: Run linter
         run: yarn run lint
 
@@ -104,6 +108,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 18.x
+      - name: Enable Corepack
+        run: corepack enable
       - name: Check out repository
         uses: actions/checkout@v4
       - name: Load cache
@@ -112,7 +118,7 @@ jobs:
           path: '**/node_modules'
           key: ${{ runner.os }}-browser-modules-${{ secrets.CACHE_VERSION }}-${{ hashFiles('**/yarn.lock') }}
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
       - name: Build for browser
         run: npx lerna run browser --concurrency 1
       - name: Deploy browser build
@@ -131,6 +137,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 18.x
+      - name: Enable Corepack
+        run: corepack enable
       - name: Check out repository
         uses: actions/checkout@v4
       - name: Load cache
@@ -139,7 +147,7 @@ jobs:
           path: '**/node_modules'
           key: ${{ runner.os }}-docker-modules-${{ secrets.CACHE_VERSION }}-${{ hashFiles('**/yarn.lock') }}
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
       - name: Install Lerna Docker
         run: sh -c "`curl -fsSl https://raw.githubusercontent.com/rubensworks/lerna-docker/master/install.sh`"
       - name: Build Docker images
@@ -178,8 +186,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22.x
+      - name: Enable Corepack
+        run: corepack enable
       - name: Install dependencies
-        run: yarn install
+        run: yarn install --immutable
       - name: Run benchmarks
         run: cd performance/benchmark-${{ matrix.benchmark }}/ && yarn run performance:ci
       - uses: actions/upload-artifact@v4
@@ -273,6 +283,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 18.x
+      - name: Enable Corepack
+        run: corepack enable
       - name: Check out repository
         uses: actions/checkout@v4
       - name: Load cache
@@ -281,7 +293,7 @@ jobs:
           path: '**/node_modules'
           key: ${{ runner.os }}-docs-modules-${{ secrets.CACHE_VERSION }}-${{ hashFiles('**/yarn.lock') }}
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
       - name: Build docs
         run: yarn run doc
       - name: Deploy TSDoc to GitHub Pages
