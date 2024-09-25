@@ -1,0 +1,38 @@
+import { resolve } from 'node:path';
+import * as NodePolyfillPlugin from 'node-polyfill-webpack-plugin';
+import { ProgressPlugin } from 'webpack';
+import type { Configuration } from 'webpack';
+
+function createConfig(packagePath: string): Configuration {
+  return {
+    entry: resolve(packagePath, 'lib', 'index-browser.ts'),
+    output: {
+      filename: 'engine-browser.js',
+      path: packagePath,
+      libraryTarget: 'var',
+      library: 'Comunica',
+    },
+    mode: 'development',
+    devtool: 'source-map',
+    module: {
+      rules: [
+        {
+          test: /\.ts$/u,
+          loader: 'ts-loader',
+          exclude: /node_modules/u,
+        },
+      ],
+    },
+    plugins: [
+      new ProgressPlugin(),
+      new NodePolyfillPlugin(),
+    ],
+    performance: {
+      hints: 'error',
+      maxAssetSize: 1750000,
+      maxEntrypointSize: 1750000,
+    },
+  };
+}
+
+export { createConfig };
