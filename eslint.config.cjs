@@ -129,7 +129,7 @@ module.exports = config([
   {
     // Karma configurations
     files: [
-      'karma.setup.cjs',
+      'karma.setup.ts',
     ],
     rules: {
       'import/no-extraneous-dependencies': 'off',

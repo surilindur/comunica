@@ -218,6 +218,7 @@
     "@comunica/types": "^3.2.1"
   },
   "browser": {
-    "./lib/index.js": "./lib/index-browser.js"
+    "./lib/index.js": "./lib/index-browser.js",
+    "./test/util": "./test/util-browser"
   }
 }

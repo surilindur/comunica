@@ -3,6 +3,8 @@
   "include": [
     "jest.config.ts",
     "karma.conf.ts",
+    "karma.setup.ts",
+    "karma.webpack.ts",
     "webpack.config.ts",
     "engines/**/*.ts",
     "packages/**/*.ts",
