@@ -1,6 +1,9 @@
 {
   "extends": "./tsconfig.json",
   "include": [
+    "jest.config.ts",
+    "karma.conf.ts",
+    "webpack.config.ts",
     "engines/**/*.ts",
     "packages/**/*.ts",
     "performance/**/*.ts"

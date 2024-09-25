@@ -2,11 +2,11 @@ const config = require('@rubensworks/eslint-config');
 
 module.exports = config([
   {
-    files: ['**/*.ts'],
+    files: [ '**/*.ts' ],
     languageOptions: {
       parserOptions: {
         tsconfigRootDir: __dirname,
-        project: ['./tsconfig.eslint.json'],
+        project: [ './tsconfig.eslint.json' ],
       },
     },
   },
@@ -22,21 +22,21 @@ module.exports = config([
       'ts/no-unsafe-argument': 'off',
       'ts/no-unsafe-assignment': 'off',
 
-      'ts/no-require-imports': ['error', {
+      'ts/no-require-imports': [ 'error', {
         allow: [
           'process/',
           'web-streams-ponyfill',
           'is-stream',
           'readable-stream-node-to-web',
-        ]
+        ],
       }],
-      'ts/no-var-requires': ['error', {
+      'ts/no-var-requires': [ 'error', {
         allow: [
           'process/',
           'web-streams-ponyfill',
           'is-stream',
           'readable-stream-node-to-web',
-        ]
+        ],
       }],
     },
   },
@@ -44,7 +44,6 @@ module.exports = config([
     // Specific rules for NodeJS-specific files
     files: [
       '**/test/**/*.ts',
-      '**/__mocks__/*.js',
       'packages/actor-dereference-file/**/*.ts',
       'packages/actor-http-native/**/*.ts',
       'packages/logger-bunyan/**/*.ts',
@@ -109,7 +108,7 @@ module.exports = config([
     },
   },
   {
-    // Spec test engines
+    // Spec test engines and mocks
     files: [
       '**/spec/*.js',
     ],
@@ -123,45 +122,32 @@ module.exports = config([
   {
     // Webpack configurations
     files: [
-      '**/webpack.config.js',
+      'karma.conf.ts',
+      '**/webpack.config.ts',
     ],
     rules: {
-      'ts/no-var-requires': 'off',
-      'ts/no-require-imports': 'off',
+      'import/extensions': 'off',
       'import/no-nodejs-modules': 'off',
+    },
+  },
+  {
+    // Karma configurations
+    files: [
+      'karma.setup.cjs',
+    ],
+    rules: {
       'import/no-extraneous-dependencies': 'off',
     },
   },
   {
     // Karma config and Lerna custom script because they have identical rules
     files: [
-      'karma.config.js',
-      'lerna.scripts.js',
+      'lerna.scripts.cjs',
     ],
     rules: {
       'ts/no-var-requires': 'off',
       'ts/no-require-imports': 'off',
       'import/no-nodejs-modules': 'off',
-    },
-  },
-  {
-    // Karma setup script
-    files: [
-      'karma-setup.js',
-    ],
-    rules: {
-      'import/no-nodejs-modules': 'off',
-      'import/no-extraneous-dependencies': 'off',
-    },
-  },
-  {
-    // Jest setup script
-    files: [
-      'setup-jest.js',
-    ],
-    rules: {
-      'ts/no-require-imports': 'off',
-      'import/no-extraneous-dependencies': 'off',
     },
   },
   {
@@ -175,6 +161,8 @@ module.exports = config([
   },
   {
     ignores: [
+      // The JavaScript mocks need a lot of clean-up
+      '**/__mocks__/*.js',
       // The engine bundles are auto-generated code
       'engines/*/engine-default.js',
       'engines/*/engine-browser.js',
