@@ -2,11 +2,11 @@ const config = require('@rubensworks/eslint-config');
 
 module.exports = config([
   {
-    files: [ '**/*.ts' ],
+    files: ['**/*.ts'],
     languageOptions: {
       parserOptions: {
         tsconfigRootDir: __dirname,
-        project: [ './tsconfig.eslint.json' ],
+        project: ['./tsconfig.eslint.json'],
       },
     },
   },
@@ -22,18 +22,22 @@ module.exports = config([
       'ts/no-unsafe-argument': 'off',
       'ts/no-unsafe-assignment': 'off',
 
-      'ts/no-require-imports': [ 'error', { allow: [
-        'process/',
-        'web-streams-ponyfill',
-        'is-stream',
-        'readable-stream-node-to-web',
-      ]}],
-      'ts/no-var-requires': [ 'error', { allow: [
-        'process/',
-        'web-streams-ponyfill',
-        'is-stream',
-        'readable-stream-node-to-web',
-      ]}],
+      'ts/no-require-imports': ['error', {
+        allow: [
+          'process/',
+          'web-streams-ponyfill',
+          'is-stream',
+          'readable-stream-node-to-web',
+        ]
+      }],
+      'ts/no-var-requires': ['error', {
+        allow: [
+          'process/',
+          'web-streams-ponyfill',
+          'is-stream',
+          'readable-stream-node-to-web',
+        ]
+      }],
     },
   },
   {
@@ -162,7 +166,7 @@ module.exports = config([
   },
   {
     files: [
-      'eslint.config.js',
+      'eslint.config.cjs',
     ],
     rules: {
       'ts/no-var-requires': 'off',
