@@ -5,9 +5,9 @@ const { loadPackages, exec, iter } = require('lerna-script');
 
 function ensureDependency({ checkedDeps, dependency, dependant }) {
   if (!checkedDeps.dependencies.includes(dependency)) {
-    checkedDeps.missing[dependency] = [ dependant ];
+    checkedDeps.missing[dependency] = [dependant];
   }
-  checkedDeps.using[dependency] = [ dependant ];
+  checkedDeps.using[dependency] = [dependant];
 }
 
 /**
@@ -78,34 +78,34 @@ async function depInfo({ location }, log) {
   }
 
   return {
-    unusedDeps: [ ...dependencies, ...devDependencies ].filter(elem => !Object.keys(using).includes(elem)),
+    unusedDeps: [...dependencies, ...devDependencies].filter(elem => !Object.keys(using).includes(elem)),
     missingDeps: Object.keys(missing),
     allDeps: Object.keys(using),
   };
 }
 
 async function depfixTask(log) {
-  const packages = (await (log.packages || loadPackages())).filter(package => package.location.startsWith(path.join(__dirname, '/packages')));
+  const packages = (await (log.packages || loadPackages())).filter(pkg => pkg.location.startsWith(path.join(__dirname, '/packages')));
   const resolutions = Object.keys(JSON.parse(readFileSync(path.join(__dirname, 'package.json'), 'utf8')).resolutions ?? {});
 
   // eslint-disable-next-line unicorn/no-array-for-each
-  await iter.forEach(packages, { log })(async(package) => {
-    log.info(package.name);
+  await iter.forEach(packages, { log })(async (pkg) => {
+    log.info(pkg.name);
 
-    const { missingDeps, unusedDeps, allDeps } = await depInfo(package);
+    const { missingDeps, unusedDeps, allDeps } = await depInfo(pkg);
 
-    if (allDeps.includes(package.name)) {
+    if (allDeps.includes(pkg.name)) {
       log.error('     package is a dependency of itself');
     }
 
     if (missingDeps.length > 0) {
       try {
         log.info('    add:', missingDeps.join(', '));
-        await exec.command(package)(`yarn add ${missingDeps.join(' ')}`);
+        await exec.command(pkg)(`yarn add ${missingDeps.join(' ')}`);
       } catch {
         for (const dep of missingDeps) {
           try {
-            await exec.command(package)(`yarn add ${dep}`);
+            await exec.command(pkg)(`yarn add ${dep}`);
           } catch {
             log.error('    CANNOT ADD:', dep);
           }
@@ -116,11 +116,11 @@ async function depfixTask(log) {
     if (unusedDeps.length > 0) {
       try {
         log.info('    remove:', unusedDeps.join(', '));
-        await exec.command(package)(`yarn remove ${unusedDeps.join(' ')}`);
+        await exec.command(pkg)(`yarn remove ${unusedDeps.join(' ')}`);
       } catch {
         for (const dep of unusedDeps) {
           try {
-            await exec.command(package)(`yarn remove ${dep}`);
+            await exec.command(pkg)(`yarn remove ${dep}`);
           } catch {
             log.error('    CANNOT REMOVE:', dep);
           }
@@ -129,45 +129,45 @@ async function depfixTask(log) {
     }
 
     // Now fix up any resolutions to use a star ("*") import
-    const packageJson = JSON.parse(readFileSync(path.join(package.location, 'package.json'), 'utf8'));
+    const packageJson = JSON.parse(readFileSync(path.join(pkg.location, 'package.json'), 'utf8'));
     for (const dep of Object.keys(packageJson.dependencies ?? {})) {
       if (resolutions.includes(dep) && packageJson.dependencies[dep] !== '*') {
         log.info('    converting to \'*\' import for', dep);
         packageJson.dependencies[dep] = '*';
       }
     }
-    writeFileSync(path.join(package.location, 'package.json'), `${JSON.stringify(packageJson, null, 2)}\n`);
+    writeFileSync(path.join(pkg.location, 'package.json'), `${JSON.stringify(packageJson, null, 2)}\n`);
   });
 }
 
 async function depcheckTask(log) {
   const packages = (await (log.packages || loadPackages())).filter(
-    package => package.location.startsWith(path.join(__dirname, '/packages')) ||
-      package.location.startsWith(path.join(__dirname, '/engines')),
+    pkg => pkg.location.startsWith(path.join(__dirname, '/packages')) ||
+      pkg.location.startsWith(path.join(__dirname, '/engines')),
   );
   const resolutions = Object.keys(JSON.parse(readFileSync(path.join(__dirname, 'package.json'), 'utf8')).resolutions ?? {});
 
   // eslint-disable-next-line unicorn/no-array-for-each
-  return iter.forEach(packages, { log })(async(package) => {
-    const { missingDeps, unusedDeps, allDeps } = await depInfo(package);
+  return iter.forEach(packages, { log })(async (pkg) => {
+    const { missingDeps, unusedDeps, allDeps } = await depInfo(pkg);
 
     if (missingDeps.length > 0) {
-      throw new Error(`Missing dependencies:  ${missingDeps.join(', ')} from ${package.name}`);
+      throw new Error(`Missing dependencies:  ${missingDeps.join(', ')} from ${pkg.name}`);
     }
 
     if (unusedDeps.length > 0) {
-      throw new Error(`Extra dependencies: ${unusedDeps.join(', ')} in ${package.name}`);
+      throw new Error(`Extra dependencies: ${unusedDeps.join(', ')} in ${pkg.name}`);
     }
 
-    if (allDeps.includes(package.name)) {
-      throw new Error(`${package.name} is a dependency of itself`);
+    if (allDeps.includes(pkg.name)) {
+      throw new Error(`${pkg.name} is a dependency of itself`);
     }
 
     // Now check all resolutions use a star ("*") import
-    const packageJson = JSON.parse(readFileSync(path.join(package.location, 'package.json'), 'utf8'));
+    const packageJson = JSON.parse(readFileSync(path.join(pkg.location, 'package.json'), 'utf8'));
     for (const dep of Object.keys(packageJson.dependencies ?? {})) {
       if (resolutions.includes(dep) && packageJson.dependencies[dep] !== '*') {
-        throw new Error(`Resolution not using '*' import for ${dep} in ${package.name}`);
+        throw new Error(`Resolution not using '*' import for ${dep} in ${pkg.name}`);
       }
     }
   });
@@ -180,32 +180,32 @@ const ncu = require('npm-check-updates');
 
 async function updateTask(log) {
   const packages = (await (log.packages || loadPackages())).filter(
-    package => package.location.startsWith(path.join(__dirname, '/packages')) ||
-      package.location.startsWith(path.join(__dirname, '/engines')),
+    pkg => pkg.location.startsWith(path.join(__dirname, '/packages')) ||
+      pkg.location.startsWith(path.join(__dirname, '/engines')),
   );
 
   // eslint-disable-next-line unicorn/no-array-for-each
-  await iter.forEach(packages, { log })(async(package) => {
+  await iter.forEach(packages, { log })(async (pkg) => {
     const upgraded = await ncu.run({
       // Pass any cli option
-      packageFile: path.join(package.location, 'package.json'),
+      packageFile: path.join(pkg.location, 'package.json'),
       upgrade: true,
       target: 'minor',
     });
-    log.info(package.name, upgraded);
+    log.info(pkg.name, upgraded);
   });
 }
 
 async function updateTaskMajor(log) {
-  const packages = (await (log.packages || loadPackages())).filter(package => package.location.startsWith(path.join(__dirname, '/packages')));
+  const packages = (await (log.packages || loadPackages())).filter(pkg => pkg.location.startsWith(path.join(__dirname, '/packages')));
 
   // eslint-disable-next-line unicorn/no-array-for-each
-  await iter.forEach(packages, { log })(async(package) => {
+  await iter.forEach(packages, { log })(async (pkg) => {
     const upgraded = await ncu.run({
       // Pass any cli option
-      packageFile: path.join(package.location, 'package.json'),
+      packageFile: path.join(pkg.location, 'package.json'),
     });
-    log.info(package.name, upgraded);
+    log.info(pkg.name, upgraded);
   });
 }
 

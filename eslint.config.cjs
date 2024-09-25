@@ -136,7 +136,7 @@ module.exports = config([
     // Karma config and Lerna custom script because they have identical rules
     files: [
       'karma.config.js',
-      'lerna-custom-script.js',
+      'lerna.scripts.js',
     ],
     rules: {
       'ts/no-var-requires': 'off',
