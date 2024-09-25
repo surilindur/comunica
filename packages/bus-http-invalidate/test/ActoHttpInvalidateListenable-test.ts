@@ -1,6 +1,7 @@
 import { ActionContext, Bus } from '@comunica/core';
 import type { IInvalidateListener } from '..';
 import { ActorHttpInvalidateListenable } from '..';
+import '@comunica/jest';
 
 describe('ActorHttpInvalidateListenable', () => {
   const bus = new Bus({ name: 'bus' });

@@ -6,6 +6,7 @@ import { LoggerPretty } from '@comunica/logger-pretty';
 import { stringify as stringifyStream } from '@jeswr/stream-to-string';
 import { ArrayIterator } from 'asynciterator';
 import { Readable } from 'readable-stream';
+import '@comunica/jest';
 
 // @ts-expect-error
 import { QueryEngineFactoryBase, QueryEngineBase } from '../__mocks__';

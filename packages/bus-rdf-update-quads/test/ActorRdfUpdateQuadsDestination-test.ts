@@ -9,6 +9,7 @@ import { DataFactory, Store } from 'n3';
 import { DataFactory as RdfDataFactory } from 'rdf-data-factory';
 import type { IActorRdfUpdateQuadsOutput } from '../lib';
 import { ActorRdfUpdateQuadsDestination, getContextDestinationUrl } from '../lib';
+import '@comunica/jest';
 
 const { quad, namedNode, blankNode } = DataFactory;
 

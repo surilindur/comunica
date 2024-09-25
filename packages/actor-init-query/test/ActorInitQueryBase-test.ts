@@ -3,6 +3,7 @@ import { ActorInit } from '@comunica/bus-init';
 import { Bus } from '@comunica/core';
 import type { IActorInitQueryBaseArgs } from '../lib/ActorInitQueryBase';
 import { ActorInitQueryBase } from '../lib/ActorInitQueryBase';
+import '@comunica/jest';
 
 describe('ActorInitQueryBase', () => {
   let bus: any;

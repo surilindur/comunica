@@ -2,6 +2,7 @@ import { Transform } from 'node:stream';
 import { Bus } from '@comunica/core';
 import type { IActorInitQueryBaseArgs } from '../lib';
 import { ActorInitQuery } from '../lib/ActorInitQuery-browser';
+import '@comunica/jest';
 
 describe('ActorInitQuery', () => {
   let bus: any;
