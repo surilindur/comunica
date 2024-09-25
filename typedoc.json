@@ -6,5 +6,5 @@
   "entryPoints": [
     "engines/*",
     "packages/*"
-  ],
+  ]
 }
