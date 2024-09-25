@@ -5,9 +5,9 @@ const { loadPackages, exec, iter } = require('lerna-script');
 
 function ensureDependency({ checkedDeps, dependency, dependant }) {
   if (!checkedDeps.dependencies.includes(dependency)) {
-    checkedDeps.missing[dependency] = [dependant];
+    checkedDeps.missing[dependency] = [ dependant ];
   }
-  checkedDeps.using[dependency] = [dependant];
+  checkedDeps.using[dependency] = [ dependant ];
 }
 
 /**
@@ -78,7 +78,7 @@ async function depInfo({ location }, log) {
   }
 
   return {
-    unusedDeps: [...dependencies, ...devDependencies].filter(elem => !Object.keys(using).includes(elem)),
+    unusedDeps: [ ...dependencies, ...devDependencies ].filter(elem => !Object.keys(using).includes(elem)),
     missingDeps: Object.keys(missing),
     allDeps: Object.keys(using),
   };
@@ -89,7 +89,7 @@ async function depfixTask(log) {
   const resolutions = Object.keys(JSON.parse(readFileSync(path.join(__dirname, 'package.json'), 'utf8')).resolutions ?? {});
 
   // eslint-disable-next-line unicorn/no-array-for-each
-  await iter.forEach(packages, { log })(async (pkg) => {
+  await iter.forEach(packages, { log })(async(pkg) => {
     log.info(pkg.name);
 
     const { missingDeps, unusedDeps, allDeps } = await depInfo(pkg);
@@ -148,7 +148,7 @@ async function depcheckTask(log) {
   const resolutions = Object.keys(JSON.parse(readFileSync(path.join(__dirname, 'package.json'), 'utf8')).resolutions ?? {});
 
   // eslint-disable-next-line unicorn/no-array-for-each
-  return iter.forEach(packages, { log })(async (pkg) => {
+  return iter.forEach(packages, { log })(async(pkg) => {
     const { missingDeps, unusedDeps, allDeps } = await depInfo(pkg);
 
     if (missingDeps.length > 0) {
@@ -185,7 +185,7 @@ async function updateTask(log) {
   );
 
   // eslint-disable-next-line unicorn/no-array-for-each
-  await iter.forEach(packages, { log })(async (pkg) => {
+  await iter.forEach(packages, { log })(async(pkg) => {
     const upgraded = await ncu.run({
       // Pass any cli option
       packageFile: path.join(pkg.location, 'package.json'),
@@ -200,7 +200,7 @@ async function updateTaskMajor(log) {
   const packages = (await (log.packages || loadPackages())).filter(pkg => pkg.location.startsWith(path.join(__dirname, '/packages')));
 
   // eslint-disable-next-line unicorn/no-array-for-each
-  await iter.forEach(packages, { log })(async (pkg) => {
+  await iter.forEach(packages, { log })(async(pkg) => {
     const upgraded = await ncu.run({
       // Pass any cli option
       packageFile: path.join(pkg.location, 'package.json'),
