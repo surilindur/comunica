@@ -1,5 +1,6 @@
-/** @type {import('jest').Config} */
-module.exports = {
+import type { Config } from 'jest';
+
+const config: Config = {
   collectCoverage: true,
   coverageProvider: 'babel',
   // TODO: bump these to 100 after the additional tests have been added
@@ -50,3 +51,5 @@ module.exports = {
   // however it is enough for package tests
   testTimeout: 20_000,
 };
+
+export default config;
