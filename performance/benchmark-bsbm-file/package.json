@@ -6,7 +6,7 @@
     "jbr": "cross-env NODE_OPTIONS=--max-old-space-size=8192 jbr",
     "validate": "jbr validate",
     "performance": "docker pull comunica/query-sparql-file:latest && jbr prepare && jbr run && psbr csv bsbm combinations/combination_*/output && psbr tex query combinations/combination_*/output --svg --logY --overrideCombinationLabels Current,Previous",
-    "performance:ci": "jbr prepare -c 0 && jbr run -c 0 && psbr csv bsbm combinations/combination_0/output"
+    "performance:ci": "jbr prepare -c 0 && jbr run -c 0 && node \"../../node_modules/.bin/psbr\" csv bsbm combinations/combination_0/output"
   },
   "dependencies": {
     "@jbr-experiment/bsbm": "^5.2.3",

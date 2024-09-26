@@ -58,8 +58,6 @@ jobs:
           node-version: ${{ matrix.node-version }}
       - name: Enable Corepack
         run: corepack enable
-      - name: Ensure line endings are consistent
-        run: git config --global core.autocrlf input
       - name: Check out repository
         uses: actions/checkout@v4
       - name: Load Yarn cache
@@ -71,9 +69,9 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
       - name: Install project dependencies
         run: yarn install --immutable
-      - name: Compile TypeScript to JavaScript
+      - name: Compile TypeScript
         run: yarn run build:ts
-      - name: Generate Components.js components
+      - name: Generate Components.js definitions
         run: yarn run build:components
       - name: Generate engine bundles
         run: yarn run build:engines
@@ -88,17 +86,25 @@ jobs:
 
   spectest:
     name: Specification tests
-    needs: test
-    runs-on: ubuntu-latest
+    needs: lint
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
+        node-version:
+          - 18.x
+          - 20.x
+          - 22.x
+    runs-on: ${{ matrix.os }}
     steps:
-      - name: Use Node.js ${{ env.DEFAULT_NODE_VERSION }}
+      - name: Use Node.js ${{ matrix.node-version }}}
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.DEFAULT_NODE_VERSION }}
+          node-version: ${{ matrix.node-version }}
       - name: Enable Corepack
         run: corepack enable
-      - name: Ensure line endings are consistent
-        run: git config --global core.autocrlf input
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Load Yarn cache
@@ -117,20 +123,20 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
       - name: Install project dependencies
         run: yarn install --immutable
-      - name: Compile TypeScript to JavaScript
+      - name: Compile TypeScript
         run: yarn run build:ts
-      - name: Generate Components.js components
+      - name: Generate Components.js definitions
         run: yarn run build:components
       - name: Generate engine bundles
         run: yarn run build:engines
       - name: Run spec tests
         run: yarn run test:spec
-      - name: Run spec integration tests
+      - name: Run integration tests
         run: yarn run test:integration
 
   browsertest:
     name: Browser tests
-    needs: test
+    needs: lint
     strategy:
       matrix:
         browser:
@@ -145,8 +151,6 @@ jobs:
           node-version: ${{ env.DEFAULT_NODE_VERSION }}
       - name: Enable Corepack
         run: corepack enable
-      - name: Ensure line endings are consistent
-        run: git config --global core.autocrlf input
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Load Yarn cache
@@ -160,16 +164,18 @@ jobs:
         run: yarn install --immutable
       - name: Install ${{ matrix.browser }} via Playwright
         if: startsWith(matrix.browser, 'Webkit')
+        # The @L will convert 'Webkit' into lowercase 'webkit' which is the name Playwright expects.
         run: yarn playwright install --with-deps ${BROWSER_NAME@L}
         env:
           BROWSER_NAME: ${{ matrix.browser }}
-      - name: Compile TypeScript to JavaScript
+      - name: Compile TypeScript
         run: yarn run build:ts
-      - name: Generate Components.js components
+      - name: Generate Components.js definitions
         run: yarn run build:components
       - name: Generate engine bundles
         run: yarn run build:engines
       - name: Run browser tests
+        # The tests will run on 'WebkitHeadless', 'FirefoxHeadless' and 'ChromeHeadless'
         run: yarn run test:browser --browsers ${{ matrix.browser }}Headless
 
   depcheck:
@@ -196,7 +202,7 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
       - name: Install project dependencies
         run: yarn install --immutable
-      - name: Compile TypeScript to JavaScript so depcheck will work as intended
+      - name: Compile TypeScript so depcheck will work as intended
         run: yarn run build:ts
       - name: Run depcheck
         run: yarn run depcheck
@@ -235,11 +241,12 @@ jobs:
         run: yarn run doc
       - name: Prepare artifact
         uses: actions/upload-pages-artifact@v3
-        if: success() && github.ref == 'refs/heads/${{ env.DOCUMENTATION_BRANCH }}'
         with:
           path: documentation
           name: documentation
       - name: Deploy to GitHub Pages
+        # The documentation is only published for master branch
+        if: startsWith(github.ref, 'refs/heads/master')
         id: deployment
         uses: actions/deploy-pages@v4
         with:
@@ -256,15 +263,21 @@ jobs:
           github-token: ${{ secrets.github_token }}
           parallel-finished: true
 
-  docker:
+  dockerimages:
     name: Docker images
-    needs: test
+    needs:
+      - test
+      - spectest
+      - browsertest
+    env:
+      # TODO: Use the same version as other steps when lerna-docker works with it
+      DEFAULT_NODE_VERSION: 18.x
     runs-on: ubuntu-latest
     steps:
-      - name: Use Node.js
+      - name: Use Node.js ${{ env.DEFAULT_NODE_VERSION }}
         uses: actions/setup-node@v4
         with:
-          node-version: 18.x
+          node-version: ${{ env.DEFAULT_NODE_VERSION }}
       - name: Enable Corepack
         run: corepack enable
       - name: Check out repository
@@ -280,9 +293,9 @@ jobs:
         run: yarn install --immutable
       - name: Install Lerna Docker
         run: sh -c "`curl -fsSl https://raw.githubusercontent.com/rubensworks/lerna-docker/master/install.sh`"
-      - name: Compile TypeScript to JavaScript
+      - name: Compile TypeScript
         run: yarn run build:ts
-      - name: Generate Components.js components
+      - name: Generate Components.js definitions
         run: yarn run build:components
       - name: Generate engine bundles
         run: yarn run build:engines
@@ -301,28 +314,22 @@ jobs:
           DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
 
-  performance:
-    name: Performance measurement
+  browserbuilds:
+    name: Browser builds
+    needs:
+      - test
+      - spectest
+      - browsertest
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        benchmark:
-          - watdiv-file
-          - watdiv-tpf
-          - bsbm-file
-          - bsbm-tpf
-          - web
-    needs: test
-    # If: startsWith(github.ref, 'refs/heads/master') || startsWith(github.ref, 'refs/tags/') || startsWith(github.ref, 'refs/heads/feature') || startsWith(github.ref, 'refs/heads/next')
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-      - name: Use Node.js
+      - name: Use Node.js ${{ env.DEFAULT_NODE_VERSION }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.DEFAULT_NODE_VERSION }}
       - name: Enable Corepack
         run: corepack enable
+      - name: Check out repository
+        uses: actions/checkout@v4
       - name: Load Yarn cache
         uses: actions/cache@v4
         with:
@@ -332,6 +339,56 @@ jobs:
           key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
       - name: Install dependencies
         run: yarn install --immutable
+      - name: Compile TypeScript
+        run: yarn run build:ts
+      - name: Generate Components.js definitions
+        run: yarn run build:components
+      - name: Generate engine bundles
+        run: yarn run build:engines
+      - name: Generate browser bundles
+        run: yarn run build:engines-browser
+      - name: Deploy browser builds
+        if: startsWith(github.ref, 'refs/heads/master') || startsWith(github.ref, 'refs/tags/')
+        run: ./.github/deploy_browser.sh
+        env:
+          GH_TOKEN: ${{ secrets.PAT }}
+
+  performance:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        benchmark:
+          - watdiv-file
+          - watdiv-tpf
+          - bsbm-file
+          - bsbm-tpf
+          - web
+    needs: lint
+    if: startsWith(github.ref, 'refs/heads/master') || startsWith(github.ref, 'refs/tags/') || startsWith(github.ref, 'refs/heads/feature') || startsWith(github.ref, 'refs/heads/next')
+    steps:
+      - name: Use Node.js ${{ env.DEFAULT_NODE_VERSION }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.DEFAULT_NODE_VERSION }}
+      - name: Enable Corepack
+        run: corepack enable
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Load Yarn cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            .yarn
+            **/node_modules
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+      - name: Install dependencies
+        run: yarn install --immutable
+      - name: Compile TypeScript
+        run: yarn run build:ts
+      - name: Generate Components.js definitions
+        run: yarn run build:components
+      - name: Generate engine bundles
+        run: yarn run build:engines
       - name: Run benchmarks
         run: cd performance/benchmark-${{ matrix.benchmark }}/ && yarn run performance:ci
       - uses: actions/upload-artifact@v4
@@ -341,18 +398,33 @@ jobs:
       - name: Print raw output
         run: cat performance/benchmark-${{ matrix.benchmark }}/combinations/combination_0/output/query-times.csv
 
-  performance-consolidate:
+  performance-analysis:
     name: Performance analysis
-    needs: performance
+    needs:
+      - test
+      - spectest
+      - browsertest
+      - performance
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/heads/master') || startsWith(github.ref, 'refs/tags/') || startsWith(github.ref, 'refs/heads/feature') || startsWith(github.ref, 'refs/heads/next')
     steps:
-      - name: Check out repository
-        uses: actions/checkout@v4
-      - name: Use Node.js
+      - name: Use Node.js ${{ env.DEFAULT_NODE_VERSION }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.DEFAULT_NODE_VERSION }}
+      - name: Enable Corepack
+        run: corepack enable
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Load Yarn cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            .yarn
+            **/node_modules
+          key: ${{ runner.os }}-yarn-${{ hashFiles('yarn.lock') }}
+      - name: Install dependencies
+        run: yarn install --immutable
       - uses: actions/download-artifact@v4
         with:
           name: performance-benchmark-watdiv-file
@@ -374,9 +446,9 @@ jobs:
           name: performance-benchmark-web
           path: performance/benchmark-web/combinations/combination_0/output/
       - name: Process benchmark detailed results
-        run: yarn dlx --package @rubensworks/process-sparql-benchmark-results psbr csv ghbench performance/benchmark-watdiv-file/combinations/combination_0/output/ performance/benchmark-watdiv-tpf/combinations/combination_0/output/ performance/benchmark-bsbm-file/combinations/combination_0/output/ performance/benchmark-bsbm-tpf/combinations/combination_0/output/ performance/benchmark-web/combinations/combination_0/output/ --overrideCombinationLabels WatDiv-File,WatDiv-TPF,BSBM-File,BSBM-TPF,Web --total false --detailed true --name ghbench-detail.json
+        run: yarn psbr csv ghbench performance/benchmark-watdiv-file/combinations/combination_0/output/ performance/benchmark-watdiv-tpf/combinations/combination_0/output/ performance/benchmark-bsbm-file/combinations/combination_0/output/ performance/benchmark-bsbm-tpf/combinations/combination_0/output/ performance/benchmark-web/combinations/combination_0/output/ --overrideCombinationLabels WatDiv-File,WatDiv-TPF,BSBM-File,BSBM-TPF,Web --total false --detailed true --name ghbench-detail.json
       - name: Process benchmark total results
-        run: yarn dlx --package @rubensworks/process-sparql-benchmark-results psbr csv ghbench performance/benchmark-watdiv-file/combinations/combination_0/output/ performance/benchmark-watdiv-tpf/combinations/combination_0/output/ performance/benchmark-bsbm-file/combinations/combination_0/output/ performance/benchmark-bsbm-tpf/combinations/combination_0/output/ performance/benchmark-web/combinations/combination_0/output/ --overrideCombinationLabels WatDiv-File,WatDiv-TPF,BSBM-File,BSBM-TPF,Web --total true --detailed false --name ghbench-total.json
+        run: yarn psbr csv ghbench performance/benchmark-watdiv-file/combinations/combination_0/output/ performance/benchmark-watdiv-tpf/combinations/combination_0/output/ performance/benchmark-bsbm-file/combinations/combination_0/output/ performance/benchmark-bsbm-tpf/combinations/combination_0/output/ performance/benchmark-web/combinations/combination_0/output/ --overrideCombinationLabels WatDiv-File,WatDiv-TPF,BSBM-File,BSBM-TPF,Web --total true --detailed false --name ghbench-total.json
       - name: Determine benchmark detailed results target directory name
         run: echo "BENCHMARK_DATA_DIR_PATH_DETAIL=comunica/${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}/benchmarks-detail" >> $GITHUB_ENV
       - name: Determine benchmarks total results target directory name
