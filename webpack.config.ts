@@ -20,7 +20,7 @@ function createConfig(packagePath: string): Configuration {
       ],
     },
     output: {
-      filename: 'engine-browser.js',
+      filename: 'comunica-browser.js',
       path: packagePath,
       libraryTarget: 'var',
       library: 'Comunica',
