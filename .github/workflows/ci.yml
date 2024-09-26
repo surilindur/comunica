@@ -37,8 +37,8 @@ jobs:
       - name: Run linter
         run: yarn run lint
 
-  nodetest:
-    name: Node tests
+  test:
+    name: Tests
     needs: lint
     strategy:
       matrix:
@@ -88,7 +88,7 @@ jobs:
 
   spectest:
     name: Specification tests
-    needs: nodetest
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - name: Use Node.js ${{ env.DEFAULT_NODE_VERSION }}
@@ -130,7 +130,7 @@ jobs:
 
   browsertest:
     name: Browser tests
-    needs: nodetest
+    needs: test
     strategy:
       matrix:
         browser:
@@ -247,7 +247,7 @@ jobs:
 
   coveralls:
     name: Coveralls
-    needs: nodetest
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - name: Consolidate test coverage from different jobs
@@ -257,7 +257,8 @@ jobs:
           parallel-finished: true
 
   docker:
-    needs: nodetest
+    name: Docker image
+    needs: test
     runs-on: ubuntu-latest
     steps:
       - name: Use Node.js
@@ -301,6 +302,7 @@ jobs:
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
 
   performance:
+    name: Performance measurement
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -310,7 +312,7 @@ jobs:
           - bsbm-file
           - bsbm-tpf
           - web
-    needs: nodetest
+    needs: test
     # If: startsWith(github.ref, 'refs/heads/master') || startsWith(github.ref, 'refs/tags/') || startsWith(github.ref, 'refs/heads/feature') || startsWith(github.ref, 'refs/heads/next')
     steps:
       - name: Check out repository
@@ -340,6 +342,7 @@ jobs:
         run: cat performance/benchmark-${{ matrix.benchmark }}/combinations/combination_0/output/query-times.csv
 
   performance-consolidate:
+    name: Performance analysis
     needs: performance
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/heads/master') || startsWith(github.ref, 'refs/tags/') || startsWith(github.ref, 'refs/heads/feature') || startsWith(github.ref, 'refs/heads/next')
