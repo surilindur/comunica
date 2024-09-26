@@ -1,34 +1,17 @@
-import type { Config } from 'jest';
+import type { Config } from '@jest/types';
 
-const config: Config = {
-  transform: {
-    '^.+\\.ts$': [ 'ts-jest', {
-      // Enabling this can fix issues when using prereleases of typings packages
-      // isolatedModules: true
-    }],
-  },
-  testRegex: [ '/test/.*-test.*.ts$' ],
-  testPathIgnorePatterns: [
-    '.*.d.ts',
-    // TODO: Remove this once solid-client-authn supports node 18.
-    '.*QuerySparql-solid-test.ts',
-  ],
-  moduleFileExtensions: [
-    'ts',
-    'js',
-  ],
+const moduleFileExtensions: string[] = [ 'ts', 'js' ];
+
+const transform: Record<string, Config.TransformerConfig> = {
+  '\\.ts$': [ 'ts-jest', {
+    // Enabling this can fix issues when using prereleases of typings packages
+    // isolatedModules: true
+  }],
+};
+
+const config: Config.InitialOptions = {
   collectCoverage: true,
-  coveragePathIgnorePatterns: [
-    '/node_modules/',
-    '/mocks/',
-    'index.js',
-    '/engines/query-sparql/test/util.ts',
-    '/test/util/',
-    'engine-default.js',
-  ],
-  testEnvironment: 'node',
-  // The default timeout is too short for the engine tests
-  testTimeout: 20_000,
+  coverageProvider: 'babel',
   coverageThreshold: {
     global: {
       branches: 100,
@@ -37,6 +20,66 @@ const config: Config = {
       statements: 100,
     },
   },
+  projects: [
+    {
+      // This combined test runs both the package unit tests and the engine system tests,
+      // and produces the original 100% coverage across the entire monorepo,
+      // because the package tests rely on the engine tests to reach their coverage target
+      displayName: 'combined',
+      moduleFileExtensions,
+      testEnvironment: 'node',
+      testMatch: [
+        '<rootDir>/engines/*/test/**/*-test.ts',
+        '<rootDir>/packages/*/test/**/*-test.ts',
+      ],
+      testPathIgnorePatterns: [
+        'QuerySparql-solid-test.ts',
+      ],
+      transform,
+      coveragePathIgnorePatterns: [
+        '<rootDir>/engines/*/engine-default.js',
+        '<rootDir>/engines/query-sparql/test/util.ts',
+        '<rootDir>/packages/expression-evaluator/test/util/',
+        'index.js',
+        'node_modules',
+      ],
+    },
+    {
+      // This will only run the system tests for engines
+      displayName: 'engines',
+      moduleFileExtensions,
+      testEnvironment: 'node',
+      testMatch: [
+        '<rootDir>/engines/*/test/**/*-test.ts',
+      ],
+      testPathIgnorePatterns: [
+        'QuerySparql-solid-test.ts',
+      ],
+      transform,
+      coveragePathIgnorePatterns: [
+        '<rootDir>/engines/*/engine-default.js',
+        '<rootDir>/engines/query-sparql/test/util.ts',
+        '<rootDir>/packages/',
+        'node_modules',
+      ],
+    },
+    {
+      // This will only run the unit tests for packages
+      displayName: 'packages',
+      moduleFileExtensions,
+      testEnvironment: 'node',
+      testMatch: [
+        '<rootDir>/packages/*/test/**/*-test.ts',
+      ],
+      transform,
+      coveragePathIgnorePatterns: [
+        '<rootDir>/engines/',
+        'node_modules',
+      ],
+    },
+  ],
+  // The default test timeout is not enough for engine tests, but is enough for packages
+  testTimeout: 20_000,
 };
 
 export default config;
