@@ -37,9 +37,9 @@ const config: Config.InitialOptions = {
       ],
       transform,
       coveragePathIgnorePatterns: [
-        '<rootDir>/engines/*/engine-default.js',
         '<rootDir>/engines/query-sparql/test/util.ts',
         '<rootDir>/packages/expression-evaluator/test/util/',
+        'engine-default.js',
         'index.js',
         'node_modules',
       ],
@@ -57,9 +57,9 @@ const config: Config.InitialOptions = {
       ],
       transform,
       coveragePathIgnorePatterns: [
-        '<rootDir>/engines/*/engine-default.js',
         '<rootDir>/engines/query-sparql/test/util.ts',
         '<rootDir>/packages/',
+        'engine-default.js',
         'node_modules',
       ],
     },
