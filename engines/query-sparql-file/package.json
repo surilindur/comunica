@@ -44,18 +44,16 @@
     "bin/**/*.js",
     "bin/**/*.js.map",
     "config",
-    "engine-browser.js",
     "engine-default.js",
     "lib/**/*.d.ts",
     "lib/**/*.js",
     "lib/**/*.js.map"
   ],
   "scripts": {
-    "build": "yarn run build:ts",
+    "build": "yarn run build:ts && yarn run build:engine && yarn run build:engine-browser",
     "build:ts": "node \"../../node_modules/typescript/bin/tsc\"",
-    "prepare": "comunica-compile-config config/config-default.json > engine-default.js && comunica-compile-config config/config-browser.json > engine-browser.js",
-    "browser": "yarn run prepare && \"../../node_modules/webpack/bin/webpack.js\" --config webpack.config.js --mode production",
-    "integration": "rdf-test-suite-ldf spec/sparql-engine.js https://comunica.github.io/manifest-ldf-tests/sparql-file/file-manifest.ttl -d 200000 -c ../../.rdf-test-suite-ldf-cache/"
+    "build:engine": "comunica-compile-config config/config-default.json > engine-default.js",
+    "test:integration": "rdf-test-suite-ldf spec/sparql-engine.js https://comunica.github.io/manifest-ldf-tests/sparql-file/file-manifest.ttl -d 200000 -c ../../.rdf-test-suite-ldf-cache/"
   },
   "dependencies": {
     "@comunica/actor-context-preprocess-convert-shortcuts": "^3.2.1",
@@ -203,9 +201,5 @@
     "@comunica/runner": "^3.2.1",
     "@comunica/runner-cli": "^3.2.1",
     "@comunica/types": "^3.2.1"
-  },
-  "browser": {
-    "./engine-default.js": "./engine-browser.js",
-    "./lib/index.js": "./lib/index-browser.js"
   }
 }
