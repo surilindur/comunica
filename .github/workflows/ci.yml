@@ -80,7 +80,7 @@ jobs:
       - name: Generate engine bundles
         run: yarn run build:engines
       - name: Run combined unit and system tests
-        run: yarn run test:node-ci
+        run: yarn run test:node
       - name: Submit coverage results
         uses: coverallsapp/github-action@v2
         with:
