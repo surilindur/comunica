@@ -9,7 +9,7 @@
   ],
   "scripts": {
     "build-changed": "lerna run build --since HEAD",
-    "build": "yarn run build:ts && yarn run build:components && yarn run build:engines && yarn run build:engines-browser",
+    "build": "yarn run build:ts && yarn run build:components && yarn run build:engines",
     "build:ts": "tsc",
     "build:components": "componentsjs-generator 'engines/*' 'packages/*'",
     "build:engines": "lerna run build:engine",
