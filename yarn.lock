@@ -10793,7 +10793,7 @@ rdf-store-stream@^1.1.0:
     "@rdfjs/types" "*"
     n3 "^1.11.1"
 
-rdf-store-stream@^2.0.0, rdf-store-stream@^2.0.1:
+rdf-store-stream@^2.0.0:
   version "2.0.1"
   resolved "https://registry.npmjs.org/rdf-store-stream/-/rdf-store-stream-2.0.1.tgz"
   integrity sha512-znGaibHLvbRE0BrDcXHRleRcLKlHYP6ADr1RFJ3yA28QBmhOjxxgbBFTvCMzgsxvBIqdaFS8Vd2FG4NefJL4Mg==
