@@ -1,3 +1,4 @@
+import type { IVoidDataset } from '@comunica/actor-rdf-metadata-extract-void';
 import type { MediatorHttp } from '@comunica/bus-http';
 import { KeysInitQuery } from '@comunica/context-entries';
 import { Actor } from '@comunica/core';
@@ -47,6 +48,9 @@ export class QuerySourceSparql implements IQuerySource {
   private readonly dataFactory: ComunicaDataFactory;
   private readonly algebraFactory: Factory;
   private readonly bindingsFactory: BindingsFactory;
+  private readonly voidDatasets: IVoidDataset[] | undefined;
+  private readonly defaultGraph: RDF.NamedNode | RDF.BlankNode | undefined;
+  private readonly unionDefaultGraph: boolean;
 
   private readonly endpointFetcher: SparqlEndpointFetcher;
   private readonly cache: LRUCache<string, RDF.QueryResultCardinality> | undefined;
@@ -64,6 +68,9 @@ export class QuerySourceSparql implements IQuerySource {
     forceHttpGet: boolean,
     cacheSize: number,
     countTimeout: number,
+    voidDatasets: IVoidDataset[],
+    defaultGraph: RDF.NamedNode | RDF.BlankNode | undefined,
+    unionDefaultGraph: boolean,
   ) {
     this.referenceValue = url;
     this.url = url;
@@ -85,6 +92,10 @@ export class QuerySourceSparql implements IQuerySource {
       new LRUCache<string, RDF.QueryResultCardinality>({ max: cacheSize }) :
       undefined;
     this.countTimeout = countTimeout;
+    this.voidDatasets = voidDatasets;
+    this.defaultGraph = defaultGraph;
+    this.unionDefaultGraph = unionDefaultGraph;
+    console.log(this.url, 'has', this.voidDatasets.length, 'datasets with default graph', this.defaultGraph?.value, 'union', this.unionDefaultGraph);
   }
 
   public async getSelectorShape(): Promise<FragmentSelectorShape> {
@@ -183,6 +194,15 @@ export class QuerySourceSparql implements IQuerySource {
         if (cachedCardinality !== undefined) {
           return resolve(cachedCardinality);
         }
+
+        const voidEstimate = await this.getCardinalityFromVoid(operation);
+        if (voidEstimate !== undefined) {
+          console.debug('RESOLVING WITH ESTIMATE', voidEstimate);
+          return resolve(voidEstimate);
+        }
+
+        console.warn('SENDING COUNT QUERY TO', this.url, 'FOR', operation.type);
+        console.log(operation);
 
         const timeoutHandler = setTimeout(() => resolve(COUNT_INFINITY), this.countTimeout);
         const varCount = this.dataFactory.variable('count');
@@ -395,5 +415,39 @@ export class QuerySourceSparql implements IQuerySource {
 
   public toString(): string {
     return `QuerySourceSparql(${this.url})`;
+  }
+
+  public async getCardinalityFromVoid(operation: Algebra.Operation): Promise<RDF.QueryResultCardinality | undefined> {
+    if (this.voidDatasets) {
+      let pattern: Algebra.Pattern | undefined;
+      if (operation.type === 'pattern') {
+        pattern = operation;
+      } else if (operation.type === 'filter' && operation.input.type === 'pattern') {
+        pattern = operation.input;
+      }
+      if (pattern) {
+        if (this.unionDefaultGraph) {
+          let estimate = 0;
+          for (const dataset of this.voidDatasets) {
+            if (this.defaultGraph !== dataset.graph) {
+              estimate += (await dataset.getCardinality(pattern.subject, pattern.predicate, pattern.object)).value;
+            }
+          }
+          return { type: 'estimate', value: estimate };
+        }
+        if (this.defaultGraph) {
+          console.log('DEFAULT GRAPH', this.defaultGraph.value);
+          console.log('AVAILABLE', this.voidDatasets.map(ds => ds.graph.value));
+          const defaultGraph = this.voidDatasets.find(ds => ds.graph.value.replace(/^bc_0_/u, '') === this.defaultGraph!.value);
+          if (defaultGraph) {
+            console.log('ESTIMATING USING', defaultGraph.graph.value);
+            return await defaultGraph.getCardinality(pattern.subject, pattern.predicate, pattern.object);
+          }
+          console.log('COULD NOT FIND GRAPH');
+        }
+      } else {
+        console.warn('UNSUPPORTED', operation.type);
+      }
+    }
   }
 }

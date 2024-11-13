@@ -3,6 +3,7 @@
     "https://linkedsoftwaredependencies.org/bundles/npm/@comunica/runner/^4.0.0/components/context.jsonld",
 
     "https://linkedsoftwaredependencies.org/bundles/npm/@comunica/actor-rdf-metadata-accumulate-cardinality/^4.0.0/components/context.jsonld",
+    "https://linkedsoftwaredependencies.org/bundles/npm/@comunica/actor-rdf-metadata-accumulate-void/^4.0.0/components/context.jsonld",
     "https://linkedsoftwaredependencies.org/bundles/npm/@comunica/actor-rdf-metadata-accumulate-pagesize/^4.0.0/components/context.jsonld",
     "https://linkedsoftwaredependencies.org/bundles/npm/@comunica/actor-rdf-metadata-accumulate-requesttime/^4.0.0/components/context.jsonld"
   ],
@@ -12,6 +13,10 @@
     {
       "@id": "urn:comunica:default:rdf-metadata-accumulate/actors#cardinality",
       "@type": "ActorRdfMetadataAccumulateCardinality"
+    },
+    {
+      "@id": "urn:comunica:default:rdf-metadata-accumulate/actors#requesttime",
+      "@type": "ActorRdfMetadataAccumulateVoid"
     },
     {
       "@id": "urn:comunica:default:rdf-metadata-accumulate/actors#pagesize",

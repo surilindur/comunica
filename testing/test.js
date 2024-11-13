@@ -1,5 +1,5 @@
 /* eslint-disable import/no-extraneous-dependencies */
-import { KeysHttp } from '@comunica/context-entries';
+// import { KeysHttp } from '@comunica/context-entries';
 import { LoggerPretty } from '@comunica/logger-pretty';
 import { QueryEngine } from '@comunica/query-sparql';
 
@@ -33,15 +33,20 @@ SELECT ?protein ?begin ?end ?chromosome ?assembly WHERE {
   #}
 }`;
 
+const sources = [ 'https://query.wikidata.org/sparql', 'https://sparql.rhea-db.org/sparql' ];
+
+// Sources = [ 'https://query.wikidata.org/sparql' ];
+// query = 'SELECT * { ?s ?p ?o } LIMIT 2';
+
 const bindingsStream = await engine.queryBindings(query, {
-  sources: [ 'https://query.wikidata.org/sparql', 'https://sparql.rhea-db.org/sparql' ],
+  sources,
   httpRetryCount: 10,
   httpRetryDelayFallback: 1_000,
-  [KeysHttp.httpRetryStatusCodes.name]: [ 500 ],
-  log: new LoggerPretty({ level: 'debug' }),
+  // [KeysHttp.httpRetryStatusCodes.name]: [ 500 ],
+  log: new LoggerPretty({ level: 'error' }),
 });
 
-const bindings = await bindingsStream.toArray();
-
-// eslint-disable-next-line no-console
-console.log(bindings);
+for await (const bindings of bindingsStream) {
+  // eslint-disable-next-line no-console
+  console.log(bindings.toString());
+}

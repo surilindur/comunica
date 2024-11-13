@@ -61,12 +61,11 @@ export class ActorRdfMetadataExtractSparqlService extends ActorRdfMetadataExtrac
         }
       });
 
-      if (metadata.sparqlService) {
-        console.log('SPARQL SERVICE', metadata);
-      }
-
       // Only return the metadata if an endpoint IRI was discovered
       action.metadata.on('end', () => {
+        if (metadata.sparqlService) {
+          console.log('SPARQL SERVICE', metadata);
+        }
         resolve({ metadata: metadata.sparqlService ? metadata : {}});
       });
     });
