@@ -1,5 +1,5 @@
 /* eslint-disable import/no-extraneous-dependencies */
-import { KeysHttp } from '@comunica/context-entries';
+// import { KeysHttp } from '@comunica/context-entries';
 import { LoggerPretty } from '@comunica/logger-pretty';
 import { QueryEngine } from '@comunica/query-sparql';
 
@@ -37,8 +37,8 @@ const bindingsStream = await engine.queryBindings(query, {
   sources: [ 'https://query.wikidata.org/sparql', 'https://sparql.rhea-db.org/sparql' ],
   httpRetryCount: 10,
   httpRetryDelayFallback: 1_000,
-  [KeysHttp.httpRetryStatusCodes.name]: [ 500 ],
-  log: new LoggerPretty({ level: 'debug' }),
+  // [KeysHttp.httpRetryStatusCodes.name]: [ 500 ],
+  log: new LoggerPretty({ level: 'error' }),
 });
 
 const bindings = await bindingsStream.toArray();

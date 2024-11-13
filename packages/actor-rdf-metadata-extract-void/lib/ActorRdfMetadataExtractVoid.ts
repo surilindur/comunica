@@ -33,6 +33,7 @@ export class ActorRdfMetadataExtractVoid extends ActorRdfMetadataExtract {
   public async run(action: IActionRdfMetadataExtract): Promise<IActorRdfMetadataExtractOutput> {
     const metadataStore = await storeStream(action.metadata);
     const voidDescriptions = await this.getDatasets(metadataStore);
+    console.log(`Found ${Object.keys(voidDescriptions).length} VoID descriptions from ${action.url}`);
     const metadata = voidDescriptions ?
         { voidDescriptions, voidCardinalityProvider: new VoidCardinalityProvider(voidDescriptions) } :
         {};
@@ -68,7 +69,7 @@ export class ActorRdfMetadataExtractVoid extends ActorRdfMetadataExtract {
         datasets[dataset.value] = {
           triples: Number.parseInt(bindings.get('triples')?.value ?? '0', 10),
           uriSpace: bindings.get('uriSpace')?.value ?? (
-            this.inferUriSpace ? dataset.value.split('.well-known')[0] : undefined
+            this.inferUriSpace ? dataset.value.slice(0, dataset.value.indexOf('.well-known')) : undefined
           ),
           sparqlEndpoint: bindings.get('sparqlEndpoint')?.value,
           distinctObjects: Number.parseInt(bindings.get('distinctObjects')?.value ?? '0', 10),

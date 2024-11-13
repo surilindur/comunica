@@ -11,13 +11,11 @@ export class VoidCardinalityProvider implements IVoidCardinalityProvider {
     graph: RDF.Term,
   ): RDF.QueryResultCardinality {
     const value = this.getCardinalityRaw(subject, predicate, object, graph);
-    if (Number.isNaN(value)) {
-      console.log([
-        'CARDINALITY:',
-        `\tquad: ( ${subject.value}, ${predicate.value}, ${object.value}, ${graph.value} )`,
-        `\tcardinality: ${value}`,
-      ].join('\n'));
-    }
+    console.log([
+      'CARDINALITY:',
+      `\tquad: ( ${subject.value}, ${predicate.value}, ${object.value}, ${graph.value} )`,
+      `\tcardinality: ${value}`,
+    ].join('\n'));
     return { type: 'estimate', value };
   }
 

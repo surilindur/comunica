@@ -1,6 +1,6 @@
 {
   "name": "@comunica/actor-rdf-metadata-extract-void",
-  "version": "4.0.0",
+  "version": "4.0.2",
   "description": "A void rdf-metadata-extract actor",
   "license": "MIT",
   "homepage": "https://comunica.dev/",
