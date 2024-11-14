@@ -29,6 +29,7 @@ export class ActorOptimizeQueryOperationAssignSourcesExhaustive extends ActorOpt
     const algebraFactory = new Factory(dataFactory);
 
     const sources: IQuerySourceWrapper[] = action.context.get(KeysQueryOperation.querySources) ?? [];
+    console.log('SOURCES', sources);
     if (sources.length === 0) {
       return { operation: action.operation, context: action.context };
     }
