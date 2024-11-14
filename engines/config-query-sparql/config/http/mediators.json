@@ -12,7 +12,7 @@
       "field": "time",
       "ignoreFailures": true,
       "bus": {
-        "@id": "ActorHttp:_fallback_bus",
+        "@id": "ActorHttp:_default_bus",
         "@type": "cc:components/Bus.jsonld#Bus"
       }
     },

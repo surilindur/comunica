@@ -17,7 +17,7 @@ export class FetchInitPreprocessor implements IFetchInitPreprocessor {
     this.agent = (_parsedURL: URL): HttpAgent => _parsedURL.protocol === 'http:' ? httpAgent : httpsAgent;
   }
 
-  public async handle(init: RequestInit): Promise<RequestInit & { agent: (url: URL) => HttpAgent }> {
+  public async handle(init: RequestInit): Promise<RequestInit> {
     // Add 'Accept-Encoding' headers
     const headers = new Headers(init.headers);
     if (!headers.has('Accept-Encoding')) {
@@ -31,7 +31,6 @@ export class FetchInitPreprocessor implements IFetchInitPreprocessor {
     return {
       ...init,
       ...init.body ? { keepalive: false, duplex: 'half' } : { keepalive: true },
-      agent: this.agent,
     };
   }
 }

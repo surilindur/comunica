@@ -121,6 +121,16 @@ export abstract class ActorHttp<TS = undefined> extends Actor<IActionHttp, IActo
       (typeof (<any>globalThis).importScripts === 'function')
     );
   }
+
+  /**
+   * Sleeps for the specified amount of time, using a timeout
+   * @param {number} ms The amount of milliseconds to sleep
+   */
+  public static async sleep(ms: number): Promise<void> {
+    if (ms > 0) {
+      await new Promise(resolve => setTimeout(resolve, ms));
+    }
+  }
 }
 
 /**

@@ -69,7 +69,7 @@ export class ActorHttpRetry extends ActorHttp {
           delay: retryDelay,
           currentAttempt: `${attempt} / ${attemptLimit}`,
         }));
-        await ActorHttpRetry.sleep(retryDelay);
+        await ActorHttp.sleep(retryDelay);
       }
 
       const response = await this.mediatorHttp.mediate({
@@ -103,7 +103,8 @@ export class ActorHttpRetry extends ActorHttp {
         continue;
       }
 
-      if (response.status === 429 || response.status === 503) {
+      // TODO: Remove 405 from this block when DBPedia fix
+      if (response.status === 405 || response.status === 429 || response.status === 503) {
         // When the server reports temporary unavailability, it can also provide a Retry-Header value.
         const retryAfterHeader = response.headers.get('retry-after');
 
@@ -176,16 +177,6 @@ export class ActorHttpRetry extends ActorHttp {
     }
 
     throw new Error(`Request failed: ${url.href}`);
-  }
-
-  /**
-   * Sleeps for the specified amount of time, using a timeout
-   * @param {number} ms The amount of milliseconds to sleep
-   */
-  public static async sleep(ms: number): Promise<void> {
-    if (ms > 0) {
-      await new Promise(resolve => setTimeout(resolve, ms));
-    }
   }
 
   /**

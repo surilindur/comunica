@@ -222,32 +222,6 @@ describe('ActorHttpRetry', () => {
     });
   });
 
-  describe('sleep', () => {
-    beforeEach(() => {
-      jest.spyOn(globalThis, 'setTimeout').mockImplementation(callback => <any> callback());
-    });
-
-    it('should sleep the specified amount of milliseconds', async() => {
-      const ms = 100;
-      expect(setTimeout).not.toHaveBeenCalled();
-      await ActorHttpRetry.sleep(ms);
-      expect(setTimeout).toHaveBeenCalledTimes(1);
-      expect(setTimeout).toHaveBeenNthCalledWith(1, expect.any(Function), ms);
-    });
-
-    it('should return immediately when called with 0', async() => {
-      expect(setTimeout).not.toHaveBeenCalled();
-      await ActorHttpRetry.sleep(0);
-      expect(setTimeout).not.toHaveBeenCalled();
-    });
-
-    it('should return immediately when called with values below 0', async() => {
-      expect(setTimeout).not.toHaveBeenCalled();
-      await ActorHttpRetry.sleep(-10);
-      expect(setTimeout).not.toHaveBeenCalled();
-    });
-  });
-
   describe('parseRetryAfterHeader', () => {
     beforeEach(() => {
       jest.spyOn(Date, 'now').mockReturnValue(0);
