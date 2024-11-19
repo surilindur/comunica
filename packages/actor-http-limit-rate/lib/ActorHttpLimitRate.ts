@@ -8,7 +8,7 @@ import type { IMediatorTypeTime } from '@comunica/mediatortype-time';
 export class ActorHttpLimitRate extends ActorHttp {
   private readonly historyLength: number;
   private readonly failureMultiplier: number;
-  private readonly requests: Record<string, IHostRequestData>;
+  private readonly hostData: Record<string, IHostRequestData>;
   private readonly httpInvalidator: ActorHttpInvalidateListenable;
   private readonly mediatorHttp: MediatorHttp;
 
@@ -22,7 +22,7 @@ export class ActorHttpLimitRate extends ActorHttp {
     this.httpInvalidator.addInvalidateListener(action => this.handleHttpInvalidateEvent(action));
     this.historyLength = args.historyLength;
     this.failureMultiplier = args.failureMultiplier;
-    this.requests = {};
+    this.hostData = {};
   }
 
   public async test(action: IActionHttp): Promise<TestResult<IMediatorTypeTime>> {
@@ -38,30 +38,17 @@ export class ActorHttpLimitRate extends ActorHttp {
     // Wait for the next free request slot on the host
     await this.waitForSlot(host);
 
-    // If the request is not the first one, wait for the calculated amount of time.
-    if (this.requests[host].responseTimes.length > 0) {
-      const interval = (
-        this.requests[host].responseTimes.reduce((a, b) => a + b) /
-        this.requests[host].responseTimes.length
-      );
-      // Delay is calculated from when the latest request was sent to the same host
-      const requestDelay = this.requests[host].latestRequestTimestamp + interval - Date.now();
-      if (requestDelay > 1) {
-        this.logDebug(action.context, 'Delaying request due to client-side rate limit', () => ({
-          host,
-          requestDelay,
-          minimumRequestInterval: interval,
-          responseTimes: this.requests[host].responseTimes,
-        }));
-        await new Promise(resolve => setTimeout(resolve, requestDelay));
-      }
-    }
+    // Delay the request when relevant
+    await this.delayRequest(host);
 
     const timeStart = Date.now();
 
-    this.requests[host].latestRequestTimestamp = timeStart;
+    this.hostData[host].latestRequestTimestamp = timeStart;
 
-    console.log(host, { open: this.requests[host].openRequests, concurrent: this.requests[host].concurrentRequestLimit });
+    console.log(host, {
+      open: this.hostData[host].openRequests,
+      concurrent: this.hostData[host].concurrentRequestLimit,
+    });
 
     const response = await this.mediatorHttp.mediate({
       ...action,
@@ -71,40 +58,45 @@ export class ActorHttpLimitRate extends ActorHttp {
     let duration = Date.now() - timeStart;
 
     if (response.ok) {
-      if (this.requests[host].openRequests >= this.requests[host].concurrentRequestLimit) {
-        const previousOk = this.requests[host].requestsSuccessful.every(Boolean);
-        console.log(host, previousOk, this.requests[host].requestsSuccessful);
-        if (previousOk) {
-          this.requests[host].concurrentRequestLimit++;
-          console.log('BUMP LIMIT', host);
-        }
+      if (
+        this.hostData[host].openRequests >= this.hostData[host].concurrentRequestLimit &&
+        this.hostData[host].requestQueue.length > 10 * this.hostData[host].concurrentRequestLimit
+      ) {
+        this.hostData[host].concurrentRequestLimit++;
+        console.log('BUMP LIMIT', host);
       }
     } else {
-      console.log('FAILED', host);
+      console.log('FAILED', host, action.init?.body?.toString());
       duration *= this.failureMultiplier;
-      this.requests[host].concurrentRequestLimit = Math.ceil(this.requests[host].concurrentRequestLimit * 0.5);
+      this.hostData[host].concurrentRequestLimit = Math.ceil(this.hostData[host].concurrentRequestLimit / 2);
     }
 
-    this.requests[host].responseTimes.push(duration);
-    this.requests[host].requestsSuccessful.push(response.ok);
+    this.hostData[host].requestDurations.push(duration);
 
-    if (this.requests[host].responseTimes.length > this.historyLength) {
-      this.requests[host].responseTimes.shift();
-      this.requests[host].requestsSuccessful.shift();
+    if (this.hostData[host].requestDurations.length > this.historyLength) {
+      this.hostData[host].requestDurations.shift();
     }
 
-    this.requests[host].openRequests--;
+    this.hostData[host].openRequests--;
 
-    while (this.requests[host].openRequests < this.requests[host].concurrentRequestLimit) {
-      const next = this.requests[host].requestQueue.shift();
+    this.enqueueNext(host);
+
+    return response;
+  }
+
+  /**
+   * Enqueue the following requests for the host.
+   * @param {string} host The hostname.
+   */
+  public enqueueNext(host: string): void {
+    while (this.hostData[host].openRequests < this.hostData[host].concurrentRequestLimit) {
+      const next = this.hostData[host].requestQueue.shift();
       if (next) {
         next.send();
       } else {
         break;
       }
     }
-
-    return response;
   }
 
   /**
@@ -116,28 +108,48 @@ export class ActorHttpLimitRate extends ActorHttp {
     return new Promise<void>((resolve, reject) => {
       const send = (): void => {
         // Immediately reserve the free slot by incrementing the 'active requests' counter.
-        this.requests[host].openRequests++;
+        this.hostData[host].openRequests++;
         resolve();
       };
 
-      if (typeof this.requests[host] === 'undefined') {
-        this.requests[host] = {
+      if (typeof this.hostData[host] === 'undefined') {
+        this.hostData[host] = {
           openRequests: 0,
           concurrentRequestLimit: 1,
           latestRequestTimestamp: 0,
-          requestsSuccessful: [],
-          responseTimes: [],
+          requestDurations: [],
           requestQueue: [],
         };
       }
 
       // When there are free slots, send the request immediately, otherwise add to queue
-      if (this.requests[host].openRequests < this.requests[host].concurrentRequestLimit) {
+      if (this.hostData[host].openRequests < this.hostData[host].concurrentRequestLimit) {
         send();
       } else {
-        this.requests[host].requestQueue.push({ send, cancel: reject });
+        this.hostData[host].requestQueue.push({ send, cancel: reject });
       }
     });
+  }
+
+  /**
+   * Delay a request to the specified host by the amount of time calculated based on previous requests.
+   * @param {string} host The host for which the request is being made.
+   */
+  public async delayRequest(host: string): Promise<void> {
+    // If the request is not the first one, wait for the calculated amount of time.
+    if (this.hostData[host].requestDurations.length > 0) {
+      const requestInterval = (
+        this.hostData[host].requestDurations.reduce((a, b) => a + b) /
+        this.hostData[host].requestDurations.length
+      );
+
+      // Delay is calculated from when the latest request was sent to the same host
+      const requestDelay = this.hostData[host].latestRequestTimestamp + requestInterval - Date.now();
+
+      if (requestDelay > 1) {
+        await new Promise(resolve => setTimeout(resolve, requestDelay));
+      }
+    }
   }
 
   /**
@@ -146,12 +158,12 @@ export class ActorHttpLimitRate extends ActorHttp {
    */
   public handleHttpInvalidateEvent(action: IActionHttpInvalidate): void {
     const invalidatedHost = action.url ? new URL(action.url).host : undefined;
-    for (const host of Object.keys(this.requests)) {
+    for (const host of Object.keys(this.hostData)) {
       if (!invalidatedHost || host === invalidatedHost) {
-        for (const entry of this.requests[host].requestQueue) {
+        for (const entry of this.hostData[host].requestQueue) {
           entry.cancel();
         }
-        delete this.requests[host];
+        delete this.hostData[host];
       }
     }
   }
@@ -170,11 +182,7 @@ interface IHostRequestData {
    * Server response times for a number of previous requests.
    * The size of this tracker array is determined by the history length parameter.
    */
-  responseTimes: number[];
-  /**
-   * Whether the previous requests were successful or not.
-   */
-  requestsSuccessful: boolean[];
+  requestDurations: number[];
   /**
    * The estimated concurrent request limit for the host.
    */

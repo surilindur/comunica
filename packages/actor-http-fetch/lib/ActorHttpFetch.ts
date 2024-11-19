@@ -18,7 +18,7 @@ export class ActorHttpFetch extends ActorHttp {
 
   public constructor(args: IActorHttpFetchArgs) {
     super(args);
-    this.fetchInitPreprocessor = new FetchInitPreprocessor(args.agentOptions);
+    this.fetchInitPreprocessor = new FetchInitPreprocessor();
   }
 
   public async test(_action: IActionHttp): Promise<TestResult<IMediatorTypeTime>> {
