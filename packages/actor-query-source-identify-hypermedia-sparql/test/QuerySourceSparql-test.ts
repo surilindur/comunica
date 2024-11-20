@@ -11,6 +11,7 @@ import { DataFactory } from 'rdf-data-factory';
 // Needed to load Headers
 import 'jest-rdf';
 import { Readable } from 'readable-stream';
+import type { Algebra } from 'sparqlalgebrajs';
 import { Factory } from 'sparqlalgebrajs';
 import { QuerySourceSparql } from '../lib/QuerySourceSparql';
 import '@comunica/utils-jest';
@@ -109,6 +110,7 @@ describe('QuerySourceSparql', () => {
           }),
         ]);
 
+      expect(mediatorHttp.mediate).toHaveBeenCalledTimes(2);
       expect(mediatorHttp.mediate).toHaveBeenCalledWith({
         context: ctx,
         init: {
@@ -118,6 +120,24 @@ describe('QuerySourceSparql', () => {
         },
         input: 'http://example.org/sparql',
       });
+    });
+
+    it('should return data with local cardinality estimated', async() => {
+      jest.spyOn(source, 'estimateCardinality').mockResolvedValue(<any>'cardinality');
+      await expect(source.queryBindings(AF.createPattern(DF.namedNode('s'), DF.variable('p'), DF.namedNode('o')), ctx))
+        .toEqualBindingsStream([
+          BF.fromRecord({
+            p: DF.namedNode('p1'),
+          }),
+          BF.fromRecord({
+            p: DF.namedNode('p2'),
+          }),
+          BF.fromRecord({
+            p: DF.namedNode('p3'),
+          }),
+        ]);
+
+      expect(mediatorHttp.mediate).toHaveBeenCalledTimes(1);
     });
 
     it('should return data with quoted triples', async() => {
@@ -1317,6 +1337,54 @@ WHERE { undefined:s ?p undefined:o. }` }),
           ],
         ),
       )).toEqual([ DF.variable('p1') ]);
+    });
+  });
+
+  describe('estimateCardinality', () => {
+    const operation: Algebra.Operation = <any>'operation';
+
+    it('should return undefined without dataset metadata available', async() => {
+      source = new QuerySourceSparql('http://example.org/sparql', ctx, mediatorHttp, 'values', DF, AF, BF, false, 64, 10, undefined, undefined, undefined);
+      await expect(source.estimateCardinality(operation)).resolves.toBeUndefined();
+    });
+
+    it('should return cardinality from default graph datset if available', async() => {
+      const defaultGraphUri = 'ex:defaultDataset';
+      const defaultGraphCardinality = 'cardinality';
+      const defaultGraph = {
+        uri: defaultGraphUri,
+        cardinality: jest.fn().mockResolvedValue(<any>defaultGraphCardinality),
+      };
+      source = new QuerySourceSparql('http://example.org/sparql', ctx, mediatorHttp, 'values', DF, AF, BF, false, 64, 10, defaultGraphUri, undefined, <any>[ defaultGraph ]);
+      expect(defaultGraph.cardinality).not.toHaveBeenCalled();
+      await expect(source.estimateCardinality(operation)).resolves.toBe(defaultGraphCardinality);
+      expect(defaultGraph.cardinality).toHaveBeenCalledTimes(1);
+    });
+
+    it('should return exact sum for union default graph over exact cardinalities', async() => {
+      const graphs = [
+        { cardinality: jest.fn().mockResolvedValue({ type: 'exact', value: 1 }) },
+        { cardinality: jest.fn().mockResolvedValue({ type: 'exact', value: 2 }) },
+      ];
+      source = new QuerySourceSparql('http://example.org/sparql', ctx, mediatorHttp, 'values', DF, AF, BF, false, 64, 10, undefined, true, <any>graphs);
+      expect(graphs[0].cardinality).not.toHaveBeenCalled();
+      expect(graphs[1].cardinality).not.toHaveBeenCalled();
+      await expect(source.estimateCardinality(operation)).resolves.toEqual({ type: 'exact', value: 3 });
+      expect(graphs[0].cardinality).toHaveBeenCalledTimes(1);
+      expect(graphs[1].cardinality).toHaveBeenCalledTimes(1);
+    });
+
+    it('should return estimate sum for union default graph over mixed cardinality estimates', async() => {
+      const graphs = [
+        { cardinality: jest.fn().mockResolvedValue({ type: 'exact', value: 2 }) },
+        { cardinality: jest.fn().mockResolvedValue({ type: 'estimate', value: 3 }) },
+      ];
+      source = new QuerySourceSparql('http://example.org/sparql', ctx, mediatorHttp, 'values', DF, AF, BF, false, 64, 10, undefined, true, <any>graphs);
+      expect(graphs[0].cardinality).not.toHaveBeenCalled();
+      expect(graphs[1].cardinality).not.toHaveBeenCalled();
+      await expect(source.estimateCardinality(operation)).resolves.toEqual({ type: 'estimate', value: 5 });
+      expect(graphs[0].cardinality).toHaveBeenCalledTimes(1);
+      expect(graphs[1].cardinality).toHaveBeenCalledTimes(1);
     });
   });
 });
