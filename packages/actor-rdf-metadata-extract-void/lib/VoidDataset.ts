@@ -258,7 +258,7 @@ export class VoidDataset implements IDataset {
         OPTIONAL { ${termToString(this.identifier)} void:distinctSubjects ?distinctSubjects } .
         OPTIONAL { ${termToString(this.identifier)} void:entities ?entities } .
 
-        BIND(COALESCE(?distinctObjects,?entities) AS ?count)
+        BIND(COALESCE(?distinctSubjects,?entities) AS ?count)
       } LIMIT 1
     `;
     const bindings = await this.getBindings(query);
