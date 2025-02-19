@@ -81,6 +81,32 @@ export class ActorHttpRetry extends ActorHttp {
         return response;
       }
 
+      // When the server requests further attempts to be delayed, take note of it, regardless of the response status.
+      const retryAfterHeader = response.headers.get('retry-after');
+
+      if (retryAfterHeader) {
+        const retryAfter = ActorHttpRetry.parseRetryAfterHeader(retryAfterHeader);
+        if (retryAfter) {
+          // Clear any previous clean-up timers for the host
+          if (url.host in this.activeDelays) {
+            clearTimeout(this.activeDelays[url.host].timeout);
+          }
+          // Record the current host-specific active delay, and add a clean-up timer for this new delay
+          this.activeDelays[url.host] = {
+            date: retryAfter,
+            timeout: setTimeout(() => delete this.activeDelays[url.host], retryAfter.getTime() - Date.now()),
+          };
+        } else {
+          this.logDebug(action.context, 'Invalid Retry-After header value from server', () => ({
+            url: url.href,
+            status: response.status,
+            statusText: response.statusText,
+            retryAfterHeader,
+            currentAttempt: `${attempt} / ${attemptLimit}`,
+          }));
+        }
+      }
+
       if (retryStatusCodes && retryStatusCodes.includes(response.status)) {
         this.logDebug(action.context, 'Status code in force retry list, forcing retry', () => ({
           url: url.href,
@@ -104,39 +130,13 @@ export class ActorHttpRetry extends ActorHttp {
       }
 
       if (response.status === 429 || response.status === 503) {
-        // When the server reports temporary unavailability, it can also provide a Retry-Header value.
-        const retryAfterHeader = response.headers.get('retry-after');
-
-        if (retryAfterHeader) {
-          const retryAfter = ActorHttpRetry.parseRetryAfterHeader(retryAfterHeader);
-          if (retryAfter) {
-            // Clear any previous clean-up timers for the host
-            if (url.host in this.activeDelays) {
-              clearTimeout(this.activeDelays[url.host].timeout);
-            }
-            // Record the current host-specific active delay, and add a clean-up timer for this new delay
-            this.activeDelays[url.host] = {
-              date: retryAfter,
-              timeout: setTimeout(() => delete this.activeDelays[url.host], Date.now() - retryAfter.getTime()),
-            };
-          } else {
-            this.logDebug(action.context, 'Invalid Retry-After header value from server', () => ({
-              url: url.href,
-              status: response.status,
-              statusText: response.statusText,
-              retryAfterHeader,
-              currentAttempt: `${attempt} / ${attemptLimit}`,
-            }));
-          }
-        }
-
+        // When the server is temporarily unavailable, it makes sense to retry.
         this.logDebug(action.context, 'Server temporarily unavailable', () => ({
           url: url.href,
           status: response.status,
           statusText: response.statusText,
           currentAttempt: `${attempt} / ${attemptLimit}`,
         }));
-
         continue;
       }
 
