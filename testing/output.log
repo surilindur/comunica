@@ -1,0 +1,263 @@
+data.linkeddatafragments.org { requestDuration: 47, previousDelay: undefined, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 63, previousDelay: 47, correctedDelay: 47 }
+dbpedia.org { requestDuration: 119, previousDelay: undefined, correctedDelay: 119 }
+data.linkeddatafragments.org { requestDuration: 12, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 12, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 15, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 17, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 44, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 49, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 53, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 53, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 40, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 52, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 41, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 44, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 43, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 43, previousDelay: 47, correctedDelay: 47 }
+dbpedia.org { requestDuration: 23, previousDelay: 119, correctedDelay: 118 }
+dbpedia.org { requestDuration: 69, previousDelay: 118, correctedDelay: 118 }
+dbpedia.org { requestDuration: 72, previousDelay: 118, correctedDelay: 118 }
+dbpedia.org { requestDuration: 80, previousDelay: 118, correctedDelay: 118 }
+dbpedia.org { requestDuration: 79, previousDelay: 118, correctedDelay: 118 }
+dbpedia.org { requestDuration: 81, previousDelay: 118, correctedDelay: 118 }
+dbpedia.org { requestDuration: 81, previousDelay: 118, correctedDelay: 118 }
+dbpedia.org { requestDuration: 22, previousDelay: 118, correctedDelay: 117 }
+Result,Delay (ms),HTTP requests
+PLANNING,548.567776,75
+dbpedia.org { requestDuration: 45, previousDelay: 117, correctedDelay: 116 }
+data.linkeddatafragments.org { requestDuration: 6, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 8, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 8, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 10, previousDelay: 47, correctedDelay: 47 }
+dbpedia.org { requestDuration: 23, previousDelay: 116, correctedDelay: 115 }
+dbpedia.org { requestDuration: 25, previousDelay: 115, correctedDelay: 114 }
+dbpedia.org { requestDuration: 28, previousDelay: 114, correctedDelay: 113 }
+dbpedia.org { requestDuration: 27, previousDelay: 113, correctedDelay: 112 }
+data.linkeddatafragments.org { requestDuration: 7, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 7, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 6, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 7, previousDelay: 47, correctedDelay: 47 }
+dbpedia.org { requestDuration: 21, previousDelay: 112, correctedDelay: 111 }
+dbpedia.org { requestDuration: 25, previousDelay: 111, correctedDelay: 110 }
+dbpedia.org { requestDuration: 22, previousDelay: 110, correctedDelay: 109 }
+dbpedia.org { requestDuration: 23, previousDelay: 109, correctedDelay: 108 }
+data.linkeddatafragments.org { requestDuration: 7, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 13, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 6, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 8, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 10, previousDelay: 47, correctedDelay: 47 }
+dbpedia.org { requestDuration: 27, previousDelay: 108, correctedDelay: 107 }
+dbpedia.org { requestDuration: 21, previousDelay: 107, correctedDelay: 106 }
+data.linkeddatafragments.org { requestDuration: 50, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 53, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 52, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 53, previousDelay: 47, correctedDelay: 47 }
+dbpedia.org { requestDuration: 21, previousDelay: 106, correctedDelay: 105 }
+dbpedia.org { requestDuration: 29, previousDelay: 105, correctedDelay: 104 }
+dbpedia.org { requestDuration: 31, previousDelay: 104, correctedDelay: 103 }
+dbpedia.org { requestDuration: 23, previousDelay: 103, correctedDelay: 102 }
+dbpedia.org { requestDuration: 25, previousDelay: 102, correctedDelay: 101 }
+dbpedia.org { requestDuration: 29, previousDelay: 101, correctedDelay: 100 }
+dbpedia.org { requestDuration: 28, previousDelay: 100, correctedDelay: 99 }
+data.linkeddatafragments.org { requestDuration: 8, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 12, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 12, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 18, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 14, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 14, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 18, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 16, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 18, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 6, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 12, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 11, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 13, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 13, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 14, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 8, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 7, previousDelay: 47, correctedDelay: 47 }
+dbpedia.org { requestDuration: 20, previousDelay: 99, correctedDelay: 98 }
+dbpedia.org { requestDuration: 22, previousDelay: 98, correctedDelay: 97 }
+dbpedia.org { requestDuration: 21, previousDelay: 97, correctedDelay: 96 }
+data.linkeddatafragments.org { requestDuration: 7, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 7, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 8, previousDelay: 47, correctedDelay: 47 }
+1,1348.7686789999998,352
+dbpedia.org { requestDuration: 24, previousDelay: 96, correctedDelay: 95 }
+data.linkeddatafragments.org { requestDuration: 10, previousDelay: 47, correctedDelay: 47 }
+dbpedia.org { requestDuration: 23, previousDelay: 95, correctedDelay: 94 }
+data.linkeddatafragments.org { requestDuration: 6, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 7, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 8, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 8, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 9, previousDelay: 47, correctedDelay: 47 }
+dbpedia.org { requestDuration: 20, previousDelay: 94, correctedDelay: 93 }
+dbpedia.org { requestDuration: 21, previousDelay: 93, correctedDelay: 92 }
+dbpedia.org { requestDuration: 21, previousDelay: 92, correctedDelay: 91 }
+dbpedia.org { requestDuration: 26, previousDelay: 91, correctedDelay: 90 }
+dbpedia.org { requestDuration: 25, previousDelay: 90, correctedDelay: 89 }
+dbpedia.org { requestDuration: 25, previousDelay: 89, correctedDelay: 88 }
+dbpedia.org { requestDuration: 25, previousDelay: 88, correctedDelay: 87 }
+dbpedia.org { requestDuration: 23, previousDelay: 87, correctedDelay: 86 }
+dbpedia.org { requestDuration: 24, previousDelay: 86, correctedDelay: 85 }
+dbpedia.org { requestDuration: 24, previousDelay: 85, correctedDelay: 84 }
+dbpedia.org { requestDuration: 24, previousDelay: 84, correctedDelay: 83 }
+dbpedia.org { requestDuration: 30, previousDelay: 83, correctedDelay: 82 }
+dbpedia.org { requestDuration: 25, previousDelay: 82, correctedDelay: 81 }
+dbpedia.org { requestDuration: 23, previousDelay: 81, correctedDelay: 80 }
+dbpedia.org { requestDuration: 20, previousDelay: 80, correctedDelay: 79 }
+dbpedia.org { requestDuration: 21, previousDelay: 79, correctedDelay: 78 }
+dbpedia.org { requestDuration: 20, previousDelay: 78, correctedDelay: 77 }
+data.linkeddatafragments.org { requestDuration: 7, previousDelay: 47, correctedDelay: 47 }
+dbpedia.org { requestDuration: 26, previousDelay: 77, correctedDelay: 76 }
+dbpedia.org { requestDuration: 71, previousDelay: 76, correctedDelay: 76 }
+dbpedia.org { requestDuration: 72, previousDelay: 76, correctedDelay: 76 }
+dbpedia.org { requestDuration: 70, previousDelay: 76, correctedDelay: 76 }
+dbpedia.org { requestDuration: 76, previousDelay: 76, correctedDelay: 76 }
+dbpedia.org { requestDuration: 73, previousDelay: 76, correctedDelay: 76 }
+dbpedia.org { requestDuration: 72, previousDelay: 76, correctedDelay: 76 }
+dbpedia.org { requestDuration: 70, previousDelay: 76, correctedDelay: 76 }
+dbpedia.org { requestDuration: 77, previousDelay: 76, correctedDelay: 76 }
+dbpedia.org { requestDuration: 74, previousDelay: 76, correctedDelay: 76 }
+dbpedia.org { requestDuration: 75, previousDelay: 76, correctedDelay: 76 }
+dbpedia.org { requestDuration: 78, previousDelay: 76, correctedDelay: 76 }
+dbpedia.org { requestDuration: 76, previousDelay: 76, correctedDelay: 76 }
+2,1476.2914489999998,408
+3,1476.3683839999999,408
+4,1476.385476,408
+dbpedia.org { requestDuration: 60, previousDelay: 76, correctedDelay: 76 }
+dbpedia.org { requestDuration: 62, previousDelay: 76, correctedDelay: 76 }
+dbpedia.org { requestDuration: 68, previousDelay: 76, correctedDelay: 76 }
+dbpedia.org { requestDuration: 64, previousDelay: 76, correctedDelay: 76 }
+dbpedia.org { requestDuration: 66, previousDelay: 76, correctedDelay: 76 }
+dbpedia.org { requestDuration: 65, previousDelay: 76, correctedDelay: 76 }
+dbpedia.org { requestDuration: 66, previousDelay: 76, correctedDelay: 76 }
+dbpedia.org { requestDuration: 66, previousDelay: 76, correctedDelay: 76 }
+dbpedia.org { requestDuration: 75, previousDelay: 76, correctedDelay: 76 }
+dbpedia.org { requestDuration: 76, previousDelay: 76, correctedDelay: 76 }
+dbpedia.org { requestDuration: 76, previousDelay: 76, correctedDelay: 76 }
+dbpedia.org { requestDuration: 73, previousDelay: 76, correctedDelay: 76 }
+dbpedia.org { requestDuration: 21, previousDelay: 76, correctedDelay: 75 }
+data.linkeddatafragments.org { requestDuration: 72, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 56, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 63, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 71, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 89, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 66, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 7, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 20, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 34, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 28, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 15, previousDelay: 47, correctedDelay: 47 }
+5,1684.029168,480
+dbpedia.org { requestDuration: 23, previousDelay: 75, correctedDelay: 74 }
+dbpedia.org { requestDuration: 23, previousDelay: 74, correctedDelay: 73 }
+dbpedia.org { requestDuration: 23, previousDelay: 73, correctedDelay: 73 }
+6,1700.0478900000003,492
+dbpedia.org { requestDuration: 23, previousDelay: 73, correctedDelay: 73 }
+dbpedia.org { requestDuration: 22, previousDelay: 73, correctedDelay: 72 }
+dbpedia.org { requestDuration: 23, previousDelay: 72, correctedDelay: 72 }
+dbpedia.org { requestDuration: 28, previousDelay: 72, correctedDelay: 72 }
+dbpedia.org { requestDuration: 25, previousDelay: 72, correctedDelay: 72 }
+dbpedia.org { requestDuration: 30, previousDelay: 72, correctedDelay: 72 }
+dbpedia.org { requestDuration: 21, previousDelay: 72, correctedDelay: 71 }
+dbpedia.org { requestDuration: 32, previousDelay: 71, correctedDelay: 71 }
+dbpedia.org { requestDuration: 22, previousDelay: 71, correctedDelay: 71 }
+dbpedia.org { requestDuration: 21, previousDelay: 71, correctedDelay: 71 }
+dbpedia.org { requestDuration: 24, previousDelay: 71, correctedDelay: 71 }
+dbpedia.org { requestDuration: 25, previousDelay: 71, correctedDelay: 71 }
+dbpedia.org { requestDuration: 24, previousDelay: 71, correctedDelay: 71 }
+dbpedia.org { requestDuration: 24, previousDelay: 71, correctedDelay: 71 }
+7,1722.0221030000002,498
+8,1722.037342,498
+9,1722.0533720000003,498
+10,1722.0675190000002,498
+11,1722.1033459999999,498
+12,1722.3121270000001,498
+13,1722.3229570000003,498
+14,1722.330652,498
+15,1722.3384960000003,498
+16,1722.375165,498
+17,1722.38314,498
+18,1722.3922069999999,498
+19,1722.407756,498
+20,1722.498216,498
+21,1722.507122,498
+dbpedia.org { requestDuration: 27, previousDelay: 71, correctedDelay: 71 }
+data.linkeddatafragments.org { requestDuration: 21, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 24, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 27, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 36, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 34, previousDelay: 47, correctedDelay: 47 }
+dbpedia.org { requestDuration: 21, previousDelay: 71, correctedDelay: 71 }
+dbpedia.org { requestDuration: 22, previousDelay: 71, correctedDelay: 71 }
+dbpedia.org { requestDuration: 21, previousDelay: 71, correctedDelay: 71 }
+data.linkeddatafragments.org { requestDuration: 61, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 64, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 6, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 13, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 20, previousDelay: 47, correctedDelay: 47 }
+22,1878.3077510000003,564
+data.linkeddatafragments.org { requestDuration: 23, previousDelay: 47, correctedDelay: 47 }
+dbpedia.org { requestDuration: 22, previousDelay: 71, correctedDelay: 71 }
+dbpedia.org { requestDuration: 24, previousDelay: 71, correctedDelay: 71 }
+dbpedia.org { requestDuration: 23, previousDelay: 71, correctedDelay: 71 }
+dbpedia.org { requestDuration: 23, previousDelay: 71, correctedDelay: 71 }
+dbpedia.org { requestDuration: 22, previousDelay: 71, correctedDelay: 71 }
+dbpedia.org { requestDuration: 27, previousDelay: 71, correctedDelay: 71 }
+dbpedia.org { requestDuration: 23, previousDelay: 71, correctedDelay: 71 }
+dbpedia.org { requestDuration: 22, previousDelay: 71, correctedDelay: 71 }
+dbpedia.org { requestDuration: 24, previousDelay: 71, correctedDelay: 71 }
+dbpedia.org { requestDuration: 23, previousDelay: 71, correctedDelay: 71 }
+dbpedia.org { requestDuration: 23, previousDelay: 71, correctedDelay: 71 }
+dbpedia.org { requestDuration: 24, previousDelay: 71, correctedDelay: 71 }
+23,1907.412038,572
+24,1907.4350210000002,572
+25,1909.055769,578
+26,1909.067611,578
+data.linkeddatafragments.org { requestDuration: 29, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 59, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 63, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 66, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 8, previousDelay: 47, correctedDelay: 47 }
+27,2044.350355,615
+data.linkeddatafragments.org { requestDuration: 73, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 68, previousDelay: 47, correctedDelay: 47 }
+dbpedia.org { requestDuration: 80, previousDelay: 71, correctedDelay: 71 }
+dbpedia.org { requestDuration: 82, previousDelay: 71, correctedDelay: 71 }
+dbpedia.org { requestDuration: 84, previousDelay: 71, correctedDelay: 71 }
+dbpedia.org { requestDuration: 49, previousDelay: 71, correctedDelay: 71 }
+dbpedia.org { requestDuration: 54, previousDelay: 71, correctedDelay: 71 }
+dbpedia.org { requestDuration: 49, previousDelay: 71, correctedDelay: 71 }
+28,2143.3725910000003,632
+dbpedia.org { requestDuration: 53, previousDelay: 71, correctedDelay: 71 }
+dbpedia.org { requestDuration: 54, previousDelay: 71, correctedDelay: 71 }
+dbpedia.org { requestDuration: 52, previousDelay: 71, correctedDelay: 71 }
+dbpedia.org { requestDuration: 48, previousDelay: 71, correctedDelay: 71 }
+dbpedia.org { requestDuration: 49, previousDelay: 71, correctedDelay: 71 }
+dbpedia.org { requestDuration: 50, previousDelay: 71, correctedDelay: 71 }
+data.linkeddatafragments.org { requestDuration: 90, previousDelay: 47, correctedDelay: 47 }
+29,2160.179751,634
+30,2161.189784,638
+data.linkeddatafragments.org { requestDuration: 4, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 4, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 4, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 9, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 5, previousDelay: 47, correctedDelay: 47 }
+31,2253.776658,675
+data.linkeddatafragments.org { requestDuration: 5, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 20, previousDelay: 47, correctedDelay: 47 }
+data.linkeddatafragments.org { requestDuration: 26, previousDelay: 47, correctedDelay: 47 }
+dbpedia.org { requestDuration: 22, previousDelay: 71, correctedDelay: 71 }
+dbpedia.org { requestDuration: 30700, previousDelay: 71, correctedDelay: 377 }
+dbpedia.org { requestDuration: 31300, previousDelay: 377, correctedDelay: 686 }
+dbpedia.org { requestDuration: 32200, previousDelay: 686, correctedDelay: 1001 }
+dbpedia.org { requestDuration: 321, previousDelay: 1001, correctedDelay: 994 }
+dbpedia.org { requestDuration: 33000, previousDelay: 994, correctedDelay: 1314 }
+dbpedia.org { requestDuration: 31000, previousDelay: 1314, correctedDelay: 1611 }
+dbpedia.org { requestDuration: 31200, previousDelay: 1611, correctedDelay: 1907 }
+dbpedia.org { requestDuration: 324, previousDelay: 1907, correctedDelay: 1891 }
+dbpedia.org { requestDuration: 33200, previousDelay: 1891, correctedDelay: 2204 }
+dbpedia.org { requestDuration: 31700, previousDelay: 2204, correctedDelay: 2499 }
+dbpedia.org { requestDuration: 31100, previousDelay: 2499, correctedDelay: 2785 }

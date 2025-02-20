@@ -8,10 +8,11 @@ describe('ActorHttpLimitRate', () => {
   let bus: any;
   let actor: ActorHttpLimitRate;
   let mediatorHttp: MediatorHttp;
+  let actorHostDelays: Map<string, number>;
   let invalidateListeners: ((event: IActionHttpInvalidate) => void)[];
 
-  const historyLength = 10;
-  const failureMultiplier = 100;
+  const correctionMultiplier = 0.1;
+  const failureMultiplier = 10;
 
   const url = 'http://localhost:3000/some/url';
   const host = 'localhost:3000';
@@ -26,8 +27,8 @@ describe('ActorHttpLimitRate', () => {
     };
     actor = new ActorHttpLimitRate({
       bus,
+      correctionMultiplier,
       failureMultiplier,
-      historyLength,
       limitByDefault: false,
       httpInvalidator: <any>{
         addInvalidateListener: jest.fn(listener => invalidateListeners.push(listener)),
@@ -35,6 +36,7 @@ describe('ActorHttpLimitRate', () => {
       mediatorHttp,
       name: 'actor',
     });
+    actorHostDelays = (<any>actor).hostDelays;
     jest.spyOn((<any>actor), 'logDebug').mockImplementation((...args) => (<() => unknown>args[2])());
   });
 
@@ -55,119 +57,89 @@ describe('ActorHttpLimitRate', () => {
 
   describe('run', () => {
     it('should handle successful requests', async() => {
-      jest.spyOn(Date, 'now').mockReturnValue(0);
-      jest.spyOn(actor, 'registerNewRequest').mockReturnValue(0);
-      jest.spyOn(actor, 'registerCompletedRequest').mockReturnValue(undefined);
-      jest.spyOn(mediatorHttp, 'mediate').mockResolvedValue(<any>{ ok: true });
+      const response = { ok: true };
+      jest.spyOn(Date, 'now').mockReturnValueOnce(0);
+      jest.spyOn(Date, 'now').mockReturnValueOnce(100);
+      jest.spyOn(mediatorHttp, 'mediate').mockResolvedValue(<any>response);
       jest.spyOn(globalThis, 'setTimeout').mockImplementation(callback => <any>callback());
       const action = { context: new ActionContext({}), input: url };
-      await expect(actor.run(action)).resolves.toEqual({ ok: true });
-      expect(actor.registerNewRequest).toHaveBeenCalledTimes(1);
-      expect(actor.registerCompletedRequest).toHaveBeenCalledTimes(1);
+      expect(actorHostDelays.has(host)).toBeFalsy();
+      await expect(actor.run(action)).resolves.toEqual(response);
       expect(globalThis.setTimeout).not.toHaveBeenCalled();
+      expect(actorHostDelays.has(host)).toBeFalsy();
+    });
+
+    it('should handle successful requests when limiting by default', async() => {
+      const duration1 = 100;
+      const duration2 = 200;
+      const delay1 = duration1;
+      const delay2 = delay1 + correctionMultiplier * (duration2 - delay1);
+      const response = { ok: true };
+      (<any>actor).limitByDefault = true;
+      jest.spyOn(Date, 'now')
+        .mockReturnValueOnce(0).mockReturnValueOnce(duration1)
+        .mockReturnValueOnce(0).mockReturnValueOnce(duration2);
+      jest.spyOn(mediatorHttp, 'mediate').mockResolvedValue(<any>response);
+      jest.spyOn(globalThis, 'setTimeout').mockImplementation(callback => <any>callback());
+      const action = { context: new ActionContext({}), input: url };
+      expect(actorHostDelays.has(host)).toBeFalsy();
+      // First call, when the duration is assigned as the delay
+      await expect(actor.run(action)).resolves.toEqual(response);
+      expect(globalThis.setTimeout).not.toHaveBeenCalled();
+      expect(actorHostDelays.get(host)).toBe(delay1);
+      // Second call, when the delay is adjusted based on the correction multiplier
+      await expect(actor.run(action)).resolves.toEqual(response);
+      expect(globalThis.setTimeout).toHaveBeenCalledTimes(1);
+      expect(globalThis.setTimeout).toHaveBeenNthCalledWith(1, expect.any(Function), delay1);
+      expect(actorHostDelays.get(host)).toBe(delay2);
     });
 
     it('should handle successful requests with delay', async() => {
-      jest.spyOn(Date, 'now').mockReturnValue(0);
-      jest.spyOn(actor, 'registerNewRequest').mockReturnValue(1);
-      jest.spyOn(actor, 'registerCompletedRequest').mockReturnValue(undefined);
-      jest.spyOn(mediatorHttp, 'mediate').mockResolvedValue(<any>{ ok: true });
+      const response = { ok: true };
+      jest.spyOn(Date, 'now').mockReturnValueOnce(0).mockReturnValueOnce(100);
+      jest.spyOn(mediatorHttp, 'mediate').mockResolvedValue(<any>response);
       jest.spyOn(globalThis, 'setTimeout').mockImplementation(callback => <any>callback());
+      const expectedDelay = 123456;
+      actorHostDelays.set(host, expectedDelay);
       const action = { context: new ActionContext({}), input: url };
-      await expect(actor.run(action)).resolves.toEqual({ ok: true });
-      expect(actor.registerNewRequest).toHaveBeenCalledTimes(1);
-      expect(actor.registerCompletedRequest).toHaveBeenCalledTimes(1);
+      await expect(actor.run(action)).resolves.toEqual(response);
       expect(globalThis.setTimeout).toHaveBeenCalledTimes(1);
-      expect(globalThis.setTimeout).toHaveBeenNthCalledWith(1, expect.any(Function), 1);
+      expect(globalThis.setTimeout).toHaveBeenNthCalledWith(1, expect.any(Function), expectedDelay);
     });
 
     it('should handle failing requests', async() => {
+      const duration1 = 400;
+      const duration2 = 600;
+      const delay1 = duration1 * failureMultiplier;
+      const delay2 = delay1 + correctionMultiplier * (failureMultiplier * duration2 - delay1);
+      const response = { ok: false };
+      jest.spyOn(Date, 'now')
+        .mockReturnValueOnce(0).mockReturnValueOnce(duration1)
+        .mockReturnValueOnce(0).mockReturnValueOnce(duration2);
+      jest.spyOn(mediatorHttp, 'mediate').mockResolvedValue(<any>response);
+      jest.spyOn(globalThis, 'setTimeout').mockImplementation(callback => <any>callback());
+      const action = { context: new ActionContext({}), input: url };
+      expect(actorHostDelays.has(host)).toBeFalsy();
+      // First call, when the duration is assigned as the delay
+      await expect(actor.run(action)).resolves.toEqual(response);
+      expect(globalThis.setTimeout).not.toHaveBeenCalled();
+      expect(actorHostDelays.get(host)).toBe(delay1);
+      // Second call, when the delay is adjusted based on the correction multiplier
+      await expect(actor.run(action)).resolves.toEqual(response);
+      expect(globalThis.setTimeout).toHaveBeenCalledTimes(1);
+      expect(globalThis.setTimeout).toHaveBeenNthCalledWith(1, expect.any(Function), delay1);
+      expect(actorHostDelays.get(host)).toBe(delay2);
+    });
+
+    it('should handle mediator errors', async() => {
       const errorMessage = 'HTTP error';
-      jest.spyOn(Date, 'now').mockReturnValue(0);
-      jest.spyOn(actor, 'registerNewRequest').mockReturnValue(0);
-      jest.spyOn(actor, 'registerCompletedRequest').mockReturnValue(undefined);
+      jest.spyOn(Date, 'now').mockReturnValueOnce(0);
+      jest.spyOn(Date, 'now').mockReturnValueOnce(100);
       jest.spyOn(mediatorHttp, 'mediate').mockRejectedValue(new Error(errorMessage));
       jest.spyOn(globalThis, 'setTimeout').mockImplementation(callback => <any>callback());
       const action = { context: new ActionContext({}), input: url };
       await expect(actor.run(action)).rejects.toThrow(errorMessage);
-      expect(actor.registerNewRequest).toHaveBeenCalledTimes(1);
-      expect(actor.registerCompletedRequest).toHaveBeenCalledTimes(1);
       expect(globalThis.setTimeout).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('registerNewRequest', () => {
-    it('should register new requests successfully', () => {
-      const timestamp = 100;
-      jest.spyOn(ActorHttpLimitRate, 'calculateMinimumRequestDelay').mockReturnValue(123);
-      expect(actor.registerNewRequest(host, timestamp)).toBe(0);
-      expect((<any>actor).hostData[host]).toEqual({
-        openRequests: 1,
-        latestRequest: timestamp,
-        rateLimited: false,
-        responseTimes: [],
-      });
-      expect(ActorHttpLimitRate.calculateMinimumRequestDelay).not.toHaveBeenCalled();
-    });
-
-    it('should register new requests successfully when doing initial rate limits', () => {
-      const timestamp = 100;
-      (<any>actor).limitByDefault = true;
-      jest.spyOn(ActorHttpLimitRate, 'calculateMinimumRequestDelay').mockReturnValue(123);
-      expect(actor.registerNewRequest(host, timestamp)).toBe(23);
-      expect((<any>actor).hostData[host]).toEqual({
-        openRequests: 1,
-        latestRequest: timestamp,
-        rateLimited: true,
-        responseTimes: [],
-      });
-      expect(ActorHttpLimitRate.calculateMinimumRequestDelay).toHaveBeenCalledTimes(1);
-    });
-  });
-
-  describe('registerCompletedRequest', () => {
-    it('should register successful requests and maintain history length', () => {
-      const timestamp = 0;
-      const data = {
-        responseTimes: [],
-        openRequests: historyLength + 2,
-        rateLimited: false,
-      };
-      (<any>actor).hostData[host] = data;
-      for (let i = 0; i < historyLength + 2; i++) {
-        jest.spyOn(Date, 'now').mockReturnValue(i);
-        expect(data.openRequests).toBe(historyLength + 2 - i);
-        expect(actor.registerCompletedRequest(host, true, timestamp)).toBeUndefined();
-        expect(data.openRequests).toBe(historyLength + 2 - i - 1);
-        expect(data.responseTimes).toHaveLength(Math.min(historyLength, i + 1));
-        expect(data.responseTimes.at(-1)).toBe(i);
-      }
-      expect(data.rateLimited).toBeFalsy();
-      expect(data.openRequests).toBe(0);
-    });
-
-    it('should mark failing host as rate limited', () => {
-      const data = {
-        responseTimes: [],
-        openRequests: 1,
-        rateLimited: false,
-      };
-      (<any>actor).hostData[host] = data;
-      jest.spyOn(Date, 'now').mockReturnValue(1);
-      expect(data.rateLimited).toBeFalsy();
-      expect(actor.registerCompletedRequest(host, false, 0)).toBeUndefined();
-      expect(data.rateLimited).toBeTruthy();
-      expect(data.openRequests).toBe(0);
-    });
-  });
-
-  describe('calculateMinimumRequestDelay', () => {
-    it.each([
-      [ 'without data', [], 0, 0 ],
-      [ 'with data', [ 3, 2, 1 ], 0, 2 ],
-      [ 'with data and open requests', [ 3, 2, 1 ], 1, 4 ],
-    ])('returns the appropriate delay %s', (_, responseTimes, openRequests, expected) => {
-      expect(ActorHttpLimitRate.calculateMinimumRequestDelay(responseTimes, openRequests)).toBe(expected);
     });
   });
 
@@ -175,14 +147,14 @@ describe('ActorHttpLimitRate', () => {
     it.each([
       [ 'specific host data when specified', url, 1 ],
       [ 'all host data when not specified', undefined, 0 ],
-    ])('correctly clears %s', async(_, url, expectedDataCount) => {
-      (<any>actor).hostData.localhost = 'localhost data';
-      (<any>actor).hostData.otherhost = 'otherhost data';
-      expect(Object.keys((<any>actor).hostData)).toHaveLength(2);
+    ])('correctly clears %s', async(_, url, expectedSize) => {
+      actorHostDelays.set(host, 1234);
+      actorHostDelays.set('otherhost:3000', 4321);
+      expect(actorHostDelays.size).toBe(2);
       for (const listener of invalidateListeners) {
         listener({ context: <any>{}, url });
       }
-      expect(Object.keys((<any>actor).hostData)).toHaveLength(expectedDataCount);
+      expect(actorHostDelays.size).toBe(expectedSize);
     });
   });
 });
