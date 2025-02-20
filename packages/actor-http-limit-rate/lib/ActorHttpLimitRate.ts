@@ -183,7 +183,7 @@ export interface IActorHttpLimitRateArgs extends IActorHttpArgs {
    * The number of past response times to consider when spacing out future requests.
    * Increasing this value should result in smoother scaling of request intervals,
    * but might also make the actor slower to react to changes.
-   * @default {20}
+   * @default {10}
    */
   historyLength: number;
   /**
