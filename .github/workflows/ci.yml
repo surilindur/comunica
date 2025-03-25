@@ -23,10 +23,10 @@ jobs:
     steps:
       - name: Ensure line endings are consistent
         run: git config --global core.autocrlf input
-      - name: Enable corepack
-        run: corepack enable
       - name: Check out repository
         uses: actions/checkout@v4
+      - name: Enable corepack
+        run: corepack enable
       - name: Use Node.js ${{ env.DEFAULT_NODE_VERSION }}
         uses: actions/setup-node@v4
         with:
@@ -60,10 +60,10 @@ jobs:
     steps:
       - name: Ensure line endings are consistent
         run: git config --global core.autocrlf input
-      - name: Enable corepack
-        run: corepack enable
       - name: Check out repository
         uses: actions/checkout@v4
+      - name: Enable corepack
+        run: corepack enable
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
@@ -100,10 +100,10 @@ jobs:
     steps:
       - name: Ensure line endings are consistent
         run: git config --global core.autocrlf input
-      - name: Enable corepack
-        run: corepack enable
       - name: Check out repository
         uses: actions/checkout@v4
+      - name: Enable corepack
+        run: corepack enable
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
@@ -138,10 +138,10 @@ jobs:
     steps:
       - name: Ensure line endings are consistent
         run: git config --global core.autocrlf input
-      - name: Enable corepack
-        run: corepack enable
       - name: Check out repository
         uses: actions/checkout@v4
+      - name: Enable corepack
+        run: corepack enable
       - name: Use Node.js ${{ env.DEFAULT_NODE_VERSION }}
         uses: actions/setup-node@v4
         with:
@@ -186,10 +186,10 @@ jobs:
     steps:
       - name: Ensure line endings are consistent
         run: git config --global core.autocrlf input
-      - name: Enable corepack
-        run: corepack enable
       - name: Check out repository
         uses: actions/checkout@v4
+      - name: Enable corepack
+        run: corepack enable
       - name: Use Node.js ${{ env.DEFAULT_NODE_VERSION }}
         uses: actions/setup-node@v4
         with:
@@ -219,10 +219,10 @@ jobs:
     steps:
       - name: Ensure line endings are consistent
         run: git config --global core.autocrlf input
-      - name: Enable corepack
-        run: corepack enable
       - name: Check out repository
         uses: actions/checkout@v4
+      - name: Enable corepack
+        run: corepack enable
       - name: Use Node.js ${{ env.DEFAULT_NODE_VERSION }}
         uses: actions/setup-node@v4
         with:
@@ -267,10 +267,10 @@ jobs:
     steps:
       - name: Ensure line endings are consistent
         run: git config --global core.autocrlf input
-      - name: Enable corepack
-        run: corepack enable
       - name: Check out repository
         uses: actions/checkout@v4
+      - name: Enable corepack
+        run: corepack enable
       - name: Use Node.js ${{ env.DEFAULT_NODE_VERSION }}
         uses: actions/setup-node@v4
         with:
@@ -299,10 +299,10 @@ jobs:
     steps:
       - name: Ensure line endings are consistent
         run: git config --global core.autocrlf input
-      - name: Enable corepack
-        run: corepack enable
       - name: Check out repository
         uses: actions/checkout@v4
+      - name: Enable corepack
+        run: corepack enable
       - name: Use Node.js ${{ env.DEFAULT_NODE_VERSION }}
         uses: actions/setup-node@v4
         with:
@@ -381,10 +381,10 @@ jobs:
     steps:
       - name: Ensure line endings are consistent
         run: git config --global core.autocrlf input
-      - name: Enable corepack
-        run: corepack enable
       - name: Check out repository
         uses: actions/checkout@v4
+      - name: Enable corepack
+        run: corepack enable
       - name: Use Node.js ${{ env.DEFAULT_NODE_VERSION }}
         uses: actions/setup-node@v4
         with:
