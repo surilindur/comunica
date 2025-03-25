@@ -32,7 +32,9 @@ jobs:
       - name: Load dependency cache
         uses: actions/cache@v4
         with:
-          path: '**/node_modules'
+          path: |
+            .yarn
+            **/node_modules
           key: yarn-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('yarn.lock') }}
       - name: Install dependencies
         run: yarn install --frozen-lockfile
@@ -70,10 +72,12 @@ jobs:
       - name: Load dependency cache
         uses: actions/cache@v4
         with:
-          path: '**/node_modules'
+          path: |
+            .yarn
+            **/node_modules
           key: yarn-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('yarn.lock') }}
       - name: Install dependencies and build
-        run: yarn install --frozen-lockfile --check-files
+        run: yarn install --frozen-lockfile --check-files --offline
       - name: Run tests
         run: yarn run test:ci
       - name: Submit coverage results
@@ -111,10 +115,12 @@ jobs:
       - name: Load dependency cache
         uses: actions/cache@v4
         with:
-          path: '**/node_modules'
+          path: |
+            .yarn
+            **/node_modules
           key: yarn-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('yarn.lock') }}
       - name: Install dependencies and build
-        run: yarn install --frozen-lockfile --check-files
+        run: yarn install --frozen-lockfile --check-files --offline
       - name: Load RDF test suite cache
         uses: actions/cache@v4
         with:
@@ -150,10 +156,12 @@ jobs:
       - name: Load dependency cache
         uses: actions/cache@v4
         with:
-          path: '**/node_modules'
+          path: |
+            .yarn
+            **/node_modules
           key: yarn-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('yarn.lock') }}
       - name: Install dependencies and build
-        run: yarn install --frozen-lockfile --check-files
+        run: yarn install --frozen-lockfile --check-files --offline
       - name: Install ${{ matrix.browser }} via Playwright
         if: startsWith(matrix.browser, 'Webkit')
         # The @L will convert 'Webkit' into lowercase 'webkit' which is the name Playwright expects.
@@ -199,10 +207,12 @@ jobs:
       - name: Load dependency cache
         uses: actions/cache@v4
         with:
-          path: '**/node_modules'
+          path: |
+            .yarn
+            **/node_modules
           key: yarn-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('yarn.lock') }}
       - name: Install dependencies and build
-        run: yarn install --frozen-lockfile --check-files
+        run: yarn install --frozen-lockfile --check-files --offline
       - name: Build browser bundles
         run: yarn run build:browser
       - name: Deploy browser builds
@@ -233,10 +243,12 @@ jobs:
       - name: Load dependency cache
         uses: actions/cache@v4
         with:
-          path: '**/node_modules'
+          path: |
+            .yarn
+            **/node_modules
           key: yarn-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('yarn.lock') }}
       - name: Install dependencies and build monorepo
-        run: yarn install --frozen-lockfile --check-files
+        run: yarn install --frozen-lockfile --check-files --offline
       - name: Install Lerna Docker
         run: sh -c "`curl -fsSl https://raw.githubusercontent.com/rubensworks/lerna-docker/master/install.sh`"
       - name: Build Docker images
@@ -282,10 +294,12 @@ jobs:
       - name: Load dependency cache
         uses: actions/cache@v4
         with:
-          path: '**/node_modules'
+          path: |
+            .yarn
+            **/node_modules
           key: yarn-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('yarn.lock') }}
       - name: Install dependencies and build monorepo
-        run: yarn install --frozen-lockfile --check-files
+        run: yarn install --frozen-lockfile --check-files --offline
       - name: Run benchmarks
         run: cd performance/benchmark-${{ matrix.benchmark }}/ && yarn run performance:ci
       - uses: actions/upload-artifact@v4
@@ -393,10 +407,12 @@ jobs:
       - name: Load dependency cache
         uses: actions/cache@v4
         with:
-          path: '**/node_modules'
+          path: |
+            .yarn
+            **/node_modules
           key: yarn-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('yarn.lock') }}
       - name: Install dependencies
-        run: yarn install --frozen-lockfile --check-files --ignore-scripts
+        run: yarn install --frozen-lockfile --check-files --offline --ignore-scripts
       - name: Build documentation
         run: yarn run doc
       - name: Prepare artifact
