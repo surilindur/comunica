@@ -32,7 +32,7 @@ jobs:
       - name: Load dependency cache
         uses: actions/cache@v4
         with:
-          path: ${{ github.workspace }}/**/node_modules
+          path: ./**/node_modules/**
           key: modules-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('yarn.lock') }}
       - name: Install dependencies
         run: yarn install --frozen-lockfile
@@ -72,7 +72,7 @@ jobs:
       - name: Load dependency cache
         uses: actions/cache@v4
         with:
-          path: ${{ github.workspace }}/**/node_modules
+          path: ./**/node_modules/**
           key: modules-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('yarn.lock') }}
       - name: Install dependencies and build
         run: yarn install --frozen-lockfile
@@ -113,7 +113,7 @@ jobs:
       - name: Load dependency cache
         uses: actions/cache@v4
         with:
-          path: ${{ github.workspace }}/**/node_modules
+          path: ./**/node_modules/**
           key: modules-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('yarn.lock') }}
       - name: Install dependencies and build
         run: yarn install --frozen-lockfile
@@ -121,8 +121,8 @@ jobs:
         uses: actions/cache@v4
         with:
           path: |
-            ${{ github.workspace }}/.rdf-test-suite-cache
-            ${{ github.workspace }}/.rdf-test-suite-ldf-cache
+            .rdf-test-suite-cache
+            .rdf-test-suite-ldf-cache
           key: rdftestsuite-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('yarn.lock') }}
       - name: Run specification tests
         run: yarn run test:spec
@@ -152,7 +152,7 @@ jobs:
       - name: Load dependency cache
         uses: actions/cache@v4
         with:
-          path: ${{ github.workspace }}/**/node_modules
+          path: ./**/node_modules/**
           key: modules-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('yarn.lock') }}
       - name: Install dependencies and build
         run: yarn install --frozen-lockfile
@@ -201,7 +201,7 @@ jobs:
       - name: Load dependency cache
         uses: actions/cache@v4
         with:
-          path: ${{ github.workspace }}/**/node_modules
+          path: ./**/node_modules/**
           key: modules-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('yarn.lock') }}
       - name: Install dependencies and build
         run: yarn install --frozen-lockfile
@@ -235,7 +235,7 @@ jobs:
       - name: Load dependency cache
         uses: actions/cache@v4
         with:
-          path: ${{ github.workspace }}/**/node_modules
+          path: ./**/node_modules/**
           key: modules-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('yarn.lock') }}
       - name: Install dependencies and build monorepo
         run: yarn install --frozen-lockfile
@@ -284,7 +284,7 @@ jobs:
       - name: Load dependency cache
         uses: actions/cache@v4
         with:
-          path: ${{ github.workspace }}/**/node_modules
+          path: ./**/node_modules/**
           key: modules-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('yarn.lock') }}
       - name: Install dependencies and build monorepo
         run: yarn install --frozen-lockfile
@@ -395,7 +395,7 @@ jobs:
       - name: Load dependency cache
         uses: actions/cache@v4
         with:
-          path: ${{ github.workspace }}/**/node_modules
+          path: ./**/node_modules/**
           key: modules-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('yarn.lock') }}
       - name: Install dependencies
         run: yarn install --ignore-scripts --frozen-lockfile
