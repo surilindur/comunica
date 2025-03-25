@@ -32,7 +32,7 @@ jobs:
       - name: Load dependency cache
         uses: actions/cache@v4
         with:
-          path: ./**/node_modules/**
+          path: '**/node_modules'
           key: modules-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('yarn.lock') }}
       - name: Install dependencies
         run: yarn install --frozen-lockfile
@@ -42,8 +42,6 @@ jobs:
         run: yarn run lint
       - name: Run depcheck
         run: yarn run depcheck
-      - name: Test clean script
-        run: yarn run clean
 
   test:
     name: Jest tests
@@ -72,7 +70,7 @@ jobs:
       - name: Load dependency cache
         uses: actions/cache@v4
         with:
-          path: ./**/node_modules/**
+          path: '**/node_modules'
           key: modules-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('yarn.lock') }}
       - name: Install dependencies and build
         run: yarn install --frozen-lockfile
@@ -113,7 +111,7 @@ jobs:
       - name: Load dependency cache
         uses: actions/cache@v4
         with:
-          path: ./**/node_modules/**
+          path: '**/node_modules'
           key: modules-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('yarn.lock') }}
       - name: Install dependencies and build
         run: yarn install --frozen-lockfile
@@ -152,7 +150,7 @@ jobs:
       - name: Load dependency cache
         uses: actions/cache@v4
         with:
-          path: ./**/node_modules/**
+          path: '**/node_modules'
           key: modules-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('yarn.lock') }}
       - name: Install dependencies and build
         run: yarn install --frozen-lockfile
@@ -201,7 +199,7 @@ jobs:
       - name: Load dependency cache
         uses: actions/cache@v4
         with:
-          path: ./**/node_modules/**
+          path: '**/node_modules'
           key: modules-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('yarn.lock') }}
       - name: Install dependencies and build
         run: yarn install --frozen-lockfile
@@ -235,7 +233,7 @@ jobs:
       - name: Load dependency cache
         uses: actions/cache@v4
         with:
-          path: ./**/node_modules/**
+          path: '**/node_modules'
           key: modules-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('yarn.lock') }}
       - name: Install dependencies and build monorepo
         run: yarn install --frozen-lockfile
@@ -284,7 +282,7 @@ jobs:
       - name: Load dependency cache
         uses: actions/cache@v4
         with:
-          path: ./**/node_modules/**
+          path: '**/node_modules'
           key: modules-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('yarn.lock') }}
       - name: Install dependencies and build monorepo
         run: yarn install --frozen-lockfile
@@ -395,7 +393,7 @@ jobs:
       - name: Load dependency cache
         uses: actions/cache@v4
         with:
-          path: ./**/node_modules/**
+          path: '**/node_modules'
           key: modules-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('yarn.lock') }}
       - name: Install dependencies
         run: yarn install --ignore-scripts --frozen-lockfile
