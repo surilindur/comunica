@@ -23,21 +23,18 @@ jobs:
     steps:
       - name: Ensure line endings are consistent
         run: git config --global core.autocrlf input
+      - name: Enable corepack
+        run: corepack enable
       - name: Check out repository
         uses: actions/checkout@v4
       - name: Use Node.js ${{ env.DEFAULT_NODE_VERSION }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.DEFAULT_NODE_VERSION }}
-      - name: Load dependency cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            .yarn
-            **/node_modules
-          key: yarn-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('yarn.lock') }}
+          cache: yarn
+          cache-dependency-path: yarn.lock
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
       - name: Build TypeScript with esModuleInterop flag
         run: yarn run build:ts --esModuleInterop true
       - name: Run linter
@@ -63,21 +60,18 @@ jobs:
     steps:
       - name: Ensure line endings are consistent
         run: git config --global core.autocrlf input
+      - name: Enable corepack
+        run: corepack enable
       - name: Check out repository
         uses: actions/checkout@v4
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-      - name: Load dependency cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            .yarn
-            **/node_modules
-          key: yarn-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('yarn.lock') }}
+          cache: yarn
+          cache-dependency-path: yarn.lock
       - name: Install dependencies and build
-        run: yarn install --frozen-lockfile --check-files --offline
+        run: yarn install --immutable --offline
       - name: Run tests
         run: yarn run test:ci
       - name: Submit coverage results
@@ -106,21 +100,18 @@ jobs:
     steps:
       - name: Ensure line endings are consistent
         run: git config --global core.autocrlf input
+      - name: Enable corepack
+        run: corepack enable
       - name: Check out repository
         uses: actions/checkout@v4
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-      - name: Load dependency cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            .yarn
-            **/node_modules
-          key: yarn-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('yarn.lock') }}
+          cache: yarn
+          cache-dependency-path: yarn.lock
       - name: Install dependencies and build
-        run: yarn install --frozen-lockfile --check-files --offline
+        run: yarn install --immutable --offline
       - name: Load RDF test suite cache
         uses: actions/cache@v4
         with:
@@ -147,21 +138,18 @@ jobs:
     steps:
       - name: Ensure line endings are consistent
         run: git config --global core.autocrlf input
+      - name: Enable corepack
+        run: corepack enable
       - name: Check out repository
         uses: actions/checkout@v4
       - name: Use Node.js ${{ env.DEFAULT_NODE_VERSION }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.DEFAULT_NODE_VERSION }}
-      - name: Load dependency cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            .yarn
-            **/node_modules
-          key: yarn-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('yarn.lock') }}
+          cache: yarn
+          cache-dependency-path: yarn.lock
       - name: Install dependencies and build
-        run: yarn install --frozen-lockfile --check-files --offline
+        run: yarn install --immutable --offline
       - name: Install ${{ matrix.browser }} via Playwright
         if: startsWith(matrix.browser, 'Webkit')
         # The @L will convert 'Webkit' into lowercase 'webkit' which is the name Playwright expects.
@@ -198,21 +186,18 @@ jobs:
     steps:
       - name: Ensure line endings are consistent
         run: git config --global core.autocrlf input
+      - name: Enable corepack
+        run: corepack enable
       - name: Check out repository
         uses: actions/checkout@v4
       - name: Use Node.js ${{ env.DEFAULT_NODE_VERSION }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.DEFAULT_NODE_VERSION }}
-      - name: Load dependency cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            .yarn
-            **/node_modules
-          key: yarn-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('yarn.lock') }}
+          cache: yarn
+          cache-dependency-path: yarn.lock
       - name: Install dependencies and build
-        run: yarn install --frozen-lockfile --check-files --offline
+        run: yarn install --immutable --offline
       - name: Build browser bundles
         run: yarn run build:browser
       - name: Deploy browser builds
@@ -234,21 +219,18 @@ jobs:
     steps:
       - name: Ensure line endings are consistent
         run: git config --global core.autocrlf input
+      - name: Enable corepack
+        run: corepack enable
       - name: Check out repository
         uses: actions/checkout@v4
       - name: Use Node.js ${{ env.DEFAULT_NODE_VERSION }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.DEFAULT_NODE_VERSION }}
-      - name: Load dependency cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            .yarn
-            **/node_modules
-          key: yarn-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('yarn.lock') }}
+          cache: yarn
+          cache-dependency-path: yarn.lock
       - name: Install dependencies and build monorepo
-        run: yarn install --frozen-lockfile --check-files --offline
+        run: yarn install --immutable --offline
       - name: Install Lerna Docker
         run: sh -c "`curl -fsSl https://raw.githubusercontent.com/rubensworks/lerna-docker/master/install.sh`"
       - name: Build Docker images
@@ -285,21 +267,18 @@ jobs:
     steps:
       - name: Ensure line endings are consistent
         run: git config --global core.autocrlf input
+      - name: Enable corepack
+        run: corepack enable
       - name: Check out repository
         uses: actions/checkout@v4
       - name: Use Node.js ${{ env.DEFAULT_NODE_VERSION }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.DEFAULT_NODE_VERSION }}
-      - name: Load dependency cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            .yarn
-            **/node_modules
-          key: yarn-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('yarn.lock') }}
+          cache: yarn
+          cache-dependency-path: yarn.lock
       - name: Install dependencies and build monorepo
-        run: yarn install --frozen-lockfile --check-files --offline
+        run: yarn install --immutable --offline
       - name: Run benchmarks
         run: cd performance/benchmark-${{ matrix.benchmark }}/ && yarn run performance:ci
       - uses: actions/upload-artifact@v4
@@ -320,12 +299,16 @@ jobs:
     steps:
       - name: Ensure line endings are consistent
         run: git config --global core.autocrlf input
+      - name: Enable corepack
+        run: corepack enable
       - name: Check out repository
         uses: actions/checkout@v4
       - name: Use Node.js ${{ env.DEFAULT_NODE_VERSION }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.DEFAULT_NODE_VERSION }}
+          cache: yarn
+          cache-dependency-path: yarn.lock
       - uses: actions/download-artifact@v4
         with:
           name: performance-benchmark-watdiv-file
@@ -398,21 +381,18 @@ jobs:
     steps:
       - name: Ensure line endings are consistent
         run: git config --global core.autocrlf input
+      - name: Enable corepack
+        run: corepack enable
       - name: Check out repository
         uses: actions/checkout@v4
       - name: Use Node.js ${{ env.DEFAULT_NODE_VERSION }}
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.DEFAULT_NODE_VERSION }}
-      - name: Load dependency cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            .yarn
-            **/node_modules
-          key: yarn-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('yarn.lock') }}
+          cache: yarn
+          cache-dependency-path: yarn.lock
       - name: Install dependencies
-        run: yarn install --frozen-lockfile --check-files --offline --ignore-scripts
+        run: yarn install --immutable --offline
       - name: Build documentation
         run: yarn run doc
       - name: Prepare artifact

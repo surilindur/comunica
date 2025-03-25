@@ -1,6 +1,6 @@
 {
   "private": true,
-  "packageManager": "yarn@1.22.22",
+  "packageManager": "yarn@4.7.0",
   "repository": "https://github.com/comunica/comunica/",
   "workspaces": [
     "engines/*",
@@ -89,11 +89,12 @@
     "ts-loader": "^9.0.0",
     "ts-node": "^10.0.0",
     "typedoc": "^0.28.0",
-    "typescript": "^5.3.3",
+    "typescript": "^5.0.0",
     "webpack": "^5.0.0",
     "webpack-cli": "^6.0.0"
   },
   "resolutions": {
-    "@rdfjs/types": "1.1.2"
+    "@rdfjs/types": "1.1.2",
+    "typescript": "5.4.4"
   }
 }
