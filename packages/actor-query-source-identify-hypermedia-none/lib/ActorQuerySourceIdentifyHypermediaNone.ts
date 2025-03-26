@@ -15,7 +15,7 @@ import { BindingsFactory } from '@comunica/utils-bindings-factory';
 import { storeStream } from 'rdf-store-stream';
 
 /**
- * A comunica None Query Source Identify Hypermedia Actor.
+ * Comunica hypermedia query source for basic RDF documents.
  */
 export class ActorQuerySourceIdentifyHypermediaNone extends ActorQuerySourceIdentifyHypermedia {
   public readonly mediatorMergeBindingsContext: MediatorMergeBindingsContext;

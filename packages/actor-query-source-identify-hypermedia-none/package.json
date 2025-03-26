@@ -1,7 +1,7 @@
 {
   "name": "@comunica/actor-query-source-identify-hypermedia-none",
   "version": "4.1.0",
-  "description": "A none query-source-identify-hypermedia actor",
+  "description": "Comunica hypermedia query source for basic RDF documents",
   "lsd:module": true,
   "license": "MIT",
   "funding": {

@@ -1,7 +1,7 @@
 {
   "name": "@comunica/actor-query-source-identify-hypermedia-qpf",
   "version": "4.1.0",
-  "description": "A qpf query-source-identify-hypermedia actor",
+  "description": "Comunica hypermedia query source for Quad Pattern Fragments endpoints",
   "lsd:module": true,
   "license": "MIT",
   "funding": {

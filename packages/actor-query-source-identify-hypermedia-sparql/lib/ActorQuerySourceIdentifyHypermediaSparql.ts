@@ -18,7 +18,7 @@ import { Factory } from 'sparqlalgebrajs';
 import { QuerySourceSparql } from './QuerySourceSparql';
 
 /**
- * A comunica SPARQL Query Source Identify Hypermedia Actor.
+ * Comunica hypermedia query source for SPARQL endpoints.
  */
 export class ActorQuerySourceIdentifyHypermediaSparql extends ActorQuerySourceIdentifyHypermedia {
   public readonly mediatorHttp: MediatorHttp;

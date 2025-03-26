@@ -1,7 +1,7 @@
 {
   "name": "@comunica/actor-query-source-identify-hypermedia-sparql",
   "version": "4.1.0",
-  "description": "A sparql query-source-identify-hypermedia actor",
+  "description": "Comunica hypermedia query source for SPARQL endpoints",
   "lsd:module": true,
   "license": "MIT",
   "funding": {

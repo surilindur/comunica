@@ -1,7 +1,7 @@
 {
   "name": "@comunica/actor-query-source-identify-rdfjs",
   "version": "4.1.0",
-  "description": "A rdfjs query-source-identify actor",
+  "description": "Comunica query source for RDF/JS Store objects",
   "lsd:module": true,
   "license": "MIT",
   "funding": {

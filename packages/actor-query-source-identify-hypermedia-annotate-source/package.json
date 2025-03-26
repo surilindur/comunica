@@ -1,7 +1,7 @@
 {
   "name": "@comunica/actor-query-source-identify-hypermedia-annotate-source",
   "version": "4.1.0",
-  "description": "A annotate-source query-source-identify-hypermedia actor",
+  "description": "Comunica hypermedia query source wrapper to add source annotations",
   "lsd:module": true,
   "license": "MIT",
   "funding": {

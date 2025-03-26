@@ -21,7 +21,7 @@ import { Factory } from 'sparqlalgebrajs';
 import { QuerySourceQpf } from './QuerySourceQpf';
 
 /**
- * A comunica QPF Query Source Identify Hypermedia Actor.
+ * Comunica hypermedia query source for Quad Pattern Fragments endpoints.
  */
 export class ActorQuerySourceIdentifyHypermediaQpf extends ActorQuerySourceIdentifyHypermedia
   implements IActorQuerySourceIdentifyHypermediaQpfArgs {

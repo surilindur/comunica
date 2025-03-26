@@ -1,7 +1,7 @@
 {
   "name": "@comunica/actor-query-source-identify-serialized",
   "version": "4.1.0",
-  "description": "A serialized query-source-identify actor",
+  "description": "Comunica query source for RDF string representations",
   "lsd:module": true,
   "license": "MIT",
   "funding": {

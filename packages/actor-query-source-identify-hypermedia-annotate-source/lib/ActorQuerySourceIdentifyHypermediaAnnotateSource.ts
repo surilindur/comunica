@@ -12,7 +12,7 @@ import { ActionContextKey, failTest, passTest } from '@comunica/core';
 import { QuerySourceAddSourceAttribution } from './QuerySourceAddSourceAttribution';
 
 /**
- * A comunica None Query Source Identify Hypermedia Actor.
+ * Comunica hypermedia query source wrapper to add source annotations.
  */
 export class ActorQuerySourceIdentifyHypermediaAnnotateSource extends ActorQuerySourceIdentifyHypermedia {
   public readonly mediatorMergeBindingsContext: MediatorMergeBindingsContext;

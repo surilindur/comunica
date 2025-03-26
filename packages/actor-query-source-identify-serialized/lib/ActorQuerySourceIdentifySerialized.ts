@@ -18,7 +18,7 @@ import { storeStream } from 'rdf-store-stream';
 import { Readable } from 'readable-stream';
 
 /**
- * A comunica Serialized Query Source Identify Actor.
+ * Comunica query source for RDF string representations.
  */
 export class ActorQuerySourceIdentifySerialized extends ActorQuerySourceIdentify {
   public readonly cacheSize: number;

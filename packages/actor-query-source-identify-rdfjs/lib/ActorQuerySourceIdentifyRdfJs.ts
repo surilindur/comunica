@@ -14,7 +14,7 @@ import type * as RDF from '@rdfjs/types';
 import { QuerySourceRdfJs } from './QuerySourceRdfJs';
 
 /**
- * A comunica RDFJS Query Source Identify Actor.
+ * Comunica query source for RDF/JS Store objects.
  */
 export class ActorQuerySourceIdentifyRdfJs extends ActorQuerySourceIdentify {
   public readonly mediatorMergeBindingsContext: MediatorMergeBindingsContext;
