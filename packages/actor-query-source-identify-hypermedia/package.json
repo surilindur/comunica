@@ -1,7 +1,7 @@
 {
   "name": "@comunica/actor-query-source-identify-hypermedia",
   "version": "4.1.0",
-  "description": "A hypermedia query-source-identify actor",
+  "description": "Comunica hypermedia query source",
   "lsd:module": true,
   "license": "MIT",
   "funding": {
