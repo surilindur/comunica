@@ -42,14 +42,12 @@ describe('ActorQueryResultSerializeStats', () => {
   });
 
   describe('An ActorQueryResultSerializeStats instance', () => {
-    let httpRequestCountObserver: { requests: number };
     let actor: ActorQueryResultSerializeStats;
     let bindingsStream: () => BindingsStream;
     let quadStream: () => RDF.Stream & AsyncIterator<RDF.Quad>;
     let streamError: Readable;
 
     beforeEach(() => {
-      httpRequestCountObserver = { requests: 0 };
       actor = new ActorQueryResultSerializeStats({
         bus,
         mediaTypePriorities: {
@@ -57,7 +55,6 @@ describe('ActorQueryResultSerializeStats', () => {
         },
         mediaTypeFormats: {},
         name: 'actor',
-        httpRequestCountObserver: <any>httpRequestCountObserver,
       });
 
       bindingsStream = () => new ArrayIterator<RDF.Bindings>([
@@ -136,17 +133,17 @@ describe('ActorQueryResultSerializeStats', () => {
           },
         )
         )).handle.data)).resolves.toBe(
-          `Result,Delay (ms),HTTP requests
-PLANNING,3.14,0
-1,3.14,0
-2,3.14,0
-TOTAL,3.14,0
+          `Result,Delay (ms)
+PLANNING,3.14
+1,3.14
+2,3.14
+TOTAL,3.14
 `,
         );
       });
 
-      it('should run on a bindings stream with http requests', async() => {
-        httpRequestCountObserver.requests += 2;
+      it('should run on a bindings stream with http request observer', async() => {
+        (<any>actor).httpRequestCountObserver = { requests: 2 };
         await expect(stringifyStream((<any> (await actor.run(
           {
             handle: <any> { type: 'bindings', bindingsStream: bindingsStream(), context },
@@ -168,11 +165,11 @@ TOTAL,3.14,2
         await expect(stringifyStream((<any> (await actor.run(
           { handle: <any> { type: 'quads', quadStream: quadStream(), context }, handleMediaType: 'debug', context },
         ))).handle.data)).resolves.toBe(
-          `Result,Delay (ms),HTTP requests
-PLANNING,3.14,0
-1,3.14,0
-2,3.14,0
-TOTAL,3.14,0
+          `Result,Delay (ms)
+PLANNING,3.14
+1,3.14
+2,3.14
+TOTAL,3.14
 `,
         );
       });

@@ -1,12 +1,12 @@
-import { ActionObserverHttpRequestCount } from '../lib/ActionObserverHttpRequestCount';
+import { ActionObserverHttpRequests } from '../lib/ActionObserverHttpRequests';
 
-describe('ActionObserverHttpRequestCount', () => {
-  let observer: ActionObserverHttpRequestCount;
+describe('ActionObserverHttpRequests', () => {
+  let observer: ActionObserverHttpRequests;
   let invalidateListeners: Function[];
 
   beforeEach(() => {
     invalidateListeners = [];
-    observer = new ActionObserverHttpRequestCount({
+    observer = new ActionObserverHttpRequests({
       actors: [ <any>'registered_actor' ],
       bus: <any>{ subscribeObserver: jest.fn() },
       httpInvalidator: <any>{ addInvalidateListener: (listener: Function) => invalidateListeners.push(listener) },

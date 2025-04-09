@@ -1,12 +1,12 @@
+import type { IActionHttp, ActorHttp, IActorHttpOutput } from '@comunica/bus-http';
 import type { ActorHttpInvalidateListenable } from '@comunica/bus-http-invalidate';
 import type { IActionObserverArgs } from '@comunica/core';
 import { ActionObserver } from '@comunica/core';
-import type { IActionHttp, ActorHttp, IActorHttpOutput } from './ActorHttp';
 
 /**
  * Action observer for the HTTP bus, that counts the number of outgoing HTTP requests being produced by the engine.
  */
-export class ActionObserverHttpRequestCount extends ActionObserver<IActionHttp, IActorHttpOutput> {
+export class ActionObserverHttpRequests extends ActionObserver<IActionHttp, IActorHttpOutput> {
   private readonly httpInvalidator: ActorHttpInvalidateListenable;
   private readonly actors: Set<ActorHttp>;
   private httpRequests: number;

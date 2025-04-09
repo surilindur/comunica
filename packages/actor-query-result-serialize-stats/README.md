@@ -27,13 +27,8 @@ After installing, this package can be added to your engine's configuration as fo
   "actors": [
     {
       "@id": "urn:comunica:default:query-result-serialize/actors#stats",
-      "@type": "ActorQueryResultSerializeStats",
-      "httpRequestCountObserver": { "@id": "urn:comunica:default:http/observers#http-request-count" }
+      "@type": "ActorQueryResultSerializeStats"
     }
   ]
 }
 ```
-
-### Config Parameters
-
-* `httpRequestCountObserver`: An observer on the HTTP bus that counts the number of outgoing requests done by the engine.

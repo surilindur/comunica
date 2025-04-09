@@ -26,8 +26,7 @@ After installing, this package can be added to your engine's configuration as fo
   "actors": [
     {
       "@id": "urn:comunica:default:query-result-serialize/actors#sparql-json",
-      "@type": "ActorQueryResultSerializeSparqlJson",
-      "httpRequestCountObserver": { "@id": "urn:comunica:default:http/observers#http-request-count" }
+      "@type": "ActorQueryResultSerializeSparqlJson"
     }
   ]
 }
@@ -36,4 +35,3 @@ After installing, this package can be added to your engine's configuration as fo
 ### Config Parameters
 
 * `emitMetadata`: If a metadata object should be appended to the query results. This contains information such as the number of HTTP requests required for executing the query. _(default: `true`)_
-* `httpRequestCountObserver`: An observer on the HTTP bus that counts the number of outgoing requests done by the engine.

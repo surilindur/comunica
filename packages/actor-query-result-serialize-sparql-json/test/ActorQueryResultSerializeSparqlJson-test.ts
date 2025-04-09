@@ -96,7 +96,6 @@ describe('ActorQueryResultSerializeSparqlJson', () => {
   });
 
   describe('An ActorQueryResultSerializeSparqlJson instance', () => {
-    let httpRequestCountObserver: { requests: number };
     let actor: ActorQueryResultSerializeSparqlJson;
     let bindingsStream: () => BindingsStream;
     let bindingsStreamPartial: () => BindingsStream;
@@ -107,7 +106,6 @@ describe('ActorQueryResultSerializeSparqlJson', () => {
     let metadata: MetadataBindings;
 
     beforeEach(() => {
-      httpRequestCountObserver = { requests: 0 };
       actor = new ActorQueryResultSerializeSparqlJson({
         bus,
         mediaTypePriorities: {
@@ -116,7 +114,6 @@ describe('ActorQueryResultSerializeSparqlJson', () => {
         mediaTypeFormats: {},
         name: 'actor',
         emitMetadata: true,
-        httpRequestCountObserver: <any>httpRequestCountObserver,
       });
       bindingsStream = () => new ArrayIterator<RDF.Bindings>([
         BF.bindings([
@@ -225,14 +222,13 @@ describe('ActorQueryResultSerializeSparqlJson', () => {
 "results": { "bindings": [
 {"k1":{"value":"v1","type":"uri"}},
 {"k2":{"value":"v2","type":"uri"}}
-]},
-"metadata": { "httpRequests": 0 }}
+]}}
 `,
         );
       });
 
       it('should run on a bindings stream with http requests', async() => {
-        httpRequestCountObserver.requests += 2;
+        (<any>actor).httpRequestCountObserver = { requests: 2 };
         await expect(stringifyStream((<any> (await actor.run(
           {
             context,
@@ -259,7 +255,7 @@ describe('ActorQueryResultSerializeSparqlJson', () => {
           mediaTypeFormats: {},
           name: 'actor',
           emitMetadata: false,
-          httpRequestCountObserver: <any>httpRequestCountObserver,
+          httpRequestCountObserver: <any>{ requests: 2 },
         });
         await expect(stringifyStream((<any> (await actor.run(
           {
@@ -289,8 +285,7 @@ describe('ActorQueryResultSerializeSparqlJson', () => {
 "results": { "bindings": [
 {"k1":{"value":"v1","type":"uri"}},
 {"k2":{"value":"v2","type":"uri"}}
-]},
-"metadata": { "httpRequests": 0 }}
+]}}
 `,
         );
       });
@@ -308,8 +303,7 @@ describe('ActorQueryResultSerializeSparqlJson', () => {
 {"k1":{"value":"v1","type":"uri"}},
 {"k2":{"value":"v2","type":"uri"}},
 {}
-]},
-"metadata": { "httpRequests": 0 }}
+]}}
 `,
         );
       });
@@ -326,8 +320,7 @@ describe('ActorQueryResultSerializeSparqlJson', () => {
         `{"head": {"vars":["k1","k2"]},
 "results": { "bindings": [
 
-]},
-"metadata": { "httpRequests": 0 }}
+]}}
 `,
       );
     });
@@ -354,8 +347,7 @@ describe('ActorQueryResultSerializeSparqlJson', () => {
 "results": { "bindings": [
 {"k1":{"value":{"subject":{"value":"s1","type":"uri"},"predicate":{"value":"p1","type":"uri"},"object":{"value":"o1","type":"uri"}},"type":"triple"}},
 {"k2":{"value":{"subject":{"value":"s2","type":"uri"},"predicate":{"value":"p2","type":"uri"},"object":{"value":"o2","type":"uri"}},"type":"triple"}}
-]},
-"metadata": { "httpRequests": 0 }}
+]}}
 `,
       );
     });

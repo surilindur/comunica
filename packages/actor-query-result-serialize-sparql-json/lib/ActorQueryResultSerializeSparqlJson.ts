@@ -1,4 +1,3 @@
-import type { ActionObserverHttpRequestCount } from '@comunica/bus-http';
 import type {
   IActionSparqlSerialize,
   IActorQueryResultSerializeFixedMediaTypesArgs,
@@ -7,6 +6,7 @@ import type {
 import { ActorQueryResultSerializeFixedMediaTypes } from '@comunica/bus-query-result-serialize';
 import type { TestResult } from '@comunica/core';
 import { failTest, passTestVoid } from '@comunica/core';
+import type { ActionObserverHttpRequests } from '@comunica/observer-http-requests';
 import type {
   IActionContext,
   IQueryOperationResultBindings,
@@ -21,7 +21,7 @@ import { Readable } from 'readable-stream';
  */
 export class ActorQueryResultSerializeSparqlJson extends ActorQueryResultSerializeFixedMediaTypes {
   private readonly emitMetadata: boolean;
-  private readonly httpRequestCountObserver: ActionObserverHttpRequestCount;
+  private readonly httpRequestCountObserver: ActionObserverHttpRequests | undefined;
 
   /**
    * @param args -
@@ -112,7 +112,12 @@ export class ActorQueryResultSerializeSparqlJson extends ActorQueryResultSeriali
           .map(([ key, value ]) => [ key.value, ActorQueryResultSerializeSparqlJson.bindingToJsonBindings(value) ])))}`;
           first = false;
           return res;
-        }).append(wrap(end(() => `\n]}${this.emitMetadata ? `,\n"metadata": { "httpRequests": ${this.httpRequestCountObserver.requests} }` : ''}}\n`))),
+        }).append(wrap(end(() => {
+          const metadata = this.emitMetadata && this.httpRequestCountObserver ?
+            `,\n"metadata": { "httpRequests": ${this.httpRequestCountObserver.requests} }` :
+            '';
+          return `\n]}${metadata}}\n`;
+        }))),
       );
     } else {
       data.wrap(<any> wrap((<IQueryOperationResultBoolean> action).execute().then(value => [ `"boolean":${value}\n}\n` ])));
@@ -129,7 +134,8 @@ export interface IActorQueryResultSerializeSparqlJsonArgs extends IActorQueryRes
    */
   emitMetadata: boolean;
   /**
-   * An observer on the HTTP bus that counts the number of HTTP requests.
+   * Optional observer on the HTTP bus that counts the number of HTTP requests done by the engine.
+   * This request count will then be reported in the metadata field of the results.
    */
-  httpRequestCountObserver: ActionObserverHttpRequestCount;
+  httpRequestCountObserver?: ActionObserverHttpRequests;
 }
