@@ -19,18 +19,21 @@ $ yarn add @comunica/actor-query-result-serialize-stats
 ## Configure
 
 After installing, this package can be added to your engine's configuration as follows:
-```text
+```json
 {
   "@context": [
-    ...
     "https://linkedsoftwaredependencies.org/bundles/npm/@comunica/actor-query-result-serialize-stats/^4.0.0/components/context.jsonld"
   ],
   "actors": [
-    ...
     {
       "@id": "urn:comunica:default:query-result-serialize/actors#stats",
-      "@type": "ActorQueryResultSerializeStats"
+      "@type": "ActorQueryResultSerializeStats",
+      "httpRequestCountObserver": { "@id": "urn:comunica:default:http/observers#http-request-count" }
     }
   ]
 }
 ```
+
+### Config Parameters
+
+* `httpRequestCountObserver`: An observer on the HTTP bus that counts the number of outgoing requests done by the engine.

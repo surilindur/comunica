@@ -1,3 +1,4 @@
+import type { ActionObserverHttpRequestCount } from '@comunica/bus-http';
 import type {
   IActionSparqlSerialize,
   IActorQueryResultSerializeFixedMediaTypesArgs,
@@ -14,16 +15,14 @@ import type {
 import type * as RDF from '@rdfjs/types';
 import { wrap } from 'asynciterator';
 import { Readable } from 'readable-stream';
-import type { ActionObserverHttp } from './ActionObserverHttp';
 
 /**
  * A comunica sparql-results+xml Serialize Actor.
  */
 export class ActorQueryResultSerializeSparqlJson extends ActorQueryResultSerializeFixedMediaTypes {
   private readonly emitMetadata: boolean;
-  public readonly httpObserver: ActionObserverHttp;
+  private readonly httpRequestCountObserver: ActionObserverHttpRequestCount;
 
-  /* eslint-disable max-len */
   /**
    * @param args -
    *   \ @defaultNested {{
@@ -32,13 +31,12 @@ export class ActorQueryResultSerializeSparqlJson extends ActorQueryResultSeriali
    *   \ @defaultNested {{
    *       "application/sparql-results+json": "http://www.w3.org/ns/formats/SPARQL_Results_JSON"
    *     }} mediaTypeFormats
-   *   \ @defaultNested {true} emitMetadata
-   *   \ @defaultNested {<default_observer> a <caqrssj:components/ActionObserverHttp.jsonld#ActionObserverHttp>} httpObserver
    */
   public constructor(args: IActorQueryResultSerializeSparqlJsonArgs) {
     super(args);
+    this.emitMetadata = args.emitMetadata;
+    this.httpRequestCountObserver = args.httpRequestCountObserver;
   }
-  /* eslint-enable max-len */
 
   /**
    * Converts an RDF term to its JSON representation.
@@ -114,7 +112,7 @@ export class ActorQueryResultSerializeSparqlJson extends ActorQueryResultSeriali
           .map(([ key, value ]) => [ key.value, ActorQueryResultSerializeSparqlJson.bindingToJsonBindings(value) ])))}`;
           first = false;
           return res;
-        }).append(wrap(end(() => `\n]}${this.emitMetadata ? `,\n"metadata": { "httpRequests": ${this.httpObserver.requests} }` : ''}}\n`))),
+        }).append(wrap(end(() => `\n]}${this.emitMetadata ? `,\n"metadata": { "httpRequests": ${this.httpRequestCountObserver.requests} }` : ''}}\n`))),
       );
     } else {
       data.wrap(<any> wrap((<IQueryOperationResultBoolean> action).execute().then(value => [ `"boolean":${value}\n}\n` ])));
@@ -125,6 +123,13 @@ export class ActorQueryResultSerializeSparqlJson extends ActorQueryResultSeriali
 }
 
 export interface IActorQueryResultSerializeSparqlJsonArgs extends IActorQueryResultSerializeFixedMediaTypesArgs {
+  /**
+   * Whether the serialized JSON output should contain an additional metadata entry.
+   * @default {true}
+   */
   emitMetadata: boolean;
-  httpObserver: ActionObserverHttp;
+  /**
+   * An observer on the HTTP bus that counts the number of HTTP requests.
+   */
+  httpRequestCountObserver: ActionObserverHttpRequestCount;
 }

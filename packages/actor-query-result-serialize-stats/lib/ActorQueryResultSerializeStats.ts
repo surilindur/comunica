@@ -1,3 +1,4 @@
+import type { ActionObserverHttpRequestCount } from '@comunica/bus-http';
 import type {
   IActionSparqlSerialize,
   IActorQueryResultSerializeFixedMediaTypesArgs,
@@ -14,25 +15,22 @@ import type {
 } from '@comunica/types';
 import { wrap } from 'asynciterator';
 import { Readable } from 'readable-stream';
-import type { ActionObserverHttp } from './ActionObserverHttp';
 
 /**
  * Serializes SPARQL results for testing and debugging.
  */
 export class ActorQueryResultSerializeStats extends ActorQueryResultSerializeFixedMediaTypes {
-  public readonly httpObserver: ActionObserverHttp;
+  public readonly httpRequestCountObserver: ActionObserverHttpRequestCount;
 
-  /* eslint-disable max-len */
   /**
    * @param args -
    *   \ @defaultNested {{ "stats": 0.5 }} mediaTypePriorities
    *   \ @defaultNested {{ "stats": "https://comunica.linkeddatafragments.org/#results_stats" }} mediaTypeFormats
-   *   \ @defaultNested {<default_observer> a <caqrsst:components/ActionObserverHttp.jsonld#ActionObserverHttp>} httpObserver
    */
   public constructor(args: IActorQueryResultSerializeStatsArgs) {
     super(args);
+    this.httpRequestCountObserver = args.httpRequestCountObserver;
   }
-  /* eslint-enable max-len */
 
   public override async testHandleChecked(
     action: IActionSparqlSerialize,
@@ -51,13 +49,13 @@ export class ActorQueryResultSerializeStats extends ActorQueryResultSerializeFix
   }
 
   public createStat(startTime: number, result: number): string {
-    const row: string = [ result, this.delay(startTime), this.httpObserver.requests,
+    const row: string = [ result, this.delay(startTime), this.httpRequestCountObserver.requests,
     ].join(',');
     return `${row}\n`;
   }
 
   public createSpecialLine(label: string, startTime: number): string {
-    const line: string = [ label, this.delay(startTime), this.httpObserver.requests,
+    const line: string = [ label, this.delay(startTime), this.httpRequestCountObserver.requests,
     ].join(',');
     return `${line}\n`;
   }
@@ -97,5 +95,8 @@ export class ActorQueryResultSerializeStats extends ActorQueryResultSerializeFix
 }
 
 export interface IActorQueryResultSerializeStatsArgs extends IActorQueryResultSerializeFixedMediaTypesArgs {
-  httpObserver: ActionObserverHttp;
+  /**
+   * An observer on the HTTP bus that counts the number of HTTP requests.
+   */
+  httpRequestCountObserver: ActionObserverHttpRequestCount;
 }

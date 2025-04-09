@@ -1,5 +1,4 @@
 import { PassThrough } from 'node:stream';
-import type { ActorHttpInvalidateListenable, IInvalidateListener } from '@comunica/bus-http-invalidate';
 import { ActionContext, Bus } from '@comunica/core';
 import type { BindingsStream, IActionContext, MetadataBindings } from '@comunica/types';
 import { BindingsFactory } from '@comunica/utils-bindings-factory';
@@ -8,7 +7,7 @@ import type * as RDF from '@rdfjs/types';
 import type { AsyncIterator } from 'asynciterator';
 import { ArrayIterator } from 'asynciterator';
 import { DataFactory } from 'rdf-data-factory';
-import { ActionObserverHttp, ActorQueryResultSerializeSparqlJson } from '..';
+import { ActorQueryResultSerializeSparqlJson } from '../lib/ActorQueryResultSerializeSparqlJson';
 import '@comunica/utils-jest';
 
 const DF = new DataFactory();
@@ -97,7 +96,7 @@ describe('ActorQueryResultSerializeSparqlJson', () => {
   });
 
   describe('An ActorQueryResultSerializeSparqlJson instance', () => {
-    let httpObserver: ActionObserverHttp;
+    let httpRequestCountObserver: { requests: number };
     let actor: ActorQueryResultSerializeSparqlJson;
     let bindingsStream: () => BindingsStream;
     let bindingsStreamPartial: () => BindingsStream;
@@ -106,20 +105,9 @@ describe('ActorQueryResultSerializeSparqlJson', () => {
     let bindingsStreamQuoted: () => BindingsStream;
     let quadStream: () => RDF.Stream & AsyncIterator<RDF.Quad>;
     let metadata: MetadataBindings;
-    let httpInvalidator: ActorHttpInvalidateListenable;
-    let lastListener: IInvalidateListener;
 
     beforeEach(() => {
-      httpInvalidator = <any> {
-        addInvalidateListener: jest.fn((listener: IInvalidateListener) => {
-          lastListener = listener;
-        }),
-      };
-      httpObserver = new ActionObserverHttp({
-        name: 'observer',
-        bus,
-        httpInvalidator,
-      });
+      httpRequestCountObserver = { requests: 0 };
       actor = new ActorQueryResultSerializeSparqlJson({
         bus,
         mediaTypePriorities: {
@@ -128,7 +116,7 @@ describe('ActorQueryResultSerializeSparqlJson', () => {
         mediaTypeFormats: {},
         name: 'actor',
         emitMetadata: true,
-        httpObserver,
+        httpRequestCountObserver: <any>httpRequestCountObserver,
       });
       bindingsStream = () => new ArrayIterator<RDF.Bindings>([
         BF.bindings([
@@ -244,31 +232,7 @@ describe('ActorQueryResultSerializeSparqlJson', () => {
       });
 
       it('should run on a bindings stream with http requests', async() => {
-        (<any> httpObserver).onRun(null, null, null);
-        (<any> httpObserver).onRun(null, null, null);
-        await expect(stringifyStream((<any> (await actor.run(
-          {
-            context,
-            handle: <any> { bindingsStream: bindingsStream(), type: 'bindings', metadata: async() => metadata },
-            handleMediaType: 'json',
-          },
-        ))).handle.data)).resolves.toBe(
-          `{"head": {"vars":["k1","k2"]},
-"results": { "bindings": [
-{"k1":{"value":"v1","type":"uri"}},
-{"k2":{"value":"v2","type":"uri"}}
-]},
-"metadata": { "httpRequests": 2 }}
-`,
-        );
-      });
-
-      it('should run on a bindings stream with http requests and cache invalidations', async() => {
-        (<any> httpObserver).onRun(null, null, null);
-        (<any> httpObserver).onRun(null, null, null);
-        lastListener(<any> {});
-        (<any> httpObserver).onRun(null, null, null);
-        (<any> httpObserver).onRun(null, null, null);
+        httpRequestCountObserver.requests += 2;
         await expect(stringifyStream((<any> (await actor.run(
           {
             context,
@@ -295,7 +259,7 @@ describe('ActorQueryResultSerializeSparqlJson', () => {
           mediaTypeFormats: {},
           name: 'actor',
           emitMetadata: false,
-          httpObserver,
+          httpRequestCountObserver: <any>httpRequestCountObserver,
         });
         await expect(stringifyStream((<any> (await actor.run(
           {

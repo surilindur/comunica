@@ -1,0 +1,16 @@
+{
+  "@context": [
+    "https://linkedsoftwaredependencies.org/bundles/npm/@comunica/bus-http/^4.0.0/components/context.jsonld"
+  ],
+  "@graph": [
+    {
+      "@id": "urn:comunica:default:http/observers#http-request-count",
+      "@type": "ActionObserverHttpRequestCount",
+      "bus": { "@id": "ActorHttp:_default_bus" },
+      "httpInvalidator": { "@id": "urn:comunica:default:http-invalidate/actors#default" },
+      "actors": [
+        { "@id": "urn:comunica:default:http/actors#fetch" }
+      ]
+    }
+  ]
+}
