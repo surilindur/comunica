@@ -3,6 +3,7 @@ node_modules
 .rdf-test-suite-cache
 .rdf-test-suite-ldf-cache
 .idea
+.venv
 .vscode
 .yarn
 lerna-debug.log

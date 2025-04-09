@@ -1,0 +1,2 @@
+[33m[2025-04-09T21:35:45.165Z]  WARN: Metadata extraction for https://semantic.eea.europa.eu/sparql failed: fetch failed { actor: 'urn:comunica:default:query-source-identify/actors#hypermedia' }
+[0mfetch failed

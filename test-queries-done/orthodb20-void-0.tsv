@@ -1,0 +1,2 @@
+[33m[2025-04-09T18:44:44.689Z]  WARN: Metadata extraction for https://sparql.orthodb.org/sparql failed: fetch failed { actor: 'urn:comunica:default:query-source-identify/actors#hypermedia' }
+[0mfetch failed
