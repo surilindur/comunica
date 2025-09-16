@@ -38,6 +38,7 @@ export class QuerySourceSparql implements IQuerySource {
   private readonly cardinalityEstimateConstruction: boolean;
   private readonly defaultGraph?: string;
   private readonly unionDefaultGraph: boolean;
+  private readonly propertyFeatures?: Set<string>;
   private readonly datasets?: IDataset[];
   public readonly extensionFunctions?: string[];
   private readonly dataFactory: ComunicaDataFactory;
@@ -63,11 +64,7 @@ export class QuerySourceSparql implements IQuerySource {
     cardinalityCountQueries: boolean,
     cardinalityEstimateConstruction: boolean,
     forceGetIfUrlLengthBelow: number,
-    defaultGraph?: string,
-    unionDefaultGraph?: boolean,
-    datasets?: IDataset[],
-    extensionFunctions?: string[],
-    postAccepted?: string[],
+    metadata: Record<string, any>,
   ) {
     this.referenceValue = url;
     this.url = url;
@@ -85,7 +82,7 @@ export class QuerySourceSparql implements IQuerySource {
       prefixVariableQuestionMark: true,
       dataFactory,
       forceGetIfUrlLengthBelow,
-      directPost: postAccepted && !postAccepted.includes('application/x-www-form-urlencoded'),
+      directPost: metadata.postAccepted && !metadata.postAccepted.includes('application/x-www-form-urlencoded'),
     });
     this.cache = cacheSize > 0 ?
       new LRUCache<string, QueryResultCardinality>({ max: cacheSize }) :
@@ -93,10 +90,11 @@ export class QuerySourceSparql implements IQuerySource {
     this.countTimeout = countTimeout;
     this.cardinalityCountQueries = cardinalityCountQueries;
     this.cardinalityEstimateConstruction = cardinalityEstimateConstruction;
-    this.defaultGraph = defaultGraph;
-    this.unionDefaultGraph = unionDefaultGraph ?? false;
-    this.datasets = datasets;
-    this.extensionFunctions = extensionFunctions;
+    this.defaultGraph = metadata.defaultGraph;
+    this.unionDefaultGraph = metadata.unionDefaultGraph ?? false;
+    this.datasets = metadata.datasets;
+    this.extensionFunctions = metadata.extensionFunctions;
+    this.propertyFeatures = metadata.propertyFeatures ? new Set(metadata.propertyFeatures) : undefined;
   }
 
   public async getSelectorShape(): Promise<FragmentSelectorShape> {
@@ -190,6 +188,12 @@ export class QuerySourceSparql implements IQuerySource {
   }
 
   public queryBoolean(operation: Algebra.Ask, context: IActionContext): Promise<boolean> {
+    // Shortcut the ASK query to return true when supported propertyFeature predicates are used in it.
+    const fullQuery = context.getSafe(KeysInitQuery.query);
+    if (this.operationUsesPropertyFeatures(fullQuery, operation)) {
+      return Promise.resolve(true);
+    }
+    // Without propertyFeature overlap, perform the actual ASK query.
     this.lastSourceContext = this.context.merge(context);
     const query: string = context.get(KeysInitQuery.queryString) ?? QuerySourceSparql.operationToQuery(operation);
     const promise = this.endpointFetcher.fetchAsk(this.url, query);
@@ -218,21 +222,23 @@ export class QuerySourceSparql implements IQuerySource {
         const operation = await operationPromise;
         const variablesScoped = Util.inScopeVariables(operation);
         const countQuery = this.operationToNormalizedCountQuery(operation);
-        const undefVariables = QuerySourceSparql.getOperationUndefs(operation);
-        variablesCount = variablesScoped.map(variable => ({
-          variable,
-          canBeUndef: undefVariables.some(undefVariable => undefVariable.equals(variable)),
-        }));
 
         const cachedCardinality = this.cache?.get(countQuery);
         if (cachedCardinality) {
           return resolve(cachedCardinality);
         }
 
+        const undefVariables = QuerySourceSparql.getOperationUndefs(operation);
+        variablesCount = variablesScoped.map(variable => ({
+          variable,
+          canBeUndef: undefVariables.some(undefVariable => undefVariable.equals(variable)),
+        }));
+
         // Attempt to estimate locally prior to sending a COUNT request, as this should be much faster.
         // The estimates may be off by varying amounts, so this is set behind a configuration flag.
         if (this.cardinalityEstimateConstruction) {
-          const localEstimate = await this.estimateOperationCardinality(operation);
+          const fullQuery = context.getSafe(KeysInitQuery.query);
+          const localEstimate = await this.estimateOperationCardinality(fullQuery, operation);
           if (Number.isFinite(localEstimate.value)) {
             this.cache?.set(countQuery, localEstimate);
             return resolve(localEstimate);
@@ -252,43 +258,42 @@ export class QuerySourceSparql implements IQuerySource {
         const varCount = this.dataFactory.variable('count');
         const bindingsStream: BindingsStream = await this
           .queryBindingsRemote(this.url, countQuery, [ varCount ], context, []);
-        bindingsStream.on('data', (bindings: Bindings) => {
-          clearTimeout(timeoutHandler);
-          const count = bindings.get(varCount);
-          const cardinality: QueryResultCardinality = {
-            type: 'estimate',
-            value: Number.POSITIVE_INFINITY,
-            dataset: this.url,
-          };
-          if (count) {
-            const cardinalityValue: number = Number.parseInt(count.value, 10);
-            if (!Number.isNaN(cardinalityValue)) {
-              cardinality.type = 'exact';
-              cardinality.value = cardinalityValue;
-              this.cache?.set(countQuery, cardinality);
+        bindingsStream
+          .on('data', (bindings: Bindings) => {
+            clearTimeout(timeoutHandler);
+            const count = bindings.get(varCount);
+            const cardinality: QueryResultCardinality = {
+              type: 'estimate',
+              value: Number.POSITIVE_INFINITY,
+              dataset: this.url,
+            };
+            if (count) {
+              const cardinalityValue: number = Number.parseInt(count.value, 10);
+              if (!Number.isNaN(cardinalityValue)) {
+                cardinality.type = 'exact';
+                cardinality.value = cardinalityValue;
+                this.cache?.set(countQuery, cardinality);
+              }
             }
-          }
-          return resolve(cardinality);
-        });
-        bindingsStream.on('error', () => {
-          clearTimeout(timeoutHandler);
-          resolve({ type: 'estimate', value: Number.POSITIVE_INFINITY, dataset: this.url });
-        });
-        bindingsStream.on('end', () => {
-          clearTimeout(timeoutHandler);
-          resolve({ type: 'estimate', value: Number.POSITIVE_INFINITY, dataset: this.url });
-        });
+            return resolve(cardinality);
+          })
+          .on('error', () => {
+            clearTimeout(timeoutHandler);
+            resolve({ type: 'estimate', value: Number.POSITIVE_INFINITY, dataset: this.url });
+          })
+          .on('end', () => {
+            clearTimeout(timeoutHandler);
+            resolve({ type: 'estimate', value: Number.POSITIVE_INFINITY, dataset: this.url });
+          });
       } catch (error: unknown) {
-        return reject(error);
+        reject(error);
       }
     })
-      .then((cardinality) => {
-        target.setProperty('metadata', {
-          state: new MetadataValidationState(),
-          cardinality,
-          variables: variablesCount,
-        });
-      })
+      .then(cardinality => target.setProperty('metadata', {
+        state: new MetadataValidationState(),
+        cardinality,
+        variables: variablesCount,
+      }))
       .catch(() => target.setProperty('metadata', {
         state: new MetadataValidationState(),
         cardinality: { type: 'estimate', value: Number.POSITIVE_INFINITY, dataset: this.url },
@@ -321,9 +326,17 @@ export class QuerySourceSparql implements IQuerySource {
   /**
    * Performs local cardinality estimation for the specified SPARQL algebra operation, which should
    * result in better estimation performance at the expense of accuracy.
+   * @param {Algebra.Operation} query The original full query.
    * @param {Algebra.Operation} operation A query operation.
    */
-  public async estimateOperationCardinality(operation: Algebra.Operation): Promise<QueryResultCardinality> {
+  public async estimateOperationCardinality(
+    query: Algebra.Operation,
+    operation: Algebra.Operation,
+  ): Promise<QueryResultCardinality> {
+    if (this.operationUsesPropertyFeatures(query, operation)) {
+      return { type: 'estimate', value: 1, dataset: this.url };
+    }
+
     const dataset: IDataset = {
       getCardinality: (operation: Algebra.Operation): QueryResultCardinality | undefined => {
         const queryString = this.operationToNormalizedCountQuery(operation);
@@ -352,6 +365,37 @@ export class QuerySourceSparql implements IQuerySource {
     };
 
     return estimateCardinality(operation, dataset);
+  }
+
+  /**
+   * Checks whether the provided operation makes use of this endpoint's property features,
+   * if the endpoint has property features detected.
+   * @param {Algebra.Operation} query The full query being executed.
+   * @param {Algebra.Operation} operation The operation to check.
+   * @returns {boolean} Whether the operation makes use of property features.
+   */
+  public operationUsesPropertyFeatures(query: Algebra.Operation, operation: Algebra.Operation): boolean {
+    if (this.propertyFeatures) {
+      // Collect all the variables associated with propertyFeatures from the full query
+      const propertyFeatureVariables = new Set<string>();
+      Util.recurseOperation(query, {
+        [Algebra.types.PATTERN]: (op) => {
+          if (op.predicate.termType === 'NamedNode' && this.propertyFeatures!.has(op.predicate.value)) {
+            if (op.subject.termType === 'Variable') {
+              propertyFeatureVariables.add(op.subject.value);
+            }
+            if (op.object.termType === 'Variable') {
+              propertyFeatureVariables.add(op.object.value);
+            }
+          }
+          return false;
+        },
+      });
+      // Check for overlap between current operation and the propertyFeature variables
+      return Util.inScopeVariables(operation).some(ov => propertyFeatureVariables.has(ov.value));
+    }
+    // Default to false in absence of propertyFeatures
+    return false;
   }
 
   /**
@@ -498,10 +542,7 @@ export class QuerySourceSparql implements IQuerySource {
     undefVariables: RDF.Variable[],
   ): Promise<BindingsStream> {
     // Index undef variables
-    const undefVariablesIndex: Set<string> = new Set();
-    for (const undefVariable of undefVariables) {
-      undefVariablesIndex.add(undefVariable.value);
-    }
+    const undefVariablesSet = new Set(undefVariables.map(v => v.value));
 
     this.lastSourceContext = this.context.merge(context);
     const rawStream = await this.endpointFetcher.fetchBindings(endpoint, query);
@@ -511,7 +552,7 @@ export class QuerySourceSparql implements IQuerySource {
       .map<RDF.Bindings>((rawData: Record<string, RDF.Term>) => this.bindingsFactory.bindings(variables
         .map((variable) => {
           const value = rawData[`?${variable.value}`];
-          if (!undefVariablesIndex.has(variable.value) && !value) {
+          if (!undefVariablesSet.has(variable.value) && !value) {
             Actor.getContextLogger(this.context)?.warn(`The endpoint ${endpoint} failed to provide a binding for ${variable.value}.`);
           }
           return <[RDF.Variable, RDF.Term]>[ variable, value ];
