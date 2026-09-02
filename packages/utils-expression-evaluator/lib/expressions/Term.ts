@@ -206,23 +206,43 @@ export class DecimalLiteral extends NumericLiteral {
     super(typedValue, dataType ?? TypeURL.XSD_DECIMAL, strValue, language);
   }
 
+  /**
+   * Converts decimals to strings while avoiding exponentials.
+   * The lexical form of xsd:decimal does not include NaN or INF,
+   * however they are included here to bring it in line with
+   * xsd:decimal and xsd:float behaviour, because otherwise it will
+   * fall back to JavaScript output, which does not follow any relevant spec.
+   *
+   * Example conversions:
+   * ```
+   * 0.0  =        0.00000000000000000000 = 0
+   * 1.0  =        1.00000000000000000000 = 1
+   * 1e-7 =        0.00000010000000000000 = 0.0000001
+   * 1e7  = 10000000.00000000000000000000 = 10000000
+   * ```
+   */
   protected specificFormatter(val: number): string {
-    return val.toString();
-  }
-}
+    if (!Number.isFinite(val)) {
+      if (val > 0) {
+        return 'INF';
+      }
+      if (val < 0) {
+        return '-INF';
+      }
+      return 'NaN';
+    }
 
-export class FloatLiteral extends NumericLiteral {
-  public constructor(
-    public override typedValue: number,
-    dataType?: string,
-    public override strValue?: string,
-    public override language?: string,
-  ) {
-    super(typedValue, dataType ?? TypeURL.XSD_FLOAT, strValue, language);
-  }
+    const stringValue = val.toString();
 
-  protected specificFormatter(val: number): string {
-    return val.toString();
+    // Only return the direct string coversion if it is in decimal form
+    if (/^[.0-9]+$/u.test(stringValue)) {
+      return stringValue;
+    }
+
+    // Otherwise, fall back to a default decimal representation,
+    // starting from the longest possible value, and them stripping
+    // trailing zeroes, and finally any trailing decimal dots.
+    return val.toFixed(20).replace(/0+$/u, '').replace(/\.$/u, '');
   }
 }
 
@@ -248,18 +268,28 @@ export class DoubleLiteral extends NumericLiteral {
     }
 
     const jsExponential = val.toExponential();
-    const [ jsMantisse, jsExponent ] = jsExponential.split('e');
+    const [ jsMantissa, jsExponent ] = jsExponential.split('e');
 
     // Leading + must be removed for integer
     // https://www.w3.org/TR/xmlschema-2/#integer
     const exponent = jsExponent.replace(/\+/u, '');
 
-    // SPARQL test suite prefers trailing zero's
-    const mantisse = jsMantisse.includes('.') ?
-      jsMantisse :
-      `${jsMantisse}.0`;
+    // Mantissa must be formatted as xsd:decimal with at least one decimal place:
+    // https://www.w3.org/TR/xpath-functions/#casting-to-string
+    const mantissa = jsMantissa.replace(/^([0-9]+)$/u, '$1.0');
 
-    return `${mantisse}E${exponent}`;
+    return `${mantissa}E${exponent}`;
+  }
+}
+
+export class FloatLiteral extends DoubleLiteral {
+  public constructor(
+    public override typedValue: number,
+    dataType?: string,
+    public override strValue?: string,
+    public override language?: string,
+  ) {
+    super(typedValue, dataType ?? TypeURL.XSD_FLOAT, strValue, language);
   }
 }
 
