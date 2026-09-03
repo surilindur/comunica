@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": []
+  },
+  "exclude": [
+    "**/test",
+    "**/utils-jest",
+    "**/vite.config.base.ts",
+    "**/vite.config.ts"
+  ]
+}
