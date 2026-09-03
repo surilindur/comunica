@@ -1,7 +1,13 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "types": []
+    "types": [],
+    "declaration": true,
+    "inlineSources": true,
+    "noEmit": false,
+    "preserveConstEnums": true,
+    "removeComments": false,
+    "sourceMap": true
   },
   "exclude": [
     "**/test",
