@@ -1,0 +1,27 @@
+{
+  "name": "Node.js & TypeScript",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "editorconfig.editorconfig",
+        "github.vscode-github-actions",
+        "dbaeumer.vscode-eslint"
+      ],
+      "settings": {
+        "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+        "editor.formatOnSave": true,
+        "eslint.format.enable": true,
+        "eslint.validate": [
+          "javascript",
+          "json",
+          "jsonc",
+          "typescript",
+          "yaml"
+        ]
+      }
+    }
+  }
+}
