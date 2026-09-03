@@ -3,13 +3,12 @@
   "compilerOptions": {
     "target": "es2023",
     "lib": [
-      "es2023",
-      "dom"
+      "ES2023",
+      "DOM"
     ],
     "module": "commonjs",
     "resolveJsonModule": true,
     "types": ["node", "jest"],
-
     "strict": true,
     "strictFunctionTypes": true,
     "strictPropertyInitialization": true,
@@ -21,12 +20,9 @@
     "sourceMap": true
   },
   "include": [
-    "engines/*/bin/**/*",
-    "engines/*/lib/**/*",
-    "packages/*/bin/**/*",
-    "packages/*/lib/**/*",
-    "packages/*/benchmarks/**/*",
-    "performance/*/lib/**/*"
+    "engines",
+    "packages",
+    "performance"
   ],
   "exclude": [
     "**/node_modules"
