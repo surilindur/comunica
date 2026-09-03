@@ -36,10 +36,6 @@
     "lib/**/*.js.map",
     "sh/**/*.sh"
   ],
-  "scripts": {
-    "build": "yarn run build:ts",
-    "build:ts": "node \"../../node_modules/typescript/bin/tsc\""
-  },
   "dependencies": {
     "@manypkg/get-packages": "^3.1.0",
     "depcheck": "^1.4.7",

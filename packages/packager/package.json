@@ -34,9 +34,6 @@
     "bin/package.js",
     "bin/package.js.map"
   ],
-  "scripts": {
-    "build": "node \"../../node_modules/typescript/bin/tsc\""
-  },
   "dependencies": {
     "@types/minimist": "^1.2.2",
     "componentsjs": "^6.2.0",

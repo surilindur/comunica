@@ -31,11 +31,6 @@
     "lib/**/*.js",
     "lib/**/*.js.map"
   ],
-  "scripts": {
-    "build": "npm run build:ts && npm run build:components",
-    "build:ts": "node \"../../node_modules/typescript/bin/tsc\"",
-    "build:components": "componentsjs-generator"
-  },
   "dependencies": {
     "@comunica/actor-expression-evaluator-factory-default": "^5.3.0",
     "@comunica/bus-function-factory": "^5.3.0",

@@ -36,9 +36,6 @@
     "lib/**/*.js",
     "lib/**/*.js.map"
   ],
-  "scripts": {
-    "build": "node \"../../node_modules/typescript/bin/tsc\""
-  },
   "dependencies": {
     "asynciterator": "^3.10.0"
   }

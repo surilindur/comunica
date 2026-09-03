@@ -31,11 +31,6 @@
     "lib/**/*.js",
     "lib/**/*.js.map"
   ],
-  "scripts": {
-    "build": "yarn run build:ts && yarn run build:components",
-    "build:ts": "node \"../../node_modules/typescript/bin/tsc\"",
-    "build:components": "componentsjs-generator"
-  },
   "dependencies": {
     "@comunica/bus-function-factory": "^5.3.0",
     "@comunica/utils-expression-evaluator": "^5.3.0"

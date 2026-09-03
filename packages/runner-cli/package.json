@@ -36,9 +36,6 @@
     "lib/**/*.d.ts",
     "lib/**/*.js"
   ],
-  "scripts": {
-    "build": "node \"../../node_modules/typescript/bin/tsc\""
-  },
   "dependencies": {
     "@comunica/core": "^5.3.0",
     "@comunica/runner": "^5.3.0",

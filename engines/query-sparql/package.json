@@ -51,8 +51,6 @@
     "lib/**/*.js.map"
   ],
   "scripts": {
-    "build": "yarn run build:ts",
-    "build:ts": "node \"../../node_modules/typescript/bin/tsc\"",
     "prepare": "comunica-compile-config config/config-default.json > engine-default.js",
     "browser:webpack": "node \"../../node_modules/webpack/bin/webpack.js\" --mode production",
     "browser:vite": "node \"../../node_modules/vite/bin/vite.js\" build",

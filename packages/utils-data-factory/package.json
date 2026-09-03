@@ -34,9 +34,6 @@
     "lib/**/*.js",
     "lib/**/*.js.map"
   ],
-  "scripts": {
-    "build": "node \"../../node_modules/typescript/bin/tsc\""
-  },
   "dependencies": {
     "@rdfjs/types": "*"
   }

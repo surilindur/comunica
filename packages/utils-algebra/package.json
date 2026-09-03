@@ -31,10 +31,6 @@
     "lib/**/*.js",
     "lib/**/*.js.map"
   ],
-  "scripts": {
-    "build": "yarn run build:ts",
-    "build:ts": "node \"../../node_modules/typescript/bin/tsc\""
-  },
   "dependencies": {
     "@rdfjs/types": "*",
     "@traqula/algebra-transformations-1-2": "^1.2.1",
